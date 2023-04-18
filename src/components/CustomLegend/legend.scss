@@ -1,0 +1,20 @@
+.custom-legend-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 12px;
+
+  &__wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+}
+
+.legend-box {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
