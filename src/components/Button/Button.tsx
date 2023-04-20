@@ -6,14 +6,19 @@ type Btnprops = {
   btnText: string;
   icon?: React.ReactNode;
   width: string;
+  onClick: () => void;
 };
 
-const Button = ({ btnClass, btnText, icon, width }: Btnprops) => {
+const Button = ({ btnClass, btnText, icon, width, onClick }: Btnprops) => {
   return (
-    <div className={`${btnClass} main-btn`} style={{ width: width }}>
+    <button
+      className={`${btnClass} main-btn`}
+      style={{ width: width }}
+      onClick={onClick}
+    >
       {icon && icon}
       {btnText}
-    </div>
+    </button>
   );
 };
 

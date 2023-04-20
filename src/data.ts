@@ -26,3 +26,22 @@ export const expense = [
   { id: 4, amount: 'NGN 100,000', title: 'Discount' },
   { id: 5, amount: 'NGN 500,000', title: 'Other expense' },
 ];
+
+export const tableData = [
+  {
+    id: 1,
+    transaction_type: 'Tuition',
+    transaction_group: 'fees',
+    account: 'Income',
+    amount: '200,000',
+    approval_status: 'approved',
+  },
+  {
+    id: 2,
+    transaction_type: 'Car Loan',
+    transaction_group: 'Salary Deduction',
+    account: 'Income',
+    amount: '500,000',
+    approval_status: 'unapproved',
+  },
+];

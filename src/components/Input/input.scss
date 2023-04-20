@@ -1,0 +1,249 @@
+.input-component {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  & label {
+    font-family: 'Source Sans Pro';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    color: #010c15;
+  }
+
+  &__flex {
+    display: flex;
+    width: 50%;
+    gap: 23px;
+    justify-content: space-between;
+
+    &__item {
+      width: 100%;
+      height: 40px;
+      background: #ffffff;
+      border: 1px solid rgba(219, 208, 232, 0.5);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      padding: 0 24px;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__with-drop {
+    display: flex;
+    width: 100%;
+    border-radius: 8px;
+
+    &__selection {
+      width: 20%;
+      background: #f6fbff;
+      border: 1px solid #439ade;
+      border-radius: 4px 0px 0px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 5px;
+    }
+  }
+}
+
+.input-field-w-drop {
+  width: 100%;
+  height: 48px;
+  text-indent: 16px;
+  background: #fafafa;
+  border: 1px solid rgba(1, 12, 21, 0.1);
+
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-size: 16px;
+}
+
+.input-field {
+  width: 100%;
+  height: 48px;
+  text-indent: 16px;
+  background: #fafafa;
+  border: 1px solid rgba(1, 12, 21, 0.1);
+  border-radius: 8px;
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-size: 16px;
+
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+
+  &::placeholder {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(1, 12, 21, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    border: 1px solid var(--color-primary);
+  }
+}
+
+.textarea-field {
+  width: 100%;
+  height: 88px;
+  padding-left: 16px;
+  background: #fafafa;
+  border: 1px solid rgba(1, 12, 21, 0.1);
+  border-radius: 8px;
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-size: 16px;
+  padding-top: 6px;
+
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+
+  &::placeholder {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(1, 12, 21, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    border: 1px solid #4b8e64;
+  }
+}
+
+.error-msg {
+  color: #cc0000;
+  font-size: 14px;
+}
+
+.error-field {
+  width: 100%;
+  height: 48px;
+  text-indent: 16px;
+  background: #fafafa;
+  border: 1px solid #cc0000;
+  border-radius: 8px;
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-size: 16px;
+
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+
+  &::placeholder {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(1, 12, 21, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    border: 1px solid #cc0000;
+  }
+}
+
+.error-field-w-drop {
+  width: 100%;
+  height: 48px;
+  text-indent: 16px;
+  background: #fafafa;
+  border: 1px solid #cc0000;
+  border-radius: 0px 8px 8px 0px;
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-size: 16px;
+
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+
+  &::placeholder {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(1, 12, 21, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    border: 1px solid #cc0000;
+  }
+}
+.textarea-error {
+  width: 100%;
+  height: 88px;
+  text-indent: 16px;
+  background: #fafafa;
+  border: 1px solid #cc0000;
+  border-radius: 8px;
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-size: 16px;
+  padding-top: 6px;
+
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+
+  &::placeholder {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(1, 12, 21, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    border: 1px solid #cc0000;
+  }
+}
+
+.password-input {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  text-indent: 16px;
+  background: #fafafa;
+  border: 1px solid rgba(1, 12, 21, 0.1);
+  border-radius: 8px;
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-size: 16px;
+  padding-right: 12px;
+
+  & input {
+    background: none;
+    border-radius: 0;
+    border: none;
+    width: 100%;
+    text-indent: 16px;
+    height: 100%;
+
+    &:focus {
+      outline: none;
+      border: none;
+    }
+  }
+
+  & p {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgba(1, 12, 21, 0.7);
+    cursor: pointer;
+  }
+}

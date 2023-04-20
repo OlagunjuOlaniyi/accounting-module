@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import Button from '../../components/Button/Button';
+import RecordExpense from '../../components/Modals/IncomeAndExpense/RecordExpense';
+import RecordIncome from '../../components/Modals/IncomeAndExpense/RecordIncome';
 import { recentSearch, tabs } from '../../data';
 import Addcircle from '../../icons/Addcircle';
 import Calendar from '../../icons/Calendar';
@@ -9,10 +11,26 @@ import Filter from '../../icons/Filter';
 import Search from '../../icons/Search';
 import './incomeexpense.scss';
 import IncomeExpenseOverview from './IncomeExpenseOverview';
+import IncomeTable from './IncomeTable';
 
 const IncomeAndExpenseLayout = () => {
   const [activeTab, setActiveTab] = useState<string | number>(1);
   const [searchText, setSearchText] = useState<string>('');
+  const [showActions, setShowActions] = useState<boolean>(false);
+  const [modalOpen, setModalOpen] = useState<any>({
+    income: false,
+    expense: false,
+  });
+
+  const closeModal = (type: string) => {
+    setModalOpen({ income: false, expense: false });
+  };
+
+  const openModal = (type: string) => {
+    type === 'income'
+      ? setModalOpen({ income: true, expense: false })
+      : setModalOpen({ income: false, expense: true });
+  };
 
   return (
     <div>
@@ -78,12 +96,33 @@ const IncomeAndExpenseLayout = () => {
           <Export />
           <p>Export</p>
         </button>
-        <Button
-          btnText='Record Transaction'
-          btnClass='btn-primary'
-          width='172px'
-          icon={<Addcircle />}
-        />
+        <div className='ie_overview__top-level__btn-wrap'>
+          <Button
+            btnText='Record Transaction'
+            btnClass='btn-primary'
+            width='172px'
+            icon={<Addcircle />}
+            onClick={() => setShowActions(!showActions)}
+          />
+          {showActions && (
+            <div className='ie_overview__top-level__btn-wrap__dropdown'>
+              <div
+                className='ie_overview__top-level__btn-wrap__dropdown__item'
+                onClick={() => openModal('income')}
+              >
+                <div className={'income'}></div>
+                <p>Income</p>
+              </div>
+              <div
+                className='ie_overview__top-level__btn-wrap__dropdown__item'
+                onClick={() => openModal('expense')}
+              >
+                <div className={'expense'}></div>
+                <p>Expense</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className='ie_overview__tabs'>
@@ -100,8 +139,11 @@ const IncomeAndExpenseLayout = () => {
         ))}
       </div>
       <div>
-        <IncomeExpenseOverview />
+        {activeTab === 1 && <IncomeExpenseOverview />}
+        {activeTab === 2 && <IncomeTable />}
       </div>
+      <RecordIncome modalIsOpen={modalOpen.income} closeModal={closeModal} />
+      <RecordExpense modalIsOpen={modalOpen.expense} closeModal={closeModal} />
     </div>
   );
 };
