@@ -12,6 +12,7 @@ import Search from '../../icons/Search';
 import './incomeexpense.scss';
 import IncomeExpenseOverview from './IncomeExpenseOverview';
 import IncomeTable from './IncomeTable';
+import ExpenseTable from './ExpenseTable';
 
 const IncomeAndExpenseLayout = () => {
   const [activeTab, setActiveTab] = useState<string | number>(1);
@@ -141,6 +142,7 @@ const IncomeAndExpenseLayout = () => {
       <div>
         {activeTab === 1 && <IncomeExpenseOverview />}
         {activeTab === 2 && <IncomeTable />}
+        {activeTab === 3 && <ExpenseTable />}
       </div>
       <RecordIncome modalIsOpen={modalOpen.income} closeModal={closeModal} />
       <RecordExpense modalIsOpen={modalOpen.expense} closeModal={closeModal} />

@@ -9,7 +9,6 @@ function App() {
   return (
     <QueryClientProvider client={reactQueryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
-
       <BrowserRouter>
         <Routes>
           {Object.values(routes).map((el) => (

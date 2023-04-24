@@ -8,6 +8,7 @@ import Dropzone from 'react-dropzone';
 import upload from '../../../assets/cloud_upload.svg';
 import Cash from '../../../icons/Cash';
 import Bank from '../../../icons/Bank';
+import { useCreateExpense } from '../../../hooks/mutations/expenses';
 
 const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   const customStyles = {
@@ -27,8 +28,9 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   };
 
   type StateProps = {
-    incomeType: string;
-    paymentMethod: string;
+    expenseType: string;
+    expenseGroup: string;
+    paymentMethod: any;
     amount: string;
     description: string;
     dateOfTransaction: string;
@@ -37,7 +39,8 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   let todaysDate = new Date().toISOString().substring(0, 10);
 
   const [fields, setFields] = useState<StateProps>({
-    incomeType: '',
+    expenseType: '',
+    expenseGroup: '',
     paymentMethod: '',
     amount: '',
     description: '',
@@ -50,6 +53,8 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     amount: '',
     description: '',
     dateOfTransaction: '',
+    expenseGroup: '',
+    expenseType: '',
   });
   const [file, setFile] = useState<any>(null);
   const [fileUrl, setFileUrl] = useState<any>(null);
@@ -80,6 +85,33 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     }
   };
 
+  // select value from dropdown
+  const selectValue = (option: string, name: string) => {
+    setFields({ ...fields, [name]: option });
+  };
+
+  const { mutate } = useCreateExpense();
+  const submit = () => {
+    let dataToSend = {
+      payment_method: fields.paymentMethod.props.children[1],
+      amount: fields.amount,
+      description: fields.description,
+      transaction_group: fields.expenseGroup,
+      transaction_type: fields.expenseType,
+      date: fields.dateOfTransaction,
+      attachment: file[0],
+    };
+
+    mutate(dataToSend, {
+      onSuccess: (res) => {
+        console.log(res);
+      },
+
+      onError: (e) => {
+        console.log(e);
+      },
+    });
+  };
   return (
     <Modal
       isOpen={modalIsOpen}
@@ -112,15 +144,15 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
 
           <TextInput
             label='Expense Group'
-            placeholder='Type or select income type'
-            name='incomeType'
+            placeholder='Type or select expense group'
+            name='expenseGroup'
             type='text'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.incomeType}
-            fieldClass={errors['incomeType'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['incomeType']}
-            id={'incomeType'}
+            value={fields.expenseGroup}
+            fieldClass={errors['expenseGroup'] ? 'error-field' : 'input-field'}
+            errorMessage={errors['expenseGroup']}
+            id={'expenseGroup'}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
@@ -134,15 +166,15 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
           />
           <TextInput
             label='Expense Type'
-            placeholder='Type or select income type'
-            name='incomeType'
+            placeholder='Type or select expense type'
+            name='expenseType'
             type='text'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.incomeType}
-            fieldClass={errors['incomeType'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['incomeType']}
-            id={'incomeType'}
+            value={fields.expenseType}
+            fieldClass={errors['expenseType'] ? 'error-field' : 'input-field'}
+            errorMessage={errors['expenseType']}
+            id={'expenseType'}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
@@ -162,7 +194,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             type='text'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.incomeType}
+            value={fields.amount}
             fieldClass={errors['amount'] ? 'error-field' : 'input-field'}
             errorMessage={errors['amount']}
             id={'amount'}
@@ -185,7 +217,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             type='textarea'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.incomeType}
+            value={fields.description}
             fieldClass={
               errors['description'] ? 'error-field' : 'textarea-field'
             }
@@ -214,7 +246,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             fieldClass={errors['paymentMethod'] ? 'error-field' : 'input-field'}
             errorMessage={errors['paymentMethod']}
             id={'paymentMethod'}
-            onSelectValue={function (a: string, b: string): void {}}
+            onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
             searchValue={''}
@@ -334,7 +366,19 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             )}
           </Dropzone>
         </div>
-        <button className='record-income__footer-btn'>Record</button>
+        <button
+          className='record-income__footer-btn'
+          onClick={() => submit()}
+          disabled={
+            fields.amount === '' ||
+            fields.dateOfTransaction === '' ||
+            fields.expenseGroup === '' ||
+            fields.expenseType === '' ||
+            fields.paymentMethod === ''
+          }
+        >
+          Record
+        </button>
       </div>
     </Modal>
   );
