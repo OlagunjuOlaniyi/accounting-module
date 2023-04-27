@@ -1,68 +1,78 @@
-.table_container {
-  //max-width: 750px;
-  /* max-height: 500px; */
-  margin: 0 auto;
-  overflow: auto;
-}
-
-.table {
+table {
   width: 100%;
-  border-spacing: 0;
-  border-collapse: collapse;
-}
-
-caption {
-  font-style: italic;
-  font-size: 90%;
-  margin-bottom: 10px;
 }
 
 thead {
-  background: var(--color-bg);
-  border: 1px solid #e4eff9;
   height: 50px;
+  background: #fbfdfe;
 }
-
-.table th {
-  padding: 8px 28px;
-  height: 50px;
-  font-weight: bold;
+thead > tr > th {
   text-align: left;
-}
-
-th.up,
-th.default,
-th.down {
-  cursor: pointer;
-  background-repeat: no-repeat;
-  background-position: center right;
-}
-
-.table td {
-  border-top: 1px solid #ddd;
-  padding: 8px 28px;
-  font-size: 14px;
-}
-
-.table tbody tr {
-  height: 70px;
-  color: #010c15;
-}
-.table tbody tr:first-child td {
-  border-top: none;
-}
-
-// .table tbody tr:nth-child(n) td {
-//   // background: #eff0f0;
-// }
-
-.table tbody tr:nth-child(2n) td {
-  background: #fff;
-}
-
-.each-head {
-  display: flex;
-  align-items: center;
+  padding-left: 24px;
+  font-weight: 700;
   font-size: 12px;
   color: rgba(1, 12, 21, 0.7);
+  text-transform: uppercase;
+}
+
+tbody > tr > td {
+  text-align: left;
+  padding-left: 24px;
+  padding-top: 34px;
+  padding-bottom: 34px;
+  font-size: 14px;
+  text-transform: capitalize;
+
+  & p {
+    font-size: 14px;
+  }
+}
+
+.generated-badge {
+  width: 80px;
+  height: 26px;
+  background: #c6ffab;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.not-generated-badge {
+  width: 80px;
+  height: 26px;
+  background: #d7d7d7;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-wrapper {
+  position: relative;
+}
+
+.action {
+  position: absolute;
+  right: 10%;
+  width: 185px;
+  background: #ffffff;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.05), 0px 25px 35px rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  z-index: 9999;
+  padding: 12px 0;
+
+  &__flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 20px;
+
+    height: 40px;
+
+    &:hover {
+      background: #e4eff9;
+      border-left: 2px solid #439ade;
+    }
+  }
 }

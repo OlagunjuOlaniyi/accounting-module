@@ -5,7 +5,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { routes } from './routes';
 
 function App() {
-  const reactQueryClient = new QueryClient();
+  const reactQueryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
   return (
     <QueryClientProvider client={reactQueryClient}>
       <ReactQueryDevtools initialIsOpen={false} />

@@ -19,6 +19,7 @@ const SelectDropdown = ({
   toggleOption,
   multi,
   selectedValues,
+  type,
 }: IDropdownProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const searchRef = useRef<any>();
@@ -199,13 +200,6 @@ const SelectDropdown = ({
                     onSelectValue(el?.name, name, el?.currency, el);
                   }}
                 >
-                  {name === 'paymentMethod' ? (
-                    ''
-                  ) : isSelected(el?.name) ? (
-                    <RadioChecked />
-                  ) : (
-                    <RadioUnchecked />
-                  )}
                   <p> {el?.name}</p>
                 </div>
               ))

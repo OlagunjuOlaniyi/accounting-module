@@ -178,18 +178,7 @@ const IncomeExpenseOverview = () => {
             </div>
           </div>
         </div>
-        <div className='income-expense-overview__statement-wrapper__footer'>
-          <p>Income before tax</p>
-          <p className='income-expense-overview__statement-wrapper__footer__bold-text'>
-            NGN 120,000
-          </p>
-        </div>
-        <div className='income-expense-overview__statement-wrapper__footer'>
-          <p>Income Tax Expense</p>
-          <p className='income-expense-overview__statement-wrapper__footer__bold-text'>
-            NGN 0
-          </p>
-        </div>
+
         <div className='income-expense-overview__statement-wrapper__footer footer-final'>
           <p className='income-expense-overview__statement-wrapper__footer__heading'>
             NET PROFIT (LOSS)

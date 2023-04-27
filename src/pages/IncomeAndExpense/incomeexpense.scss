@@ -120,6 +120,25 @@
       }
     }
 
+    &__filter-download {
+      all: unset;
+      width: 118px;
+      height: 40px;
+      background: #f6fbff;
+      cursor: pointer;
+      border: 1px solid #e4eff9;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+
+      &:focus,
+      &:hover {
+        border: 1px solid #439ade;
+      }
+    }
+
     &__btn-wrap {
       position: relative;
 
@@ -298,10 +317,197 @@
 
 .footer-final {
   background: #fbfdfe;
-  border-top: 2px solid #439ade;
   border-bottom: 2px solid #439ade;
 }
 
 .income-expense-flex {
   display: flex;
+}
+
+//single income
+.single-expense-wrapper {
+  &__top {
+    display: flex;
+    justify-content: space-between;
+
+    &__breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &__inactive {
+        color: rgba(1, 12, 21, 0.7);
+        cursor: pointer;
+      }
+    }
+
+    &__right {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+
+      &__edit-btn {
+        width: 81px;
+        height: 40px;
+        background: #439ade;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        & p {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  &__title {
+    margin-top: 36px;
+    display: flex;
+    justify-content: space-between;
+
+    & h2 {
+      font-weight: 600;
+      font-size: 24px;
+      color: #010c15;
+    }
+
+    &__left {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      &__status {
+        //width: 180px;
+        // height: 25px;
+        background: #adff87;
+        border-radius: 100px;
+        padding: 5px 11px;
+        font-weight: 700;
+        font-size: 12px;
+        color: rgba(1, 12, 21, 0.7);
+      }
+    }
+  }
+
+  &__desc {
+    margin-top: 26px;
+    width: 500px;
+
+    & p {
+      font-weight: 400;
+      font-size: 14px;
+      color: #010c15;
+    }
+  }
+
+  &__accounts {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+
+    &__left {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+
+      & p {
+        font-weight: 700;
+        font-size: 12px;
+        color: rgba(1, 12, 21, 0.7);
+      }
+
+      &__btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+
+        & p {
+          color: var(--color-primary);
+        }
+      }
+    }
+
+    &__right {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      &__first {
+        font-weight: 700;
+        font-size: 12px;
+        color: rgba(1, 12, 21, 0.7);
+      }
+
+      &__scnd {
+        font-weight: 400;
+        font-size: 14px;
+        color: #010c15;
+      }
+    }
+  }
+
+  &__details {
+    padding: 24px 0px;
+    margin-top: 25px;
+    border-top: 1px solid rgba(1, 12, 21, 0.1);
+    border-bottom: 1px solid rgba(1, 12, 21, 0.1);
+
+    & h3 {
+      font-weight: 600;
+      font-size: 16px;
+      color: #010c15;
+    }
+
+    &__bottom {
+      margin-top: 12px;
+      display: flex;
+      gap: 20%;
+
+      &__left {
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        &__item {
+          display: flex;
+          justify-content: space-between;
+
+          & h4 {
+            font-weight: 700;
+            font-size: 12px;
+            color: rgba(1, 12, 21, 0.7);
+          }
+
+          & p {
+            font-weight: 400;
+            font-size: 14px;
+            color: #010c15;
+          }
+        }
+      }
+    }
+  }
+
+  &__attachments {
+    margin-top: 24px;
+
+    & h4 {
+      font-weight: 600;
+      font-size: 16px;
+      color: rgba(1, 12, 21, 0.7);
+      margin-bottom: 16px;
+    }
+
+    & p {
+      font-weight: 600;
+      font-size: 14px;
+      color: #439ade;
+    }
+  }
 }

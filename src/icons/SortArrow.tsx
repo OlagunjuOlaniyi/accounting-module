@@ -3,6 +3,7 @@ import React from 'react';
 const SortArrow = () => {
   return (
     <svg
+      // style={{ marginTop: '16px' }}
       width='16'
       height='23'
       viewBox='0 0 16 23'

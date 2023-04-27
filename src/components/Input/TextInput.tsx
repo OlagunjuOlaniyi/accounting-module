@@ -63,6 +63,7 @@ const TextInput = ({
           multi={multi}
           selectedValues={selectedValues}
           toggleOption={toggleOption}
+          type={type}
         />
       ) : type === 'password' ? (
         <div className='password-input'>

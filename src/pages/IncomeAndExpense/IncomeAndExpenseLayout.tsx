@@ -85,23 +85,23 @@ const IncomeAndExpenseLayout = () => {
         <button className='ie_overview__top-level__filter-date'>
           {' '}
           <Calendar />
-          <p>2020</p>
+          <p>2023</p>
         </button>
         <button className='ie_overview__top-level__filter-date'>
           {' '}
           <Filter />
           <p>Filter</p>
         </button>
-        <button className='ie_overview__top-level__filter-date'>
+        <button className='ie_overview__top-level__filter-download'>
           {' '}
           <Export />
-          <p>Export</p>
+          <p>Download</p>
         </button>
         <div className='ie_overview__top-level__btn-wrap'>
           <Button
-            btnText='Record Transaction'
+            btnText='Create or Record Transaction'
             btnClass='btn-primary'
-            width='172px'
+            width='214px'
             icon={<Addcircle />}
             onClick={() => setShowActions(!showActions)}
           />

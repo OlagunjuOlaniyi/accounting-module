@@ -1,0 +1,163 @@
+import React from 'react';
+import { useNavigate, useParams } from 'react-router';
+import BackArrow from '../../icons/BackArrow';
+import Export from '../../icons/Export';
+import Edit from '../../icons/Edit';
+import Dots from '../../icons/Dots';
+import Dot from '../../icons/Dot';
+import { useGetSingleExpenses } from '../../hooks/queries/expenses';
+import moment from 'moment';
+
+const SingleExpense = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const { isLoading, data } = useGetSingleExpenses(id);
+
+  return (
+    <>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className='single-expense-wrapper'>
+          <div className='single-expense-wrapper__top'>
+            <div className='single-expense-wrapper__top__breadcrumbs'>
+              <BackArrow />
+              <span
+                className='single-expense-wrapper__top__breadcrumbs__inactive'
+                onClick={() => navigate('/')}
+              >
+                Income and Expense Management /
+              </span>
+              <span>Income</span>
+            </div>
+            <div className='single-expense-wrapper__top__right'>
+              <button className='ie_overview__top-level__filter-date'>
+                {' '}
+                <Export />
+                <p>Export</p>
+              </button>
+              <button className='single-expense-wrapper__top__right__edit-btn'>
+                {' '}
+                <Edit color='white' />
+                <p>Edit</p>
+              </button>
+              <div>
+                <Dots />
+              </div>
+            </div>
+          </div>
+
+          <div className='single-expense-wrapper__title'>
+            <div className='single-expense-wrapper__title__left'>
+              <h2>{data?.data[0]?.transaction_group?.name?.toUpperCase()}</h2>
+              <div className='single-expense-wrapper__title__left__status'>
+                APPROVAL STATUS: {'Approved'}
+              </div>
+            </div>
+
+            <div className='single-expense-wrapper__title__right'>
+              <h2>NGN {Number(data?.data[0]?.amount).toLocaleString()}</h2>
+            </div>
+          </div>
+
+          <div className='single-expense-wrapper__desc'>
+            <p>{data?.data[0]?.description}</p>
+          </div>
+          <div className='single-expense-wrapper__accounts'>
+            <div className='single-expense-wrapper__accounts__left'>
+              <p>RELATED ACCOUNTS:</p>
+              <div className='single-expense-wrapper__accounts__left__btn'>
+                <svg
+                  width='16'
+                  height='16'
+                  viewBox='0 0 16 16'
+                  fill='none'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <g clip-path='url(#clip0_1407_6462)'>
+                    <path
+                      d='M8.66683 4.66536H7.3335V7.33203H4.66683V8.66536H7.3335V11.332H8.66683V8.66536H11.3335V7.33203H8.66683V4.66536ZM8.00016 1.33203C4.32016 1.33203 1.3335 4.3187 1.3335 7.9987C1.3335 11.6787 4.32016 14.6654 8.00016 14.6654C11.6802 14.6654 14.6668 11.6787 14.6668 7.9987C14.6668 4.3187 11.6802 1.33203 8.00016 1.33203ZM8.00016 13.332C5.06016 13.332 2.66683 10.9387 2.66683 7.9987C2.66683 5.0587 5.06016 2.66536 8.00016 2.66536C10.9402 2.66536 13.3335 5.0587 13.3335 7.9987C13.3335 10.9387 10.9402 13.332 8.00016 13.332Z'
+                      fill='#439ADE'
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id='clip0_1407_6462'>
+                      <rect width='16' height='16' fill='white' />
+                    </clipPath>
+                  </defs>
+                </svg>
+                <p>Add Account</p>
+              </div>
+            </div>
+            <div className='single-expense-wrapper__accounts__right'>
+              <p className='single-expense-wrapper__accounts__right__first'>
+                DATE CREATED :{' '}
+              </p>
+              <p className='single-expense-wrapper__accounts__right__scnd'>
+                {moment(data?.data[0]?.date).format('lll')}
+              </p>
+            </div>
+          </div>
+          <div className='single-expense-wrapper__details'>
+            <h3>Expense Details</h3>
+            <div className='single-expense-wrapper__details__bottom'>
+              <div className='single-expense-wrapper__details__bottom__left'>
+                <div className='single-expense-wrapper__details__bottom__left__item'>
+                  <h4>GROUP</h4>
+                  <p>{data?.data[0]?.transaction_group?.name}</p>
+                </div>
+                <div className='single-expense-wrapper__details__bottom__left__item'>
+                  <h4>PAYMENT METHOD</h4>
+                  <p> {data?.data[0]?.payment_method}</p>
+                </div>
+              </div>
+
+              <div className='single-expense-wrapper__details__bottom__left'>
+                <div className='single-expense-wrapper__details__bottom__left__item'>
+                  <h4>ACCOUNT</h4>
+                  <p>
+                    {' '}
+                    <Dot type='expense' /> {data?.data[0]?.account}{' '}
+                  </p>
+                </div>
+                <div className='single-expense-wrapper__details__bottom__left__item'>
+                  <h4>DATE OF TRANSACTION</h4>
+                  <p> {moment(data?.data[0]?.date).format('ll')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className='single-expense-wrapper__attachments'>
+            <h4>Attachments</h4>
+            <div className='single-expense-wrapper__accounts__left__btn'>
+              <svg
+                width='16'
+                height='16'
+                viewBox='0 0 16 16'
+                fill='none'
+                xmlns='http://www.w3.org/2000/svg'
+              >
+                <g clip-path='url(#clip0_1407_6462)'>
+                  <path
+                    d='M8.66683 4.66536H7.3335V7.33203H4.66683V8.66536H7.3335V11.332H8.66683V8.66536H11.3335V7.33203H8.66683V4.66536ZM8.00016 1.33203C4.32016 1.33203 1.3335 4.3187 1.3335 7.9987C1.3335 11.6787 4.32016 14.6654 8.00016 14.6654C11.6802 14.6654 14.6668 11.6787 14.6668 7.9987C14.6668 4.3187 11.6802 1.33203 8.00016 1.33203ZM8.00016 13.332C5.06016 13.332 2.66683 10.9387 2.66683 7.9987C2.66683 5.0587 5.06016 2.66536 8.00016 2.66536C10.9402 2.66536 13.3335 5.0587 13.3335 7.9987C13.3335 10.9387 10.9402 13.332 8.00016 13.332Z'
+                    fill='#439ADE'
+                  />
+                </g>
+                <defs>
+                  <clipPath id='clip0_1407_6462'>
+                    <rect width='16' height='16' fill='white' />
+                  </clipPath>
+                </defs>
+              </svg>
+              <p>Add Attachment</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default SingleExpense;

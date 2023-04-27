@@ -6,6 +6,7 @@ export interface IexpenseProps {
   transaction_type: string;
   date: string;
   attachment: string;
+  account: string;
 }
 
 export interface IexpenseRes {
@@ -24,4 +25,8 @@ export interface IexpenseRes {
   attachment?: string;
   account: string;
   date: string;
+}
+
+export interface ApiRes {
+  data: IexpenseRes;
 }

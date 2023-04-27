@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const baseURL = `https://ahmed0111.pythonanywhere.com/api/v1`;
+export const baseURL = `https://ahmed0111.pythonanywhere.com/api/v1/`;
 
 type Iprops = {
   Authorization: string;
@@ -8,12 +8,10 @@ type Iprops = {
 
 let headers: any = {
   Authorization: '',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, HEAD, OPTIONS',
 };
 
 export const urlToken =
-  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjgyNzc3NTM4LCJpYXQiOjE2ODIzNDU1MzgsImp0aSI6ImNjMGYyMzcyNTIyNzRiNWE4NTE3ZmUzMGFhMGU1OTNhIiwidXNlcl9pZCI6MX0.LNFGFS3-VuZNo4_CbLEKqgiDmm1peEZJL2WCMPncX-k';
+  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjgyOTQxNTQzLCJpYXQiOjE2ODI1MDk1NDMsImp0aSI6IjZhYjlhY2Y2NTcwMzQ0YWI4ZWRkOWJhYzhhMDFhOWY3IiwidXNlcl9pZCI6MX0.0rBA0NXeTzHgtPHysIydOc66C4vuvEZ44TkCCWSjwyM';
 
 if (localStorage.token) {
   headers.Authorization = `Bearer ${localStorage.token}`;
