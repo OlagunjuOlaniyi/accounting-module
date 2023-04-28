@@ -1,4 +1,5 @@
 export interface IexpenseProps {
+  id?: string;
   payment_method: string;
   amount: string;
   description: string;

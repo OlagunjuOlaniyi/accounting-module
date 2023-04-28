@@ -103,6 +103,7 @@ const IncomeAndExpenseLayout = () => {
             btnClass='btn-primary'
             width='214px'
             icon={<Addcircle />}
+            disabled={false}
             onClick={() => setShowActions(!showActions)}
           />
           {showActions && (

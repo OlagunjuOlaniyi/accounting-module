@@ -511,3 +511,22 @@
     }
   }
 }
+
+.delete-icon-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.delete-dropdown {
+  position: absolute;
+  right: 20px;
+  height: 47px;
+  width: 157px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: -4px 4px 13px 4px rgba(118, 128, 135, 0.08);
+  border-radius: 4px;
+}

@@ -1,3 +1,5 @@
+import { ApiRes, IexpenseRes } from './expenseTypes';
+
 //routes types
 export interface RouteTypes {
   id: number;
@@ -9,5 +11,9 @@ export interface RouteTypes {
 
 export interface Imodal {
   modalIsOpen: boolean;
-  closeModal: (a: string) => void;
+  closeModal: any;
+}
+
+export interface IeditModal extends Imodal {
+  selectedId?: string;
 }

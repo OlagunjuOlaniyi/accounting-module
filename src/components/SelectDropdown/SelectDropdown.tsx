@@ -19,7 +19,7 @@ const SelectDropdown = ({
   toggleOption,
   multi,
   selectedValues,
-  type,
+  defaultValue,
 }: IDropdownProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const searchRef = useRef<any>();
@@ -123,6 +123,8 @@ const SelectDropdown = ({
           )
         ) : selectedValue ? (
           <div className='dropdown-selected-value'>{selectedValue}</div>
+        ) : defaultValue ? (
+          <div className='dropdown-selected-value'>{defaultValue}</div>
         ) : (
           <div className='dropdown-selected-placeholder'>{placeholder}</div>
         )}

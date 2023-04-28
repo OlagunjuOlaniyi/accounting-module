@@ -13,7 +13,7 @@ export const useGetExpenses = () => {
 //get single expense
 export const useGetSingleExpenses = (id?: string) => {
   return useQuery<ApiRes | any>({
-    queryKey: 'expenses-single',
+    queryKey: `expenses-single-${id}`,
     queryFn: () => getSingleExpense(id),
   });
 };

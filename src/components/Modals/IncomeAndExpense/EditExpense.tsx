@@ -1,24 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import Cancel from '../../../icons/Cancel';
-import { Imodal } from '../../../types/types';
+import { IeditModal } from '../../../types/types';
 import TextInput from '../../Input/TextInput';
 import './recordincome.scss';
 import Dropzone from 'react-dropzone';
 import upload from '../../../assets/cloud_upload.svg';
 import Cash from '../../../icons/Cash';
 import Bank from '../../../icons/Bank';
-import { useCreateExpense } from '../../../hooks/mutations/expenses';
+import { useUpdateExpense } from '../../../hooks/mutations/expenses';
 import Dot from '../../../icons/Dot';
 import { useDebouncedCallback } from 'use-debounce';
 import Button from '../../Button/Button';
 import Addcircle from '../../../icons/Addcircle';
-import ThumbsIcon from '../../../icons/ThumbsIcon';
-import RadioChecked from '../../../icons/RadioChecked';
-import RadioUnchecked from '../../../icons/RadioUnchecked';
+import { useGetSingleExpenses } from '../../../hooks/queries/expenses';
+import { useQueryClient } from 'react-query';
+import { useParams } from 'react-router';
+
 import toast from 'react-hot-toast';
 
-const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
+const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
+  const queryClient = useQueryClient();
+  const { id } = useParams();
+  const { data } = useGetSingleExpenses(id ? id : selectedId);
+
   const customStyles = {
     content: {
       top: '50%',
@@ -32,7 +37,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   };
 
   const close = () => {
-    closeModal('income');
+    closeModal();
   };
 
   type StateProps = {
@@ -44,19 +49,18 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     dateOfTransaction: string;
   };
 
-  let todaysDate = new Date().toISOString().substring(0, 10);
+  //let todaysDate = new Date().toISOString().substring(0, 10);
 
   const [fields, setFields] = useState<StateProps>({
-    expenseType: '',
-    expenseGroup: '',
-    paymentMethod: '',
-    amount: '',
-    description: '',
-    dateOfTransaction: todaysDate,
+    expenseType: data?.data[0]?.transaction_type?.name,
+    expenseGroup: data?.data[0]?.transaction_group?.name,
+    paymentMethod: data?.data[0]?.payment_method,
+    amount: data?.data[0]?.amount,
+    description: data?.data[0]?.description,
+    dateOfTransaction: data?.data[0]?.description,
   });
 
   const [errors, setErrors] = useState({
-    incomeType: '',
     paymentMethod: '',
     amount: '',
     description: '',
@@ -120,27 +124,48 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     setFields({ ...fields, [name]: option });
   };
 
-  const { mutate, isLoading, isSuccess, isError } = useCreateExpense();
+  const { mutate, isLoading, isError } = useUpdateExpense();
 
   //submit form
   const submit = () => {
     let dataToSend = {
-      payment_method: fields.paymentMethod.props.children[1],
-      amount: fields.amount,
-      description: fields.description,
-      transaction_group: fields.expenseGroup,
-      transaction_type: fields.expenseType,
-      date: fields.dateOfTransaction,
+      id: id ? id : selectedId,
+      payment_method: fields?.paymentMethod?.props?.children[1]
+        ? fields?.paymentMethod?.props?.children[1]
+        : data?.data[0]?.payment_method,
+      amount: fields.amount ? fields.amount : data?.data[0]?.amount,
+      description: fields.description
+        ? fields.description
+        : data?.data[0]?.description,
+      transaction_group: fields.expenseGroup
+        ? fields.expenseGroup
+        : data?.data[0]?.transaction_group?.name,
+      transaction_type: fields.expenseType
+        ? fields.expenseType
+        : data?.data[0]?.transaction_type?.name,
+      date: fields.dateOfTransaction
+        ? fields.dateOfTransaction
+        : data?.data[0]?.date,
       attachment: file ? file[0] : '',
       account: selection === 'post' ? 'old' : 'new',
     };
 
     mutate(dataToSend, {
       onSuccess: (res) => {
-        if (isSuccess) {
-          close();
-          toast.success('Transaction recorded successfully');
-        }
+        queryClient.setQueryData<any>(
+          [`expenses-single-${id ? id : selectedId}`],
+          (prev: any) => {}
+        );
+
+        queryClient.invalidateQueries({
+          queryKey: [`expenses-single-${id ? id : selectedId}`],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: `expenses`,
+        });
+        toast.success('Transaction updated successfully');
+        close();
       },
 
       onError: (e) => {
@@ -153,6 +178,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
       },
     });
   };
+
   return (
     <Modal
       isOpen={modalIsOpen}
@@ -168,7 +194,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             </button>
           </div>
           <div className='record-income__heading'>
-            <h4>Record Transaction</h4>
+            <h4>Edit Transaction {data?.data[0]?.transaction_group?.name}</h4>
             <p>
               Select the expense group, type, amount, payment method, and date
               of the income you want to record
@@ -179,35 +205,10 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
           <div className='record-income__body__title'>
             <h2>Expense Type</h2>
             <div className='record-income__body__title__badge'>
-              APPROVAL STATUS: Pending
+              APPROVAL STATUS: Approved
             </div>
           </div>
-          <div className='input-component' style={{ marginTop: '32px' }}>
-            <label>What do you want to do?</label>
-          </div>
-          <div className='record-income__body__selection'>
-            <button
-              className={`record-income__body__selection__btn ${
-                selection === 'post' ? 'selected-btn' : 'unselected-btn'
-              }`}
-              onClick={() => setSelection('post')}
-            >
-              <ThumbsIcon type={selection === 'post' ? 'yes' : 'no'} />{' '}
-              <p>Post Transaction</p>
-              {selection === 'post' ? <RadioChecked /> : <RadioUnchecked />}
-            </button>
 
-            <button
-              className={`record-income__body__selection__btn ${
-                selection === 'create' ? 'selected-btn' : 'unselected-btn'
-              }`}
-              onClick={() => setSelection('create')}
-            >
-              <ThumbsIcon type={selection === 'create' ? 'yes' : 'no'} />
-              <p>Create Account</p>
-              {selection === 'create' ? <RadioChecked /> : <RadioUnchecked />}
-            </button>
-          </div>
           <div className='dropdown-container'>
             <div className='input-component'>
               <label>Expense Group</label>
@@ -220,7 +221,8 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                   <input
                     name='expenseGroup'
                     onChange={handleChange}
-                    value={fields.expenseGroup}
+                    //value={fields.expenseGroup}
+                    defaultValue={data?.data[0]?.transaction_type?.name}
                   />
                   <div className='dropdown-tools'>
                     <div className='dropdown-tool'>
@@ -270,6 +272,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
           </div>
 
           <TextInput
+            defaultValue={data?.data[0]?.transaction_group?.name}
             label='Expense Type'
             placeholder='Type or select expense type'
             name='expenseType'
@@ -297,6 +300,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             placeholder={
               selection === 'post' ? 'Expense amount' : 'Opening Balance'
             }
+            defaultValue={data?.data[0]?.amount}
             name='amount'
             type='text'
             errorClass={'error-msg'}
@@ -321,6 +325,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             label='Description'
             placeholder='Write anything about the expense'
             name='description'
+            defaultValue={data?.data[0]?.description}
             type='textarea'
             errorClass={'error-msg'}
             handleChange={handleChange}
@@ -345,6 +350,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
           <TextInput
             label='Payment Method'
             placeholder='Select payment method'
+            defaultValue={data?.data[0]?.payment_method}
             name='paymentMethod'
             type='dropdown'
             errorClass={'error-msg'}
@@ -409,6 +415,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
               throw new Error('');
             }}
             selectedValues={undefined}
+            defaultValue={data?.data[0]?.date}
           />
           <div className='input-component'>
             <label>Attachments</label>
@@ -485,11 +492,11 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             isLoading
           }
         >
-          {isLoading ? 'Please wait...' : 'Record'}
+          {isLoading ? 'Please wait...' : 'Update'}
         </button>
       </div>
     </Modal>
   );
 };
 
-export default RecordExpense;
+export default EditExpense;

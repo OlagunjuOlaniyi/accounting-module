@@ -5,16 +5,25 @@ type Btnprops = {
   btnClass: string;
   btnText: string;
   icon?: React.ReactNode;
-  width: string;
+  width?: string;
   onClick: () => void;
+  disabled: boolean;
 };
 
-const Button = ({ btnClass, btnText, icon, width, onClick }: Btnprops) => {
+const Button = ({
+  btnClass,
+  btnText,
+  icon,
+  width,
+  onClick,
+  disabled,
+}: Btnprops) => {
   return (
     <button
       className={`${btnClass} main-btn`}
       style={{ width: width }}
       onClick={onClick}
+      disabled={disabled}
     >
       {icon && icon}
       {btnText}

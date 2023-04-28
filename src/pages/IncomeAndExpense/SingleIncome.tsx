@@ -5,21 +5,22 @@ import Export from '../../icons/Export';
 import Edit from '../../icons/Edit';
 import Dots from '../../icons/Dots';
 import Dot from '../../icons/Dot';
-import { useGetSingleExpenses } from '../../hooks/queries/expenses';
 import moment from 'moment';
 import EditExpense from '../../components/Modals/IncomeAndExpense/EditExpense';
 import Delete from '../../icons/Delete';
 import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
-import { useDeleteExpense } from '../../hooks/mutations/expenses';
 import { useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
+import { useGetSingleIncome } from '../../hooks/queries/incomes';
+import { useDeleteIncome } from '../../hooks/mutations/incomes';
 
-const SingleExpense = () => {
+const SingleIncome = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { isLoading, data } = useGetSingleExpenses(id);
+  const { isLoading, data } = useGetSingleIncome(id);
+
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [showDelete, setShowDelete] = useState<boolean>(false);
@@ -29,8 +30,8 @@ const SingleExpense = () => {
     setDeleteModalOpen(false);
   };
 
-  const { mutate } = useDeleteExpense();
-  const deleteLoading = useDeleteExpense().isLoading;
+  const { mutate } = useDeleteIncome();
+  const deleteLoading = useDeleteIncome().isLoading;
 
   //delete transaction
   const deleteTransaction = () => {
@@ -70,7 +71,7 @@ const SingleExpense = () => {
               >
                 Income and Expense Management /
               </span>
-              <span>Expense</span>
+              <span>Income</span>
             </div>
             <div className='single-expense-wrapper__top__right'>
               <button className='ie_overview__top-level__filter-date'>
@@ -230,4 +231,4 @@ const SingleExpense = () => {
   );
 };
 
-export default SingleExpense;
+export default SingleIncome;

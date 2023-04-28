@@ -7,21 +7,64 @@ import Visibility from '../../icons/Visibility';
 import Delete from '../../icons/Delete';
 import Edit from '../../icons/Edit';
 import { useNavigate } from 'react-router';
+import EditExpense from '../../components/Modals/IncomeAndExpense/EditExpense';
+import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
+import { useDeleteExpense } from '../../hooks/mutations/expenses';
+import { useQueryClient } from 'react-query';
+import { toast } from 'react-hot-toast';
 
 const ExpenseTable = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
-  const [selectedId, setSelectedId] = useState<number | string>(0);
+  const [selectedId, setSelectedId] = useState<string>('');
+  const [editModal, setEditModal] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+
+  const closeModal = () => {
+    setDeleteModal(false);
+    setEditModal(false);
+  };
+
   //get expenses
   const { data, isLoading } = useGetExpenses();
 
+  //delete transaction
+  const { mutate } = useDeleteExpense();
+  const deleteLoading = useDeleteExpense().isLoading;
+
+  const deleteTransaction = () => {
+    mutate(selectedId, {
+      onSuccess: (res) => {
+        queryClient.setQueryData<any>(
+          [`expenses-single-${selectedId}`],
+          (prev: any) => {
+            return prev;
+          }
+        );
+
+        queryClient.invalidateQueries({
+          queryKey: `expenses`,
+        });
+        toast.success('Transaction deleted successfully');
+        navigate('/');
+        closeModal();
+      },
+
+      onError: (e) => {
+        toast.error('Error deleting transaction');
+      },
+    });
+  };
+
+  //badge component on table
   const Badge = ({ value }: { value: boolean }) => {
     return <div className={'generated-badge'}>Approved</div>;
   };
-  console.log(dropdownActions);
+
   //dots button component
-  const DotsBtn = ({ value }: { value: string | number }) => {
+  const DotsBtn = ({ value }: { value: string }) => {
     //get single product/add on data
 
     return (
@@ -46,12 +89,18 @@ const ExpenseTable = () => {
                   <p>View</p>
                 </div>
 
-                <div className='action__flex'>
+                <div
+                  className='action__flex'
+                  onClick={() => setEditModal(true)}
+                >
                   <Edit />
                   <p>Edit</p>
                 </div>
 
-                <div className='action__flex'>
+                <div
+                  className='action__flex'
+                  onClick={() => setDeleteModal(true)}
+                >
                   <Delete />
                   <p>Delete</p>
                 </div>
@@ -82,7 +131,7 @@ const ExpenseTable = () => {
       accessor: 'account',
       Cell: ({ cell: { value } }: any) => (
         <div className='d-flex'>
-          <Dot type={value?.toLowerCase()} />
+          <Dot type={'expense'} />
           <p>{value}</p>
         </div>
       ),
@@ -107,7 +156,7 @@ const ExpenseTable = () => {
     {
       Header: 'Actions',
       accessor: 'id',
-      Cell: ({ cell: { value } }: { cell: { value: number | string } }) => (
+      Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <DotsBtn value={value} />
       ),
     },
@@ -120,6 +169,21 @@ const ExpenseTable = () => {
         ) : (
           <Table data={data?.data ? data?.data : []} columns={columns} />
         )}
+
+        <EditExpense
+          modalIsOpen={editModal}
+          closeModal={closeModal}
+          selectedId={selectedId}
+        />
+
+        <DeleteConfirmation
+          deleteFn={deleteTransaction}
+          modalIsOpen={deleteModal}
+          close={closeModal}
+          deleteBtnText='Delete Transaction'
+          confirmationText='Are you sure you want to delete this transaction?'
+          loading={deleteLoading}
+        />
       </div>
     </div>
   );
