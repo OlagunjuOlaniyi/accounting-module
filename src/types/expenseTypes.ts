@@ -25,9 +25,9 @@ export interface IexpenseRes {
   };
   attachment?: string;
   account: string;
-  date: string;
+  date: any;
 }
 
 export interface ApiRes {
-  data: IexpenseRes;
+  data: IexpenseRes[];
 }

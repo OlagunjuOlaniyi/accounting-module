@@ -57,7 +57,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     paymentMethod: data?.data[0]?.payment_method,
     amount: data?.data[0]?.amount,
     description: data?.data[0]?.description,
-    dateOfTransaction: data?.data[0]?.description,
+    dateOfTransaction: data?.data[0]?.date,
   });
 
   const [errors, setErrors] = useState({
@@ -169,12 +169,9 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
       },
 
       onError: (e) => {
-        if (isError) {
-          toast;
-          toast.error(
-            'Error recording transaction \nPlease make sure all fields are filled correctly'
-          );
-        }
+        toast.error(
+          'Error recording transaction \nPlease make sure all fields are filled correctly'
+        );
       },
     });
   };

@@ -16,9 +16,11 @@ import Addcircle from '../../../icons/Addcircle';
 import ThumbsIcon from '../../../icons/ThumbsIcon';
 import RadioChecked from '../../../icons/RadioChecked';
 import RadioUnchecked from '../../../icons/RadioUnchecked';
+import { useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 
 const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
+  const queryClient = useQueryClient();
   const customStyles = {
     content: {
       top: '50%',
@@ -137,19 +139,17 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
 
     mutate(dataToSend, {
       onSuccess: (res) => {
-        if (isSuccess) {
-          close();
-          toast.success('Transaction recorded successfully');
-        }
+        close();
+        toast.success('Transaction recorded successfully');
+        queryClient.invalidateQueries({
+          queryKey: `expenses`,
+        });
       },
 
       onError: (e) => {
-        if (isError) {
-          toast;
-          toast.error(
-            'Error recording transaction \nPlease make sure all fields are filled correctly'
-          );
-        }
+        toast.error(
+          'Error recording transaction \nPlease make sure all fields are filled correctly'
+        );
       },
     });
   };
@@ -208,66 +208,93 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
               {selection === 'create' ? <RadioChecked /> : <RadioUnchecked />}
             </button>
           </div>
-          <div className='dropdown-container'>
-            <div className='input-component'>
-              <label>Expense Group</label>
-              <div className='dropdown-container'>
-                <div
-                  className={`dropdown-input ${
-                    errors['expenseGroup'] ? 'error-field' : 'input-field'
-                  }`}
-                >
-                  <input
-                    name='expenseGroup'
-                    onChange={handleChange}
-                    value={fields.expenseGroup}
-                  />
-                  <div className='dropdown-tools'>
-                    <div className='dropdown-tool'>
-                      <Dot type='expense' />
+          {selection === 'post' ? (
+            <div className='dropdown-container'>
+              <div className='input-component'>
+                <label>Expense Group</label>
+                <div className='dropdown-container'>
+                  <div
+                    className={`dropdown-input ${
+                      errors['expenseGroup'] ? 'error-field' : 'input-field'
+                    }`}
+                  >
+                    <input
+                      name='expenseGroup'
+                      onChange={handleChange}
+                      value={fields.expenseGroup}
+                    />
+                    <div className='dropdown-tools'>
+                      <div className='dropdown-tool'>
+                        <Dot type='expense' />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {expenseGroupDropdown && (
-              <div
-                className='dropdown-menu'
-                onClick={(e: any) => e.stopPropagation()}
-              >
-                {[
-                  { id: 1, name: 'Depreciation' },
-                  { id: 2, name: 'Discount' },
-                ].map((el) => (
-                  <div
-                    className={`dropdown-item`}
-                    onClick={() => {
-                      setFields({
-                        ...fields,
-                        expenseGroup: el.name,
-                      });
-                      setExpenseGroupDopdown(false);
-                    }}
-                  >
-                    <p>{el.name}</p>
+              {expenseGroupDropdown && (
+                <div
+                  className='dropdown-menu'
+                  onClick={(e: any) => e.stopPropagation()}
+                >
+                  {[
+                    { id: 1, name: 'Depreciation' },
+                    { id: 2, name: 'Discount' },
+                  ].map((el) => (
+                    <div
+                      className={`dropdown-item`}
+                      onClick={() => {
+                        setFields({
+                          ...fields,
+                          expenseGroup: el.name,
+                        });
+                        setExpenseGroupDopdown(false);
+                      }}
+                    >
+                      <p>{el.name}</p>
+                    </div>
+                  ))}
+                  <div className='p-5'>
+                    <Button
+                      disabled={false}
+                      btnText='Add as new expense group'
+                      btnClass='btn-primary'
+                      width='100%'
+                      icon={<Addcircle />}
+                      onClick={() => {
+                        setExpenseGroupDopdown(false);
+                      }}
+                    />
                   </div>
-                ))}
-                <div className='p-5'>
-                  <Button
-                    disabled={false}
-                    btnText='Add as new expense group'
-                    btnClass='btn-primary'
-                    width='100%'
-                    icon={<Addcircle />}
-                    onClick={() => {
-                      setExpenseGroupDopdown(false);
-                    }}
-                  />
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <TextInput
+              label='Expense Group'
+              placeholder='Type expense group'
+              name='expenseGroup'
+              type='text'
+              errorClass={'error-msg'}
+              handleChange={handleChange}
+              value={fields.expenseGroup}
+              fieldClass={
+                errors['expenseGroup'] ? 'error-field' : 'input-field'
+              }
+              errorMessage={errors['expenseGroup']}
+              id={'expenseGroup'}
+              onSelectValue={function (a: string, b: string): void {}}
+              isSearchable={false}
+              handleSearchValue={function (): void {}}
+              searchValue={''}
+              handleBlur={handleBlur}
+              multi={false}
+              toggleOption={function (a: any): void {
+                throw new Error('');
+              }}
+              selectedValues={undefined}
+            />
+          )}
 
           <TextInput
             label='Expense Type'

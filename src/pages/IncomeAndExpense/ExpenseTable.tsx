@@ -12,8 +12,14 @@ import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/Delet
 import { useDeleteExpense } from '../../hooks/mutations/expenses';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-hot-toast';
+import { Ioverview } from '../../types/types';
 
-const ExpenseTable = () => {
+interface Iprops {
+  filteredData?: Ioverview;
+  filteredLoading: Boolean;
+}
+
+const ExpenseTable = ({ filteredData, filteredLoading }: Iprops) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -29,6 +35,8 @@ const ExpenseTable = () => {
 
   //get expenses
   const { data, isLoading } = useGetExpenses();
+  let apiData: any = filteredData ? filteredData?.expenses : data?.data;
+  let sortedData = apiData?.sort((a: any, b: any) => b.id - a.id);
 
   //delete transaction
   const { mutate } = useDeleteExpense();
@@ -161,13 +169,14 @@ const ExpenseTable = () => {
       ),
     },
   ];
+
   return (
     <div>
       <div className='table_container'>
         {isLoading ? (
           <p>Loading...</p>
         ) : (
-          <Table data={data?.data ? data?.data : []} columns={columns} />
+          <Table data={data?.data ? sortedData : []} columns={columns} />
         )}
 
         <EditExpense

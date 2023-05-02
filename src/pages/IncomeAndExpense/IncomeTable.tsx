@@ -6,15 +6,21 @@ import Visibility from '../../icons/Visibility';
 import Delete from '../../icons/Delete';
 import Edit from '../../icons/Edit';
 import { useNavigate } from 'react-router';
-import EditExpense from '../../components/Modals/IncomeAndExpense/EditExpense';
 import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-hot-toast';
 import { useGetIncomes } from '../../hooks/queries/incomes';
 import { useDeleteIncome } from '../../hooks/mutations/incomes';
 import EditIncome from '../../components/Modals/IncomeAndExpense/EditIncome';
+import { IexpenseRes } from '../../types/expenseTypes';
+import { Ioverview } from '../../types/types';
 
-const IncomeTable = () => {
+interface Iprops {
+  filteredData?: Ioverview;
+  filteredLoading: Boolean;
+}
+
+const IncomeTable = ({ filteredData, filteredLoading }: Iprops) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -30,6 +36,9 @@ const IncomeTable = () => {
 
   //get incomes
   const { data, isLoading } = useGetIncomes();
+
+  let apiData: any = filteredData ? filteredData?.incomes : data?.data;
+  let sortedData = apiData?.sort((a: any, b: any) => b.id - a.id);
 
   //delete transaction
   const { mutate } = useDeleteIncome();
@@ -67,7 +76,6 @@ const IncomeTable = () => {
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
     //get single product/add on data
-
     return (
       <div className='action-wrapper'>
         <button
@@ -162,13 +170,14 @@ const IncomeTable = () => {
       ),
     },
   ];
+
   return (
     <div>
       <div className='table_container'>
         {isLoading ? (
           <p>Loading...</p>
         ) : (
-          <Table data={data?.data ? data?.data : []} columns={columns} />
+          <Table data={data?.data ? sortedData : []} columns={columns} />
         )}
 
         <EditIncome

@@ -1,14 +1,14 @@
 import axiosInstance from './utils';
 import { IexpenseProps } from '../types/expenseTypes';
 
-import { baseURL, urlToken } from './utils';
+import { baseURL } from './utils';
 import axios from 'axios';
 
 //add income
 export const addIncome = async (data: IexpenseProps) => {
   const response = await axios.post(`${baseURL}incomes/`, data, {
     headers: {
-      Authorization: `Bearer ${urlToken}`,
+      Authorization: `Bearer ${localStorage.token}`,
     },
   });
   return response.data;
@@ -30,7 +30,7 @@ export const updateIncome = async (data: IexpenseProps) => {
   const response = await axios.put(`${baseURL}incomes/${data.id}/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${urlToken}`,
+      Authorization: `Bearer ${localStorage.token}`,
     },
   });
   return response.data;

@@ -10,13 +10,8 @@ let headers: any = {
   Authorization: '',
 };
 
-export const urlToken =
-  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjgzMDczOTg3LCJpYXQiOjE2ODI2NDE5ODcsImp0aSI6IjY2ODI1MDdmZmE4NDQyYjRhMjM1MWQ3ZWRjZjFhNzUwIiwidXNlcl9pZCI6MX0.W5vpi4V3olVan1HaiYbRrdxqqW6vowtvehDXK1zbZ8U';
-
 if (localStorage.token) {
   headers.Authorization = `Bearer ${localStorage.token}`;
-} else {
-  headers.Authorization = `Bearer ${urlToken}`;
 }
 
 const axiosInstance = axios.create({
@@ -42,7 +37,7 @@ axiosInstance.interceptors.response.use(
           reject(error);
         });
       } else {
-        window.location.replace('/');
+        window.location.replace('/login');
         localStorage.clear();
       }
     } else if (error.response.status === 502) {

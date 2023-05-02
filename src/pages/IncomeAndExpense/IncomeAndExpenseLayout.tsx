@@ -13,11 +13,27 @@ import './incomeexpense.scss';
 import IncomeExpenseOverview from './IncomeExpenseOverview';
 import IncomeTable from './IncomeTable';
 import ExpenseTable from './ExpenseTable';
+import RightCaret from '../../icons/RightCaret';
+import { DateRange } from 'react-date-range';
+import { changeDateFormat, calcDiffInDays } from '../../utilities';
+import moment from 'moment';
+import 'react-date-range/dist/styles.css'; // main css file
+import 'react-date-range/dist/theme/default.css';
+import { useFilterIncomeAndExpenseOverview } from '../../hooks/queries/overview';
 
 const IncomeAndExpenseLayout = () => {
   const [activeTab, setActiveTab] = useState<string | number>(1);
   const [searchText, setSearchText] = useState<string>('');
   const [showActions, setShowActions] = useState<boolean>(false);
+  const [showDateFilters, setShowDateFilters] = useState<boolean>(false);
+  const [showDateRange, setShowDateRange] = useState<boolean>(false);
+  const [state, setState] = useState<any>([
+    {
+      startDate: new Date(),
+      endDate: null,
+      key: 'selection',
+    },
+  ]);
   const [modalOpen, setModalOpen] = useState<any>({
     income: false,
     expense: false,
@@ -32,6 +48,16 @@ const IncomeAndExpenseLayout = () => {
       ? setModalOpen({ income: true, expense: false })
       : setModalOpen({ income: false, expense: true });
   };
+
+  let formatedStartDate = changeDateFormat(
+    moment(state[0]?.startDate).format('l')
+  );
+  let formatedEndDate = changeDateFormat(moment(state[0]?.endDate).format('l'));
+
+  const { isLoading, data, refetch } = useFilterIncomeAndExpenseOverview(
+    formatedStartDate,
+    formatedEndDate ? formatedEndDate : formatedStartDate
+  );
 
   return (
     <div>
@@ -84,14 +110,77 @@ const IncomeAndExpenseLayout = () => {
         </div>
         <button className='ie_overview__top-level__filter-date'>
           {' '}
-          <Calendar />
-          <p>2023</p>
-        </button>
-        <button className='ie_overview__top-level__filter-date'>
-          {' '}
           <Filter />
           <p>Filter</p>
         </button>
+        <div className='ie_overview__top-level__filter-date-wrap'>
+          <button
+            className='ie_overview__top-level__filter-date'
+            onClick={() => {
+              setShowDateFilters(!showDateFilters);
+              setShowDateRange(false);
+            }}
+          >
+            {' '}
+            <Calendar />
+            <p>2023</p>
+          </button>
+
+          {showDateRange && (
+            <div className='ie_overview__top-level__filter-date-wrap__dropdown'>
+              <DateRange
+                editableDateInputs={true}
+                onChange={(item) => setState([item.selection])}
+                moveRangeOnFirstSelection={false}
+                ranges={state}
+              />
+              <div className='ie_overview__top-level__filter-date-wrap__dropdown__footer'>
+                <p>
+                  {calcDiffInDays(
+                    moment(state[0].startDate),
+                    moment(state[0].endDate)
+                  )}{' '}
+                  day(s) selected
+                </p>
+                <Button
+                  btnText='Apply Date'
+                  btnClass='btn-primary'
+                  width='97px'
+                  disabled={false}
+                  onClick={() => refetch()}
+                />
+              </div>
+            </div>
+          )}
+          {showDateFilters && (
+            <div className='ie_overview__top-level__filter-date-wrap__dropdown'>
+              <div
+                className='ie_overview__top-level__btn-wrap__dropdown__item'
+                onClick={() => openModal('income')}
+              >
+                <p>Today</p>
+              </div>
+              <div
+                className='ie_overview__top-level__btn-wrap__dropdown__item'
+                onClick={() => openModal('expense')}
+              >
+                <p>Yesterday</p>
+              </div>
+
+              <div
+                className='ie_overview__top-level__btn-wrap__dropdown__item'
+                onClick={() => {
+                  setShowDateRange(true);
+                  setShowDateFilters(false);
+                }}
+              >
+                <p>Custom Date</p>
+                <RightCaret />
+              </div>
+            </div>
+          )}
+        </div>
+
         <button className='ie_overview__top-level__filter-download'>
           {' '}
           <Export />
@@ -141,9 +230,18 @@ const IncomeAndExpenseLayout = () => {
         ))}
       </div>
       <div>
-        {activeTab === 1 && <IncomeExpenseOverview />}
-        {activeTab === 2 && <IncomeTable />}
-        {activeTab === 3 && <ExpenseTable />}
+        {activeTab === 1 && (
+          <IncomeExpenseOverview
+            filteredData={data}
+            filteredLoading={isLoading}
+          />
+        )}
+        {activeTab === 2 && (
+          <IncomeTable filteredData={data} filteredLoading={isLoading} />
+        )}
+        {activeTab === 3 && (
+          <ExpenseTable filteredData={data} filteredLoading={isLoading} />
+        )}
       </div>
       <RecordIncome modalIsOpen={modalOpen.income} closeModal={closeModal} />
       <RecordExpense modalIsOpen={modalOpen.expense} closeModal={closeModal} />

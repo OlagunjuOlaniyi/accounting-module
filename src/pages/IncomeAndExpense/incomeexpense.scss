@@ -120,6 +120,54 @@
       }
     }
 
+    &__filter-date-wrap {
+      position: relative;
+
+      &__dropdown {
+        margin-top: 12px;
+        position: absolute;
+        width: 157px;
+        // height: 50px;
+        background: #ffffff;
+        box-shadow: -4px 4px 13px 4px rgba(118, 128, 135, 0.08);
+        border-radius: 4px;
+        padding: 10px 0;
+
+        &__item {
+          display: flex;
+          align-items: center;
+          padding: 12px 20px;
+          gap: 12px;
+          cursor: pointer;
+
+          &:hover {
+            background: #e4eff9;
+            border-left: 2px solid #439ade;
+            transition: 0.2s ease-in;
+          }
+        }
+
+        &__footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px;
+          width: 20.667em;
+          height: 60px;
+          background: #fbfdfe;
+          border-radius: 0px 0px 4px 4px;
+          border-top: 1px solid rgba(1, 12, 21, 0.1);
+          z-index: 999;
+
+          & p {
+            font-weight: 600;
+            font-size: 14px;
+            color: #fcbf49;
+          }
+        }
+      }
+    }
+
     &__filter-download {
       all: unset;
       width: 118px;
@@ -212,6 +260,8 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
   }
 
   &__chart-wrapper {
@@ -529,4 +579,16 @@
   background: #ffffff;
   box-shadow: -4px 4px 13px 4px rgba(118, 128, 135, 0.08);
   border-radius: 4px;
+}
+
+.overview-scroll-container {
+  height: 500px;
+  overflow: scroll;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
 }

@@ -17,8 +17,10 @@ import RadioChecked from '../../../icons/RadioChecked';
 import RadioUnchecked from '../../../icons/RadioUnchecked';
 import toast from 'react-hot-toast';
 import { useCreateIncome } from '../../../hooks/mutations/incomes';
+import { useQueryClient } from 'react-query';
 
 const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
+  const queryClient = useQueryClient();
   const customStyles = {
     content: {
       top: '50%',
@@ -135,19 +137,17 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
 
     mutate(dataToSend, {
       onSuccess: (res) => {
-        if (isSuccess) {
-          close();
-          toast.success('Transaction recorded successfully');
-        }
+        close();
+        toast.success('Transaction recorded successfully');
+        queryClient.invalidateQueries({
+          queryKey: `incomes`,
+        });
       },
 
       onError: (e) => {
-        if (isError) {
-          toast;
-          toast.error(
-            'Error recording transaction \nPlease make sure all fields are filled correctly'
-          );
-        }
+        toast.error(
+          'Error recording transaction \nPlease make sure all fields are filled correctly'
+        );
       },
     });
   };
@@ -206,66 +206,91 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
               {selection === 'create' ? <RadioChecked /> : <RadioUnchecked />}
             </button>
           </div>
-          <div className='dropdown-container'>
-            <div className='input-component'>
-              <label>Income Group</label>
-              <div className='dropdown-container'>
-                <div
-                  className={`dropdown-input ${
-                    errors['incomeGroup'] ? 'error-field' : 'input-field'
-                  }`}
-                >
-                  <input
-                    name='incomeGroup'
-                    onChange={handleChange}
-                    value={fields.incomeGroup}
-                  />
-                  <div className='dropdown-tools'>
-                    <div className='dropdown-tool'>
-                      <Dot type='income' />
+          {selection === 'post' ? (
+            <div className='dropdown-container'>
+              <div className='input-component'>
+                <label>Income Group</label>
+                <div className='dropdown-container'>
+                  <div
+                    className={`dropdown-input ${
+                      errors['incomeGroup'] ? 'error-field' : 'input-field'
+                    }`}
+                  >
+                    <input
+                      name='incomeGroup'
+                      onChange={handleChange}
+                      value={fields.incomeGroup}
+                    />
+                    <div className='dropdown-tools'>
+                      <div className='dropdown-tool'>
+                        <Dot type='income' />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {incomeGroupDropdown && (
-              <div
-                className='dropdown-menu'
-                onClick={(e: any) => e.stopPropagation()}
-              >
-                {[
-                  { id: 1, name: 'Depreciation' },
-                  { id: 2, name: 'Discount' },
-                ].map((el) => (
-                  <div
-                    className={`dropdown-item`}
-                    onClick={() => {
-                      setFields({
-                        ...fields,
-                        incomeGroup: el.name,
-                      });
-                      setIncomeGroupDopdown(false);
-                    }}
-                  >
-                    <p>{el.name}</p>
+              {incomeGroupDropdown && (
+                <div
+                  className='dropdown-menu'
+                  onClick={(e: any) => e.stopPropagation()}
+                >
+                  {[
+                    { id: 1, name: 'Depreciation' },
+                    { id: 2, name: 'Discount' },
+                  ].map((el) => (
+                    <div
+                      className={`dropdown-item`}
+                      onClick={() => {
+                        setFields({
+                          ...fields,
+                          incomeGroup: el.name,
+                        });
+                        setIncomeGroupDopdown(false);
+                      }}
+                    >
+                      <p>{el.name}</p>
+                    </div>
+                  ))}
+                  <div className='p-5'>
+                    <Button
+                      disabled={false}
+                      btnText='Add as new income group'
+                      btnClass='btn-primary'
+                      width='100%'
+                      icon={<Addcircle />}
+                      onClick={() => {
+                        setIncomeGroupDopdown(false);
+                      }}
+                    />
                   </div>
-                ))}
-                <div className='p-5'>
-                  <Button
-                    disabled={false}
-                    btnText='Add as new income group'
-                    btnClass='btn-primary'
-                    width='100%'
-                    icon={<Addcircle />}
-                    onClick={() => {
-                      setIncomeGroupDopdown(false);
-                    }}
-                  />
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <TextInput
+              label='Income Group'
+              placeholder='Type income group'
+              name='incomeGroup'
+              type='text'
+              errorClass={'error-msg'}
+              handleChange={handleChange}
+              value={fields.incomeType}
+              fieldClass={errors['incomeGroup'] ? 'error-field' : 'input-field'}
+              errorMessage={errors['incomeGroup']}
+              id={'incomeGroup'}
+              onSelectValue={function (a: string, b: string): void {}}
+              isSearchable={false}
+              handleSearchValue={function (): void {}}
+              searchValue={''}
+              handleBlur={handleBlur}
+              multi={false}
+              toggleOption={function (a: any): void {
+                throw new Error('');
+              }}
+              selectedValues={undefined}
+            />
+          )}
 
           <TextInput
             label='Income Type'
