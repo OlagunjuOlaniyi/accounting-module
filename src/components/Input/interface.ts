@@ -9,7 +9,7 @@ export interface Iprops extends InputHTMLAttributes<HTMLInputElement> {
   type: string;
   name: string;
   handleChange: any;
-  value: string | number;
+  value?: string | number;
   fieldClass: string;
   errorClass: string;
   errorMessage: string;

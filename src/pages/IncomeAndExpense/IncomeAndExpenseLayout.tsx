@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '../../components/Button/Button';
 import RecordExpense from '../../components/Modals/IncomeAndExpense/RecordExpense';
 import RecordIncome from '../../components/Modals/IncomeAndExpense/RecordIncome';
-import { recentSearch, tabs } from '../../data';
+import { tabs } from '../../data';
 import Addcircle from '../../icons/Addcircle';
 import Calendar from '../../icons/Calendar';
 import Clear from '../../icons/Clear';
@@ -19,7 +19,13 @@ import { changeDateFormat, calcDiffInDays } from '../../utilities';
 import moment from 'moment';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css';
-import { useFilterIncomeAndExpenseOverview } from '../../hooks/queries/overview';
+import {
+  useFilterIncomeAndExpenseOverview,
+  useSearch,
+} from '../../hooks/queries/overview';
+import { useDebounce } from 'use-debounce';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import SmallSpinner from '../../assets/smallspinner.svg';
 
 const IncomeAndExpenseLayout = () => {
   const [activeTab, setActiveTab] = useState<string | number>(1);
@@ -39,6 +45,8 @@ const IncomeAndExpenseLayout = () => {
     expense: false,
   });
 
+  const [debouncedValue] = useDebounce(searchText, 1000);
+
   const closeModal = (type: string) => {
     setModalOpen({ income: false, expense: false });
   };
@@ -56,8 +64,67 @@ const IncomeAndExpenseLayout = () => {
 
   const { isLoading, data, refetch } = useFilterIncomeAndExpenseOverview(
     formatedStartDate,
-    formatedEndDate ? formatedEndDate : formatedStartDate
+    state[0]?.endDate ? formatedEndDate : formatedStartDate
   );
+
+  //filter for today
+  const fetchToday = () => {
+    setState([
+      {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: 'selection',
+      },
+    ]);
+
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
+
+  //filter for yesterday
+  const fetchYesterday = () => {
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    setState([
+      {
+        startDate: date,
+        endDate: date,
+        key: 'selection',
+      },
+    ]);
+
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
+
+  //filter all
+  const fetchAll = () => {
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    setState([
+      {
+        startDate: '',
+        endDate: '',
+        key: 'selection',
+      },
+    ]);
+
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
+
+  let searchres = useSearch(debouncedValue).data;
+  let searchLoading = useSearch(debouncedValue).isLoading;
+
+  //move tab to income after getting response from search
+  useEffect(() => {
+    if (searchres && activeTab === 1) {
+      setActiveTab(2);
+    }
+  }, [searchres]);
 
   return (
     <div>
@@ -74,7 +141,7 @@ const IncomeAndExpenseLayout = () => {
             onChange={(e) => setSearchText(e.target.value)}
             value={searchText}
           />
-          {searchText && (
+          {/* {searchText && (
             <div
               className='ie_overview__top-level__search__dropdown-menu'
               onClick={(e: any) => e.stopPropagation()}
@@ -98,27 +165,26 @@ const IncomeAndExpenseLayout = () => {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
           {searchText && (
             <div
               style={{ marginTop: '5px', cursor: 'pointer' }}
               onClick={() => setSearchText('')}
             >
-              <Clear />
+              {searchLoading ? <img src={SmallSpinner} alt='' /> : <Clear />}
             </div>
           )}
         </div>
-        <button className='ie_overview__top-level__filter-date'>
-          {' '}
-          <Filter />
-          <p>Filter</p>
-        </button>
+
         <div className='ie_overview__top-level__filter-date-wrap'>
           <button
             className='ie_overview__top-level__filter-date'
             onClick={() => {
               setShowDateFilters(!showDateFilters);
               setShowDateRange(false);
+              if (showDateFilters) {
+                fetchAll();
+              }
             }}
           >
             {' '}
@@ -156,13 +222,13 @@ const IncomeAndExpenseLayout = () => {
             <div className='ie_overview__top-level__filter-date-wrap__dropdown'>
               <div
                 className='ie_overview__top-level__btn-wrap__dropdown__item'
-                onClick={() => openModal('income')}
+                onClick={() => fetchToday()}
               >
                 <p>Today</p>
               </div>
               <div
                 className='ie_overview__top-level__btn-wrap__dropdown__item'
-                onClick={() => openModal('expense')}
+                onClick={() => fetchYesterday()}
               >
                 <p>Yesterday</p>
               </div>
@@ -181,6 +247,13 @@ const IncomeAndExpenseLayout = () => {
           )}
         </div>
 
+        {showDateFilters && (
+          <button className='ie_overview__top-level__filter-date' disabled>
+            {' '}
+            <Filter />
+            <p>Filter</p>
+          </button>
+        )}
         <button className='ie_overview__top-level__filter-download'>
           {' '}
           <Export />
@@ -237,10 +310,18 @@ const IncomeAndExpenseLayout = () => {
           />
         )}
         {activeTab === 2 && (
-          <IncomeTable filteredData={data} filteredLoading={isLoading} />
+          <IncomeTable
+            filteredData={data}
+            filteredLoading={isLoading}
+            searchRes={searchres}
+          />
         )}
         {activeTab === 3 && (
-          <ExpenseTable filteredData={data} filteredLoading={isLoading} />
+          <ExpenseTable
+            filteredData={data}
+            filteredLoading={isLoading}
+            searchRes={searchres}
+          />
         )}
       </div>
       <RecordIncome modalIsOpen={modalOpen.income} closeModal={closeModal} />

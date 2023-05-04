@@ -274,7 +274,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             type='text'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.incomeType}
+            //value={fields.incomeType}
             fieldClass={errors['incomeType'] ? 'error-field' : 'input-field'}
             errorMessage={errors['incomeType']}
             id={'incomeType'}
@@ -300,7 +300,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             type='text'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.amount}
+            //value={fields.amount}
             fieldClass={errors['amount'] ? 'error-field' : 'input-field'}
             errorMessage={errors['amount']}
             id={'amount'}
@@ -324,7 +324,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             type='textarea'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.description}
+            //value={fields.description}
             fieldClass={
               errors['description'] ? 'error-field' : 'textarea-field'
             }
@@ -350,7 +350,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             type='dropdown'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.paymentMethod}
+            //value={fields.paymentMethod}
             fieldClass={errors['paymentMethod'] ? 'error-field' : 'input-field'}
             errorMessage={errors['paymentMethod']}
             id={'paymentMethod'}
@@ -394,7 +394,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             min={new Date().toISOString().split('T')[0]}
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.dateOfTransaction}
+            //value={fields.dateOfTransaction}
             fieldClass={
               errors['dateOfTransaction'] ? 'error-field' : 'input-field'
             }

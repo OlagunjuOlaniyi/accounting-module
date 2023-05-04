@@ -156,7 +156,7 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
                   <h3>TOTAL INCOME</h3>
                 </div>
                 <div className=''>
-                  <h3>NGN {data?.total_income?.toLocaleString()}</h3>
+                  <h3>NGN {apiData?.total_income?.toLocaleString()}</h3>
                 </div>
               </div>
             </div>

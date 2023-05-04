@@ -2,7 +2,7 @@ export const recentSearch = [
   { id: 1, title: 'Car Loan', category: 'Salary deduction', type: 'income' },
   { id: 2, title: 'Donations', category: 'Other income', type: 'income' },
   { id: 3, title: 'ICT Loan', category: 'interest on loan', type: 'expense' },
-  { id: 2, title: 'Tuition', category: 'Fees', type: 'income' },
+  { id: 4, title: 'Tuition', category: 'Fees', type: 'income' },
 ];
 
 export const tabs = [

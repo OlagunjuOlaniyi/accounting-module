@@ -82,7 +82,7 @@ const Login = () => {
             value={state.username}
             handleChange={handleChange}
             handleBlur={handleBlur}
-            type='text'
+            type='email'
             errorMessage={errors['username']}
             errorClass={'error-msg'}
             id={'email'}

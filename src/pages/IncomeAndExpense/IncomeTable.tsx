@@ -18,9 +18,10 @@ import { Ioverview } from '../../types/types';
 interface Iprops {
   filteredData?: Ioverview;
   filteredLoading: Boolean;
+  searchRes: any;
 }
 
-const IncomeTable = ({ filteredData, filteredLoading }: Iprops) => {
+const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -37,7 +38,12 @@ const IncomeTable = ({ filteredData, filteredLoading }: Iprops) => {
   //get incomes
   const { data, isLoading } = useGetIncomes();
 
-  let apiData: any = filteredData ? filteredData?.incomes : data?.data;
+  let apiData: any = searchRes?.incomes
+    ? searchRes?.incomes
+    : filteredData
+    ? filteredData?.incomes
+    : data?.data;
+
   let sortedData = apiData?.sort((a: any, b: any) => b.id - a.id);
 
   //delete transaction

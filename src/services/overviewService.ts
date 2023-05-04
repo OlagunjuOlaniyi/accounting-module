@@ -16,3 +16,9 @@ export const filterIncomeAndExpenseOverview = async (
   );
   return response.data;
 };
+
+//search
+export const search = async (keyword: string) => {
+  const response = await axiosInstance.get(`/stats/search?keyword=${keyword}`);
+  return response.data;
+};

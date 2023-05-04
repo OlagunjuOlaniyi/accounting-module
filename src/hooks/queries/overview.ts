@@ -2,6 +2,7 @@ import { useQuery } from 'react-query';
 import {
   filterIncomeAndExpenseOverview,
   getIncomeAndExpenseOverview,
+  search,
 } from '../../services/overviewService';
 import { Ioverview } from '../../types/types';
 
@@ -23,5 +24,15 @@ export const useFilterIncomeAndExpenseOverview = (
     queryFn: () => filterIncomeAndExpenseOverview(start, end),
     refetchOnWindowFocus: false,
     enabled: false,
+  });
+};
+
+//search
+export const useSearch = (keyword: string) => {
+  return useQuery<Ioverview>({
+    queryKey: [`search-${keyword}`],
+    queryFn: () => search(keyword),
+    refetchOnWindowFocus: false,
+    enabled: Boolean(keyword),
   });
 };
