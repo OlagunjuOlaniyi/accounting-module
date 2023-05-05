@@ -559,6 +559,30 @@
       font-size: 14px;
       color: #439ade;
     }
+
+    &__list {
+      display: flex;
+      &__item {
+        cursor: pointer;
+        max-width: 288px;
+        height: 54px;
+        background: #fbfdfe;
+        border: 1px solid #e4eff9;
+        border-radius: 4px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        & p {
+          color: #010c15;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+          font-size: 14px;
+        }
+      }
+    }
   }
 }
 

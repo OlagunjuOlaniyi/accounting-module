@@ -44,8 +44,7 @@ const ExpenseTable = ({ filteredData, searchRes }: Iprops) => {
   let sortedData = apiData?.sort((a: any, b: any) => b.id - a.id);
 
   //delete transaction
-  const { mutate } = useDeleteExpense();
-  const deleteLoading = useDeleteExpense().isLoading;
+  const { mutate, isLoading: deleteLoading } = useDeleteExpense();
 
   const deleteTransaction = () => {
     mutate(selectedId, {

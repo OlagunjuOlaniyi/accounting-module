@@ -17,6 +17,7 @@ interface Iprops {
 }
 const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
   const { isLoading, data } = useGetIncomeAndExpenseOverview();
+
   interface ICardDetails extends ICardProps {
     id: number;
   }
@@ -84,6 +85,7 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
       },
     ],
   };
+
   return (
     <div className='income-expense-overview'>
       <div className='income-expense-overview__cards'>

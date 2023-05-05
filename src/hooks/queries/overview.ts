@@ -9,7 +9,7 @@ import { Ioverview } from '../../types/types';
 //get expenses
 export const useGetIncomeAndExpenseOverview = () => {
   return useQuery<Ioverview>({
-    queryKey: 'expenses',
+    queryKey: 'overview',
     queryFn: () => getIncomeAndExpenseOverview(),
   });
 };
@@ -20,7 +20,7 @@ export const useFilterIncomeAndExpenseOverview = (
   end: string
 ) => {
   return useQuery<Ioverview>({
-    queryKey: ['expenses', start, end],
+    queryKey: ['overview', start, end],
     queryFn: () => filterIncomeAndExpenseOverview(start, end),
     refetchOnWindowFocus: false,
     enabled: false,

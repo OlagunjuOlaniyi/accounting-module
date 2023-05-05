@@ -24,7 +24,6 @@ import {
   useSearch,
 } from '../../hooks/queries/overview';
 import { useDebounce } from 'use-debounce';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import SmallSpinner from '../../assets/smallspinner.svg';
 
 const IncomeAndExpenseLayout = () => {

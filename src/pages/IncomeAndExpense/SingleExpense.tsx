@@ -13,6 +13,8 @@ import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/Delet
 import { useDeleteExpense } from '../../hooks/mutations/expenses';
 import { useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
+import ImageIcon from '../../icons/ImageIcon';
+import Attachment from '../../components/Modals/AttachmentModal/Attachment';
 
 const SingleExpense = () => {
   const { id } = useParams();
@@ -23,10 +25,14 @@ const SingleExpense = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [showDelete, setShowDelete] = useState<boolean>(false);
+  const [attachmentModalOpen, setAttachmentModalOpen] =
+    useState<boolean>(false);
+  const [attachmentUrl, setAttachmentUrl] = useState<string>('');
 
   const closeModal = () => {
     setModalOpen(false);
     setDeleteModalOpen(false);
+    setAttachmentModalOpen(false);
   };
 
   const { mutate } = useDeleteExpense();
@@ -53,6 +59,12 @@ const SingleExpense = () => {
         toast.error('Error deleting transaction');
       },
     });
+  };
+
+  //open attachment
+  const openAttachment = (url: string) => {
+    setAttachmentModalOpen(true);
+    setAttachmentUrl(url);
   };
 
   return (
@@ -122,31 +134,37 @@ const SingleExpense = () => {
           <div className='single-expense-wrapper__accounts'>
             <div className='single-expense-wrapper__accounts__left'>
               <p>RELATED ACCOUNTS:</p>
-              <div
-                className='single-expense-wrapper__accounts__left__btn'
-                onClick={() => setModalOpen(true)}
-              >
-                <svg
-                  width='16'
-                  height='16'
-                  viewBox='0 0 16 16'
-                  fill='none'
-                  xmlns='http://www.w3.org/2000/svg'
+              {data?.data[0]?.transaction_group?.name ? (
+                <p style={{ textTransform: 'capitalize' }}>
+                  {data?.data[0]?.transaction_group?.name}
+                </p>
+              ) : (
+                <div
+                  className='single-expense-wrapper__accounts__left__btn'
+                  onClick={() => setModalOpen(true)}
                 >
-                  <g clipPath='url(#clip0_1407_6462)'>
-                    <path
-                      d='M8.66683 4.66536H7.3335V7.33203H4.66683V8.66536H7.3335V11.332H8.66683V8.66536H11.3335V7.33203H8.66683V4.66536ZM8.00016 1.33203C4.32016 1.33203 1.3335 4.3187 1.3335 7.9987C1.3335 11.6787 4.32016 14.6654 8.00016 14.6654C11.6802 14.6654 14.6668 11.6787 14.6668 7.9987C14.6668 4.3187 11.6802 1.33203 8.00016 1.33203ZM8.00016 13.332C5.06016 13.332 2.66683 10.9387 2.66683 7.9987C2.66683 5.0587 5.06016 2.66536 8.00016 2.66536C10.9402 2.66536 13.3335 5.0587 13.3335 7.9987C13.3335 10.9387 10.9402 13.332 8.00016 13.332Z'
-                      fill='#439ADE'
-                    />
-                  </g>
-                  <defs>
-                    <clipPath id='clip0_1407_6462'>
-                      <rect width='16' height='16' fill='white' />
-                    </clipPath>
-                  </defs>
-                </svg>
-                <p>Add Account</p>
-              </div>
+                  <svg
+                    width='16'
+                    height='16'
+                    viewBox='0 0 16 16'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <g clipPath='url(#clip0_1407_6462)'>
+                      <path
+                        d='M8.66683 4.66536H7.3335V7.33203H4.66683V8.66536H7.3335V11.332H8.66683V8.66536H11.3335V7.33203H8.66683V4.66536ZM8.00016 1.33203C4.32016 1.33203 1.3335 4.3187 1.3335 7.9987C1.3335 11.6787 4.32016 14.6654 8.00016 14.6654C11.6802 14.6654 14.6668 11.6787 14.6668 7.9987C14.6668 4.3187 11.6802 1.33203 8.00016 1.33203ZM8.00016 13.332C5.06016 13.332 2.66683 10.9387 2.66683 7.9987C2.66683 5.0587 5.06016 2.66536 8.00016 2.66536C10.9402 2.66536 13.3335 5.0587 13.3335 7.9987C13.3335 10.9387 10.9402 13.332 8.00016 13.332Z'
+                        fill='#439ADE'
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id='clip0_1407_6462'>
+                        <rect width='16' height='16' fill='white' />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <p>Add Account</p>
+                </div>
+              )}
             </div>
             <div className='single-expense-wrapper__accounts__right'>
               <p className='single-expense-wrapper__accounts__right__first'>
@@ -189,31 +207,45 @@ const SingleExpense = () => {
 
           <div className='single-expense-wrapper__attachments'>
             <h4>Attachments</h4>
-            <div
-              className='single-expense-wrapper__accounts__left__btn'
-              onClick={() => setModalOpen(true)}
-            >
-              <svg
-                width='16'
-                height='16'
-                viewBox='0 0 16 16'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
+            {data?.data[0]?.attachment.length > 0 ? (
+              data?.data[0]?.attachment.map((el: { attachment: string }) => (
+                <div
+                  className='single-expense-wrapper__attachments__list'
+                  onClick={() => openAttachment(el?.attachment)}
+                >
+                  <div className='single-expense-wrapper__attachments__list__item'>
+                    <ImageIcon />
+                    <p>{el?.attachment}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div
+                className='single-expense-wrapper__accounts__left__btn'
+                onClick={() => setModalOpen(true)}
               >
-                <g clipPath='url(#clip0_1407_6462)'>
-                  <path
-                    d='M8.66683 4.66536H7.3335V7.33203H4.66683V8.66536H7.3335V11.332H8.66683V8.66536H11.3335V7.33203H8.66683V4.66536ZM8.00016 1.33203C4.32016 1.33203 1.3335 4.3187 1.3335 7.9987C1.3335 11.6787 4.32016 14.6654 8.00016 14.6654C11.6802 14.6654 14.6668 11.6787 14.6668 7.9987C14.6668 4.3187 11.6802 1.33203 8.00016 1.33203ZM8.00016 13.332C5.06016 13.332 2.66683 10.9387 2.66683 7.9987C2.66683 5.0587 5.06016 2.66536 8.00016 2.66536C10.9402 2.66536 13.3335 5.0587 13.3335 7.9987C13.3335 10.9387 10.9402 13.332 8.00016 13.332Z'
-                    fill='#439ADE'
-                  />
-                </g>
-                <defs>
-                  <clipPath id='clip0_1407_6462'>
-                    <rect width='16' height='16' fill='white' />
-                  </clipPath>
-                </defs>
-              </svg>
-              <p>Add Attachment</p>
-            </div>
+                <svg
+                  width='16'
+                  height='16'
+                  viewBox='0 0 16 16'
+                  fill='none'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <g clipPath='url(#clip0_1407_6462)'>
+                    <path
+                      d='M8.66683 4.66536H7.3335V7.33203H4.66683V8.66536H7.3335V11.332H8.66683V8.66536H11.3335V7.33203H8.66683V4.66536ZM8.00016 1.33203C4.32016 1.33203 1.3335 4.3187 1.3335 7.9987C1.3335 11.6787 4.32016 14.6654 8.00016 14.6654C11.6802 14.6654 14.6668 11.6787 14.6668 7.9987C14.6668 4.3187 11.6802 1.33203 8.00016 1.33203ZM8.00016 13.332C5.06016 13.332 2.66683 10.9387 2.66683 7.9987C2.66683 5.0587 5.06016 2.66536 8.00016 2.66536C10.9402 2.66536 13.3335 5.0587 13.3335 7.9987C13.3335 10.9387 10.9402 13.332 8.00016 13.332Z'
+                      fill='#439ADE'
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id='clip0_1407_6462'>
+                      <rect width='16' height='16' fill='white' />
+                    </clipPath>
+                  </defs>
+                </svg>
+                <p>Add Attachment</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -225,6 +257,11 @@ const SingleExpense = () => {
         deleteBtnText='Delete Transaction'
         confirmationText='Are you sure you want to delete this transaction?'
         loading={deleteLoading}
+      />
+      <Attachment
+        modalIsOpen={attachmentModalOpen}
+        close={closeModal}
+        attachmentUrl={attachmentUrl}
       />
     </>
   );

@@ -57,7 +57,7 @@ const DeleteConfirmation = ({
             />
             <Button
               btnClass='btn-delete'
-              btnText={deleteBtnText}
+              btnText={loading ? 'deleting...' : deleteBtnText}
               onClick={() => deleteFn()}
               disabled={loading}
             />

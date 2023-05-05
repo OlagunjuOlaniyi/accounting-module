@@ -345,12 +345,12 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
           <TextInput
             label='Payment Method'
             placeholder='Select payment method'
-            defaultValue={data?.data[0]?.payment_method}
+            //defaultValue={data?.data[0]?.payment_method}
             name='paymentMethod'
             type='dropdown'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            //value={fields.paymentMethod}
+            value={fields.paymentMethod}
             fieldClass={errors['paymentMethod'] ? 'error-field' : 'input-field'}
             errorMessage={errors['paymentMethod']}
             id={'paymentMethod'}

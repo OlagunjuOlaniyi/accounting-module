@@ -43,12 +43,10 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
     : filteredData
     ? filteredData?.incomes
     : data?.data;
-
   let sortedData = apiData?.sort((a: any, b: any) => b.id - a.id);
 
   //delete transaction
-  const { mutate } = useDeleteIncome();
-  const deleteLoading = useDeleteIncome().isLoading;
+  const { mutate, isLoading: deleteLoading } = useDeleteIncome();
 
   const deleteTransaction = () => {
     mutate(selectedId, {

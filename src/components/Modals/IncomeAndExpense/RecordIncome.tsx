@@ -131,7 +131,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
       transaction_group: fields.incomeGroup,
       transaction_type: fields.incomeType,
       date: fields.dateOfTransaction,
-      attachment: file ? file[0] : '',
+      attachment: file ? file : '',
       account: selection === 'post' ? 'old' : 'new',
     };
 
@@ -151,6 +151,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
       },
     });
   };
+
   return (
     <Modal
       isOpen={modalIsOpen}
@@ -436,10 +437,10 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
           <div className='input-component'>
             <label>Attachments</label>
           </div>
+
           <Dropzone
             onDrop={(acceptedFiles) => {
               setFile(acceptedFiles);
-
               setFileUrl(
                 acceptedFiles.map((file) =>
                   Object.assign(file, {
@@ -471,25 +472,36 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
                     <div className='upload-done'>
                       <p>Done !</p>
                     </div>
-                    <div className='upload-done__image-name'>
-                      <svg
-                        width='16'
-                        height='20'
-                        viewBox='0 0 16 20'
-                        fill='none'
-                        xmlns='http://www.w3.org/2000/svg'
-                      >
-                        <path
-                          d='M10 0H2C0.9 0 0.0100002 0.9 0.0100002 2L0 18C0 19.1 0.89 20 1.99 20H14C15.1 20 16 19.1 16 18V6L10 0ZM2 18V2H9V7H14V18H2Z'
-                          fill='#010C15'
-                          fillOpacity='0.7'
-                        />
-                      </svg>
-                      <div className='upload-done__image-name__details'>
-                        <p>{file[0]?.path}</p>
-                        <p>{Math.round(file[0]?.size * 0.001)} kb</p>
+                    {file.map((el: any) => (
+                      <div className='upload-done__image-name' key={el.path}>
+                        <svg
+                          width='16'
+                          height='20'
+                          viewBox='0 0 16 20'
+                          fill='none'
+                          xmlns='http://www.w3.org/2000/svg'
+                        >
+                          <path
+                            d='M10 0H2C0.9 0 0.0100002 0.9 0.0100002 2L0 18C0 19.1 0.89 20 1.99 20H14C15.1 20 16 19.1 16 18V6L10 0ZM2 18V2H9V7H14V18H2Z'
+                            fill='#010C15'
+                            fillOpacity='0.7'
+                          />
+                        </svg>
+                        <div className='upload-done__image-name__details'>
+                          <p>{el?.path}</p>
+                          <p>{Math.round(el?.size * 0.001)} kb</p>
+                        </div>
+                        <div
+                          style={{
+                            justifySelf: 'baseline',
+                            marginLeft: 'auto',
+                          }}
+                          onClick={() => setFile(null)}
+                        >
+                          <Cancel />
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </>
                 )}
               </section>
