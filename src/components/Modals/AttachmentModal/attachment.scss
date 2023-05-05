@@ -11,4 +11,9 @@
 .attachment-body {
   margin-top: 16px;
   padding: 16px;
+  max-width: 500px;
+
+  & img {
+    width: 100%;
+  }
 }

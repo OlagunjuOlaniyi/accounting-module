@@ -7,7 +7,7 @@ import { baseURL } from './utils';
 //add expense
 export const addExpense = async (data: IexpenseProps) => {
   const formData = new FormData();
-  formData.append('payment_method', data.payment_method);
+  formData.append('payment_method', data.payment_method?.toUpperCase());
   formData.append('description', data.description);
   formData.append('amount', data.amount);
   formData.append('transaction_group', data.transaction_group);

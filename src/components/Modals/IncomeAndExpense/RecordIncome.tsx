@@ -124,6 +124,11 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
 
   //submit form
   const submit = () => {
+    if (isNaN(Number(fields.amount))) {
+      toast.error('Amount field can only contain numbers');
+      return;
+    }
+
     let dataToSend = {
       payment_method: fields.paymentMethod.props.children[1],
       amount: fields.amount,
@@ -131,7 +136,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
       transaction_group: fields.incomeGroup,
       transaction_type: fields.incomeType,
       date: fields.dateOfTransaction,
-      attachment: file ? file : '',
+      attachment: file ? file[0] : '',
       account: selection === 'post' ? 'old' : 'new',
     };
 

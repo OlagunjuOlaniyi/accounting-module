@@ -126,6 +126,11 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
 
   //submit form
   const submit = () => {
+    if (isNaN(Number(fields.amount))) {
+      toast.error('Amount field can only contain numbers');
+      return;
+    }
+
     let dataToSend = {
       payment_method: fields.paymentMethod.props.children[1],
       amount: fields.amount,
@@ -443,7 +448,6 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
           <Dropzone
             onDrop={(acceptedFiles) => {
               setFile(acceptedFiles);
-
               setFileUrl(
                 acceptedFiles.map((file) =>
                   Object.assign(file, {

@@ -262,6 +262,7 @@ const SingleExpense = () => {
         modalIsOpen={attachmentModalOpen}
         close={closeModal}
         attachmentUrl={attachmentUrl}
+        type='expense'
       />
     </>
   );

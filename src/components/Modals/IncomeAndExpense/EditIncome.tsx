@@ -149,6 +149,11 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
       account: selection === 'post' ? 'old' : 'new',
     };
 
+    if (isNaN(Number(dataToSend.amount))) {
+      toast.error('Amount field can only contain numbers');
+      return;
+    }
+
     mutate(dataToSend, {
       onSuccess: (res) => {
         queryClient.setQueryData<any>(

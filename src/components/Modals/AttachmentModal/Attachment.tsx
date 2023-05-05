@@ -6,8 +6,9 @@ type Iprops = {
   modalIsOpen: boolean;
   close: () => void;
   attachmentUrl: string;
+  type: string;
 };
-const Attachment = ({ modalIsOpen, close, attachmentUrl }: Iprops) => {
+const Attachment = ({ modalIsOpen, close, attachmentUrl, type }: Iprops) => {
   const customStyles = {
     content: {
       top: '50%',
@@ -29,7 +30,7 @@ const Attachment = ({ modalIsOpen, close, attachmentUrl }: Iprops) => {
       <div className='attachment-header'>
         <p>
           {attachmentUrl?.replace(
-            'https://accounting-modules.s3.amazonaws.com/expenses/',
+            `https://accounting-modules.s3.amazonaws.com/${type}s/`,
             ''
           )}
         </p>
