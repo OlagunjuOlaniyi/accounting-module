@@ -63,3 +63,15 @@ export const deleteExpense = async (id?: string) => {
   const response = await axiosInstance.delete(`/expenses/${id}/`);
   return response.data;
 };
+
+//get expense types
+export const getExpenseTypes = async (id: string) => {
+  const response = await axiosInstance.get(`/expenses/expensetype/group/${id}`);
+  return response.data;
+};
+
+//get expense groups
+export const getExpenseGroups = async () => {
+  const response = await axiosInstance.get(`/expenses/expense/group`);
+  return response.data;
+};

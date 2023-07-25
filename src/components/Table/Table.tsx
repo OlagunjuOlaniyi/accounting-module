@@ -1,7 +1,7 @@
-import React from 'react';
-import { useTable, useSortBy } from 'react-table';
-import './table.scss';
-import SortArrow from '../../icons/SortArrow';
+import React from "react";
+import { useTable, useSortBy } from "react-table";
+import "./table.scss";
+import SortArrow from "../../icons/SortArrow";
 
 const Table = ({ columns, data }: any) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -22,7 +22,7 @@ const Table = ({ columns, data }: any) => {
               // Add the sorting props to control sorting. For this example
               // we can add them into the header props
               <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                {column.render('Header')}
+                {column.render("Header")}
                 {/* Add a sort direction indicator */}
                 <span>
                   <SortArrow />
@@ -38,7 +38,7 @@ const Table = ({ columns, data }: any) => {
           return (
             <tr {...row.getRowProps()}>
               {row.cells.map((cell) => {
-                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
+                return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
               })}
             </tr>
           );

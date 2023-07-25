@@ -1,14 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../../components/Button/Button';
 import './login.scss';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router';
+import { fetchSchoolDetails } from '../../services/authService';
 
 import TextInput from '../../components/Input/TextInput';
 import { useLogin } from '../../hooks/mutations/auth';
 
+type schoolDetails = {
+  idx: number;
+  subdomain: string;
+};
 const Login = () => {
   const navigate = useNavigate();
+  const [schoolDetails, setSchoolDetails] = useState<schoolDetails[]>([]);
+
+  // //get school details
+  // const getSchoolDetails = async () => {
+  //   try {
+  //     let res = await fetchSchoolDetails();
+  //     setSchoolDetails(res.data);
+  //     return res.data;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const { mutate, isLoading } = useLogin();
   const [state, setState] = useState({
@@ -45,114 +62,36 @@ const Login = () => {
   };
 
   //submit form
-  const submit = () => {
+  const submit = async () => {
+    let response = await fetchSchoolDetails();
+    console.log(response);
     let dataToSend = {
-      email: state.username,
-      password: state.password,
+      name: 'demo',
+      password: 'edves_account_111',
+      idx: response?.data[0]?.idx,
+      school_url: response?.data[0]?.subdomain,
     };
 
     mutate(dataToSend, {
       onSuccess: (res) => {
-        toast.success('Login successful');
+        //toast.success('Login successful');
         localStorage.setItem('userDetails', JSON.stringify(res?.data));
         localStorage.setItem('token', res?.data?.tokens?.access);
-        window.location.replace('/');
+        window.location.replace('/income-and-expense');
       },
 
       onError: (e) => {
         console.log(e);
-        toast.error('Invalid credentials');
+        //toast.error('Invalid credentials');
       },
     });
   };
 
-  return (
-    <div className='login'>
-      <div className='login__card'>
-        <div className='login__card__logo'>
-          <h2>Accounting Module</h2>
-        </div>
+  useEffect(() => {
+    submit();
+  }, []);
 
-        <div className='login__card__form'>
-          <TextInput
-            label='Email Address'
-            fieldClass={errors['username'] ? 'error-field' : 'input-field'}
-            placeholder='edves1@gmail.com'
-            name='username'
-            value={state.username}
-            handleChange={handleChange}
-            handleBlur={handleBlur}
-            type='email'
-            errorMessage={errors['username']}
-            errorClass={'error-msg'}
-            id={'email'}
-            onSelectValue={function (
-              a: string,
-              b: string,
-              c?: string | undefined,
-              ...r: any
-            ): void {
-              throw new Error('Function not implemented.');
-            }}
-            isSearchable={false}
-            handleSearchValue={function (e: any): void {
-              throw new Error('Function not implemented.');
-            }}
-            searchValue={''}
-            multi={false}
-            toggleOption={function (a: any): void {
-              throw new Error('Function not implemented.');
-            }}
-            selectedValues={undefined}
-          />
-
-          <TextInput
-            label='Password*'
-            fieldClass={errors['password'] ? 'error-field' : 'input-field'}
-            placeholder='password'
-            name='password'
-            value={state.password}
-            handleChange={handleChange}
-            handleBlur={handleBlur}
-            type='password'
-            errorMessage={errors['password']}
-            errorClass={'error-msg'}
-            id={'password'}
-            onSelectValue={function (
-              a: string,
-              b: string,
-              c?: string | undefined,
-              ...r: any
-            ): void {
-              throw new Error('Function not implemented.');
-            }}
-            isSearchable={false}
-            handleSearchValue={function (e: any): void {
-              throw new Error('Function not implemented.');
-            }}
-            searchValue={''}
-            multi={false}
-            toggleOption={function (a: any): void {
-              throw new Error('Function not implemented.');
-            }}
-            selectedValues={undefined}
-          />
-
-          <Button
-            btnClass={'btn-primary'}
-            btnText={isLoading ? 'Please wait...' : 'Log In'}
-            width='100%'
-            onClick={() => {
-              submit();
-            }}
-            disabled={
-              state.username === '' || state.password === '' || isLoading
-            }
-          />
-        </div>
-      </div>
-    </div>
-  );
+  return <div className='login'></div>;
 };
 
 export default Login;

@@ -1,9 +1,14 @@
 import { useQuery } from 'react-query';
 
 import { ApiRes, IexpenseRes } from '../../types/expenseTypes';
-import { getIncomes, getSingleIncome } from '../../services/incomeService';
+import {
+  getIncomeGroups,
+  getIncomeTypes,
+  getIncomes,
+  getSingleIncome,
+} from '../../services/incomeService';
 
-//get expenses
+//get incomes
 export const useGetIncomes = () => {
   return useQuery<ApiRes>({
     queryKey: 'incomes',
@@ -11,10 +16,28 @@ export const useGetIncomes = () => {
   });
 };
 
-//get single expense
+//get single income
 export const useGetSingleIncome = (id?: string) => {
   return useQuery<ApiRes | any>({
     queryKey: `incomes-single-${id}`,
     queryFn: () => getSingleIncome(id),
+  });
+};
+
+//get income types
+export const useGetIncomeTypes = (id: string) => {
+  return useQuery<ApiRes | any>({
+    queryKey: `income-type-${id}`,
+    queryFn: () => getIncomeTypes(id),
+    refetchOnWindowFocus: false,
+    enabled: Boolean(id),
+  });
+};
+
+//get income groups
+export const useGetIncomeGroups = () => {
+  return useQuery<ApiRes | any>({
+    queryKey: `income-group`,
+    queryFn: () => getIncomeGroups(),
   });
 };

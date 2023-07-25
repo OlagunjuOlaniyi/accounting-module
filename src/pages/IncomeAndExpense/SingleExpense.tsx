@@ -21,7 +21,10 @@ const SingleExpense = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  //get expenses
   const { isLoading, data } = useGetSingleExpenses(id);
+
+  console.log(data?.data);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [showDelete, setShowDelete] = useState<boolean>(false);
@@ -51,7 +54,7 @@ const SingleExpense = () => {
           queryKey: [`expenses-single-${id}`],
         });
         toast.success('Transaction deleted successfully');
-        navigate('/');
+        navigate('/income-and-expense');
         closeModal();
       },
 
@@ -78,7 +81,7 @@ const SingleExpense = () => {
               <BackArrow />
               <span
                 className='single-expense-wrapper__top__breadcrumbs__inactive'
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/income-and-expense')}
               >
                 Income and Expense Management /
               </span>
@@ -171,7 +174,7 @@ const SingleExpense = () => {
                 DATE CREATED :{' '}
               </p>
               <p className='single-expense-wrapper__accounts__right__scnd'>
-                {moment(data?.data[0]?.date).format('lll')}
+                {moment(data?.data[0]?.created_at).format('lll')}
               </p>
             </div>
           </div>
@@ -194,7 +197,7 @@ const SingleExpense = () => {
                   <h4>ACCOUNT</h4>
                   <p>
                     {' '}
-                    <Dot type='expense' /> {data?.data[0]?.account}{' '}
+                    <Dot type='expense' /> Expense{' '}
                   </p>
                 </div>
                 <div className='single-expense-wrapper__details__bottom__left__item'>

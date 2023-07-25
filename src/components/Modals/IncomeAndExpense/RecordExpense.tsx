@@ -18,6 +18,10 @@ import RadioChecked from '../../../icons/RadioChecked';
 import RadioUnchecked from '../../../icons/RadioUnchecked';
 import { useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
+import {
+  useGetExpenseGroups,
+  useGetExpenseTypes,
+} from '../../../hooks/queries/expenses';
 
 const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
@@ -58,7 +62,6 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   });
 
   const [errors, setErrors] = useState({
-    incomeType: '',
     paymentMethod: '',
     amount: '',
     description: '',
@@ -72,28 +75,49 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   const [fileUrl, setFileUrl] = useState<any>(null);
   const [expenseGroupDropdown, setExpenseGroupDopdown] =
     useState<boolean>(false);
+  const [expenseTypeDropdown, setExpenseTypeDopdown] = useState<boolean>(false);
   const [selection, setSelection] = useState('post');
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   //debounce callback to control expense group dropdown
   const debounced = useDebouncedCallback(
     // function
-    (value) => {
-      setExpenseGroupDopdown(value);
+    (name, value) => {
+      if (name === 'expenseGroup') {
+        setExpenseGroupDopdown(value);
+      } else if (name === 'expenseType') {
+        setExpenseTypeDopdown(value);
+      }
     },
     // delay in ms
     1000
   );
 
+  //handle dropdown after seconds wth deounced
+  const handleDropdown = (target: string, value: string) => {
+    switch (target) {
+      case 'expenseGroup':
+        if (value != '') {
+          debounced('expenseGroup', true);
+        } else {
+          debounced('expenseGroup', false);
+        }
+
+        break;
+
+      case 'expenseType':
+        if (value != '') {
+          debounced('expenseType', true);
+        } else {
+          debounced('expenseType', false);
+        }
+    }
+  };
+
   //handle field change
   const handleChange = (evt: any) => {
     const value = evt.target.value;
-    if (evt.target.name === 'expenseGroup' && value != '') {
-      debounced(true);
-    }
-
-    if (evt.target.name === 'expenseGroup' && value === '') {
-      debounced(false);
-    }
+    handleDropdown(evt.target.name, value);
     setFields({
       ...fields,
       [evt.target.name]: value,
@@ -117,12 +141,23 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     }
   };
 
-  // select value from dropdown
-  const selectValue = (option: string, name: string) => {
-    setFields({ ...fields, [name]: option });
-  };
+  const { mutate, isLoading } = useCreateExpense();
 
-  const { mutate, isLoading, isSuccess, isError } = useCreateExpense();
+  //get expense groups
+  const { data: groups } = useGetExpenseGroups();
+
+  //get expense types
+  const { data: types, refetch } = useGetExpenseTypes(selectedGroupId);
+
+  // select value from dropdown
+  const selectValue = (option: string, name: string, id: string) => {
+    setFields({ ...fields, [name]: option });
+    setSelectedGroupId(id);
+    //refetch expense type
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
 
   //submit form
   const submit = () => {
@@ -149,6 +184,14 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
         queryClient.invalidateQueries({
           queryKey: `expenses`,
         });
+        setFields({
+          expenseType: '',
+          expenseGroup: '',
+          paymentMethod: '',
+          amount: '',
+          description: '',
+          dateOfTransaction: todaysDate,
+        });
       },
 
       onError: (e) => {
@@ -158,6 +201,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
       },
     });
   };
+
   return (
     <Modal
       isOpen={modalIsOpen}
@@ -176,7 +220,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
             <h4>Record Transaction</h4>
             <p>
               Select the expense group, type, amount, payment method, and date
-              of the income you want to record
+              of the expense you want to record
             </p>
           </div>
         </div>
@@ -213,7 +257,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
               {selection === 'create' ? <RadioChecked /> : <RadioUnchecked />}
             </button>
           </div>
-          {selection === 'post' ? (
+          {selection === 'create' ? (
             <div className='dropdown-container'>
               <div className='input-component'>
                 <label>Expense Group</label>
@@ -229,7 +273,12 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                       value={fields.expenseGroup}
                     />
                     <div className='dropdown-tools'>
-                      <div className='dropdown-tool'>
+                      <div
+                        className='dropdown-tool'
+                        onClick={() =>
+                          setExpenseGroupDopdown(!expenseGroupDropdown)
+                        }
+                      >
                         <Dot type='expense' />
                       </div>
                     </div>
@@ -239,26 +288,29 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
 
               {expenseGroupDropdown && (
                 <div
-                  className='dropdown-menu'
+                  className='dropdown-menu-copy'
                   onClick={(e: any) => e.stopPropagation()}
                 >
-                  {[
-                    { id: 1, name: 'Depreciation' },
-                    { id: 2, name: 'Discount' },
-                  ].map((el) => (
-                    <div
-                      className={`dropdown-item`}
-                      onClick={() => {
-                        setFields({
-                          ...fields,
-                          expenseGroup: el.name,
-                        });
-                        setExpenseGroupDopdown(false);
-                      }}
-                    >
-                      <p>{el.name}</p>
-                    </div>
-                  ))}
+                  {groups?.data
+                    ?.filter((el: { name: string }) =>
+                      el.name
+                        ?.toLowerCase()
+                        .includes(fields.expenseGroup?.toLowerCase())
+                    )
+                    .map((el: any) => (
+                      <div
+                        className={`dropdown-item`}
+                        onClick={() => {
+                          setFields({
+                            ...fields,
+                            expenseGroup: el.name,
+                          });
+                          setExpenseGroupDopdown(false);
+                        }}
+                      >
+                        <p>{el.name}</p>
+                      </div>
+                    ))}
                   <div className='p-5'>
                     <Button
                       disabled={false}
@@ -279,7 +331,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
               label='Expense Group'
               placeholder='Type expense group'
               name='expenseGroup'
-              type='text'
+              type='dropdown'
               errorClass={'error-msg'}
               handleChange={handleChange}
               value={fields.expenseGroup}
@@ -288,7 +340,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
               }
               errorMessage={errors['expenseGroup']}
               id={'expenseGroup'}
-              onSelectValue={function (a: string, b: string): void {}}
+              onSelectValue={selectValue}
               isSearchable={false}
               handleSearchValue={function (): void {}}
               searchValue={''}
@@ -298,31 +350,72 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                 throw new Error('');
               }}
               selectedValues={undefined}
+              options={groups?.data}
             />
           )}
 
-          <TextInput
-            label='Expense Type'
-            placeholder='Type or select expense type'
-            name='expenseType'
-            type='text'
-            errorClass={'error-msg'}
-            handleChange={handleChange}
-            value={fields.expenseType}
-            fieldClass={errors['expenseType'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['expenseType']}
-            id={'expenseType'}
-            onSelectValue={function (a: string, b: string): void {}}
-            isSearchable={false}
-            handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={handleBlur}
-            multi={false}
-            toggleOption={function (a: any): void {
-              throw new Error('');
-            }}
-            selectedValues={undefined}
-          />
+          <div className='dropdown-container'>
+            <div className='input-component'>
+              <label>Expense Type</label>
+              <div className='dropdown-container'>
+                <div
+                  className={`dropdown-input ${
+                    errors['expenseType'] ? 'error-field' : 'input-field'
+                  }`}
+                >
+                  <input
+                    name='expenseType'
+                    onChange={handleChange}
+                    value={fields.expenseType}
+                  />
+                  <div className='dropdown-tools'>
+                    <div
+                      className='dropdown-tool'
+                      onClick={() =>
+                        setExpenseTypeDopdown(!expenseTypeDropdown)
+                      }
+                    >
+                      <Dot type='expense' />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {expenseTypeDropdown && (
+              <div
+                className='dropdown-menu-copy'
+                onClick={(e: any) => e.stopPropagation()}
+              >
+                {types?.expense_type?.map((el: any) => (
+                  <div
+                    className={`dropdown-item`}
+                    onClick={() => {
+                      setFields({
+                        ...fields,
+                        expenseType: el.name,
+                      });
+                      setExpenseTypeDopdown(false);
+                    }}
+                  >
+                    <p>{el.name}</p>
+                  </div>
+                ))}
+                <div className='p-5'>
+                  <Button
+                    disabled={false}
+                    btnText='Add as new expense type'
+                    btnClass='btn-primary'
+                    width='100%'
+                    icon={<Addcircle />}
+                    onClick={() => {
+                      setExpenseTypeDopdown(false);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
           <TextInput
             label={selection === 'post' ? 'Amount' : 'Opening Balance'}

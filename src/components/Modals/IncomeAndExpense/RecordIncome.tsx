@@ -18,6 +18,10 @@ import RadioUnchecked from '../../../icons/RadioUnchecked';
 import toast from 'react-hot-toast';
 import { useCreateIncome } from '../../../hooks/mutations/incomes';
 import { useQueryClient } from 'react-query';
+import {
+  useGetIncomeGroups,
+  useGetIncomeTypes,
+} from '../../../hooks/queries/incomes';
 
 const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
@@ -70,28 +74,49 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
   const [file, setFile] = useState<any>(null);
   const [fileUrl, setFileUrl] = useState<any>(null);
   const [incomeGroupDropdown, setIncomeGroupDopdown] = useState<boolean>(false);
+  const [incomeTypeDropdown, setIncomeTypeDopdown] = useState<boolean>(false);
   const [selection, setSelection] = useState('post');
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   //debounce callback to control income group dropdown
   const debounced = useDebouncedCallback(
     // function
-    (value) => {
-      setIncomeGroupDopdown(value);
+    (name, value) => {
+      if (name === 'incomeGroup') {
+        setIncomeGroupDopdown(value);
+      } else if (name === 'incomeType') {
+        setIncomeTypeDopdown(value);
+      }
     },
     // delay in ms
     1000
   );
 
+  //handle dropdown after seconds wth deounced
+  const handleDropdown = (target: string, value: string) => {
+    switch (target) {
+      case 'incomeGroup':
+        if (value != '') {
+          debounced('incomeGroup', true);
+        } else {
+          debounced('incomeGroup', false);
+        }
+
+        break;
+
+      case 'incomeType':
+        if (value != '') {
+          debounced('incomeType', true);
+        } else {
+          debounced('incomeType', false);
+        }
+    }
+  };
+
   //handle field change
   const handleChange = (evt: any) => {
     const value = evt.target.value;
-    if (evt.target.name === 'incomeGroup' && value != '') {
-      debounced(true);
-    }
-
-    if (evt.target.name === 'incomeGroup' && value === '') {
-      debounced(false);
-    }
+    handleDropdown(evt.target.name, value);
     setFields({
       ...fields,
       [evt.target.name]: value,
@@ -115,12 +140,24 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
     }
   };
 
-  // select value from dropdown
-  const selectValue = (option: string, name: string) => {
-    setFields({ ...fields, [name]: option });
-  };
-
   const { mutate, isLoading, isSuccess, isError } = useCreateIncome();
+
+  //get expense groups
+  const { data: groups } = useGetIncomeGroups();
+
+  //get expense types
+  const { data: types, refetch } = useGetIncomeTypes(selectedGroupId);
+
+  // select value from dropdown
+  const selectValue = (option: string, name: string, id: string) => {
+    console.log(option, name, id);
+    setFields({ ...fields, [name]: option });
+    setSelectedGroupId(id);
+    //refetch expense type
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
 
   //submit form
   const submit = () => {
@@ -146,6 +183,15 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
         toast.success('Transaction recorded successfully');
         queryClient.invalidateQueries({
           queryKey: `incomes`,
+        });
+
+        setFields({
+          incomeType: '',
+          incomeGroup: '',
+          paymentMethod: '',
+          amount: '',
+          description: '',
+          dateOfTransaction: todaysDate,
         });
       },
 
@@ -212,7 +258,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
               {selection === 'create' ? <RadioChecked /> : <RadioUnchecked />}
             </button>
           </div>
-          {selection === 'post' ? (
+          {selection === 'create' ? (
             <div className='dropdown-container'>
               <div className='input-component'>
                 <label>Income Group</label>
@@ -238,26 +284,29 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
 
               {incomeGroupDropdown && (
                 <div
-                  className='dropdown-menu'
+                  className='dropdown-menu-copy'
                   onClick={(e: any) => e.stopPropagation()}
                 >
-                  {[
-                    { id: 1, name: 'Depreciation' },
-                    { id: 2, name: 'Discount' },
-                  ].map((el) => (
-                    <div
-                      className={`dropdown-item`}
-                      onClick={() => {
-                        setFields({
-                          ...fields,
-                          incomeGroup: el.name,
-                        });
-                        setIncomeGroupDopdown(false);
-                      }}
-                    >
-                      <p>{el.name}</p>
-                    </div>
-                  ))}
+                  {groups?.data
+                    ?.filter((el: { name: string }) =>
+                      el.name
+                        ?.toLowerCase()
+                        .includes(fields.incomeGroup?.toLowerCase())
+                    )
+                    .map((el: any) => (
+                      <div
+                        className={`dropdown-item`}
+                        onClick={() => {
+                          setFields({
+                            ...fields,
+                            incomeGroup: el.name,
+                          });
+                          setIncomeGroupDopdown(false);
+                        }}
+                      >
+                        <p>{el.name}</p>
+                      </div>
+                    ))}
                   <div className='p-5'>
                     <Button
                       disabled={false}
@@ -278,14 +327,14 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
               label='Income Group'
               placeholder='Type income group'
               name='incomeGroup'
-              type='text'
+              type='dropdown'
               errorClass={'error-msg'}
               handleChange={handleChange}
-              value={fields.incomeType}
+              value={fields.incomeGroup}
               fieldClass={errors['incomeGroup'] ? 'error-field' : 'input-field'}
               errorMessage={errors['incomeGroup']}
               id={'incomeGroup'}
-              onSelectValue={function (a: string, b: string): void {}}
+              onSelectValue={selectValue}
               isSearchable={false}
               handleSearchValue={function (): void {}}
               searchValue={''}
@@ -295,31 +344,70 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
                 throw new Error('');
               }}
               selectedValues={undefined}
+              options={groups?.data}
             />
           )}
 
-          <TextInput
-            label='Income Type'
-            placeholder='Type or select income type'
-            name='incomeType'
-            type='text'
-            errorClass={'error-msg'}
-            handleChange={handleChange}
-            value={fields.incomeType}
-            fieldClass={errors['incomeType'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['incomeType']}
-            id={'incomeType'}
-            onSelectValue={function (a: string, b: string): void {}}
-            isSearchable={false}
-            handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={handleBlur}
-            multi={false}
-            toggleOption={function (a: any): void {
-              throw new Error('');
-            }}
-            selectedValues={undefined}
-          />
+          <div className='dropdown-container'>
+            <div className='input-component'>
+              <label>Income Type</label>
+              <div className='dropdown-container'>
+                <div
+                  className={`dropdown-input ${
+                    errors['incomeGroup'] ? 'error-field' : 'input-field'
+                  }`}
+                >
+                  <input
+                    name='incomeType'
+                    onChange={handleChange}
+                    value={fields.incomeType}
+                  />
+                  <div className='dropdown-tools'>
+                    <div
+                      className='dropdown-tool'
+                      onClick={() => setIncomeTypeDopdown(!incomeTypeDropdown)}
+                    >
+                      <Dot type='income' />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {incomeTypeDropdown && (
+              <div
+                className='dropdown-menu-copy'
+                onClick={(e: any) => e.stopPropagation()}
+              >
+                {types?.income_type?.map((el: { name: string }) => (
+                  <div
+                    className={`dropdown-item`}
+                    onClick={() => {
+                      setFields({
+                        ...fields,
+                        incomeType: el.name,
+                      });
+                      setIncomeTypeDopdown(false);
+                    }}
+                  >
+                    <p>{el.name}</p>
+                  </div>
+                ))}
+                <div className='p-5'>
+                  <Button
+                    disabled={false}
+                    btnText='Add as new income type'
+                    btnClass='btn-primary'
+                    width='100%'
+                    icon={<Addcircle />}
+                    onClick={() => {
+                      setIncomeTypeDopdown(false);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
           <TextInput
             label={selection === 'post' ? 'Amount' : 'Opening Balance'}

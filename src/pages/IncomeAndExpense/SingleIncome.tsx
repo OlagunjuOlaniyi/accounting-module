@@ -53,7 +53,7 @@ const SingleIncome = () => {
           queryKey: [`expenses-single-${id}`],
         });
         toast.success('Transaction deleted successfully');
-        navigate('/');
+        navigate('/income-and-expense');
         closeModal();
       },
 
@@ -80,7 +80,7 @@ const SingleIncome = () => {
               <BackArrow />
               <span
                 className='single-expense-wrapper__top__breadcrumbs__inactive'
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/income-and-expense')}
               >
                 Income and Expense Management /
               </span>
@@ -173,7 +173,7 @@ const SingleIncome = () => {
                 DATE CREATED :{' '}
               </p>
               <p className='single-expense-wrapper__accounts__right__scnd'>
-                {moment(data?.data[0]?.date).format('lll')}
+                {moment(data?.data[0]?.created_at).format('lll')}
               </p>
             </div>
           </div>
@@ -196,7 +196,7 @@ const SingleIncome = () => {
                   <h4>ACCOUNT</h4>
                   <p>
                     {' '}
-                    <Dot type='expense' /> {data?.data[0]?.account}{' '}
+                    <Dot type='income' /> Income{' '}
                   </p>
                 </div>
                 <div className='single-expense-wrapper__details__bottom__left__item'>

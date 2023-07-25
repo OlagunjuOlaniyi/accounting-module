@@ -63,3 +63,15 @@ export const deleteIncome = async (id?: string) => {
   const response = await axiosInstance.delete(`/incomes/${id}/`);
   return response.data;
 };
+
+//get income types
+export const getIncomeTypes = async (id: string) => {
+  const response = await axiosInstance.get(`/incomes/incometype/group/${id}`);
+  return response.data;
+};
+
+//get income groups
+export const getIncomeGroups = async () => {
+  const response = await axiosInstance.get(`/incomes/incomegroup`);
+  return response.data;
+};

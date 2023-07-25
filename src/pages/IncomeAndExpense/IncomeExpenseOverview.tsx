@@ -51,34 +51,21 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
     },
   ];
 
-  const labels = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
+  const labels = ['Jul'];
 
   const barData = {
     labels,
     datasets: [
       {
         label: 'Income',
-        data: [100, 400, 600, 200, 700, 300, 400, 200, 254, 100, 433, 546],
+        data: apiData?.incomes?.map((el: any) => el.amount),
         backgroundColor: '#43F226',
         borderRadius: 40,
         barThickness: 45,
       },
       {
         label: 'Expense',
-        data: [100, 200, 500, 200, 500, 400, 600, 200, 900, 300, 500, 100],
+        data: apiData?.expenses?.map((el: any) => el.amount),
         backgroundColor: '#FE5050',
         borderRadius: 40,
         barThickness: 45,

@@ -17,7 +17,7 @@ export interface Iprops extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   id: string;
   placeholder: string;
-  onSelectValue: (a: string, b: string, c?: string, ...r: any) => void;
+  onSelectValue: (a: string, b: string, c: string) => void;
   isSearchable: boolean;
   handleSearchValue: (e: any) => void;
   searchValue: string;

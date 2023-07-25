@@ -60,7 +60,7 @@ const ExpenseTable = ({ filteredData, searchRes }: Iprops) => {
           queryKey: `expenses`,
         });
         toast.success('Transaction deleted successfully');
-        navigate('/');
+        navigate('/income-and-expense');
         closeModal();
       },
 
@@ -144,7 +144,7 @@ const ExpenseTable = ({ filteredData, searchRes }: Iprops) => {
       Cell: ({ cell: { value } }: any) => (
         <div className='d-flex'>
           <Dot type={'expense'} />
-          <p>{value}</p>
+          <p>{'Expense'}</p>
         </div>
       ),
     },

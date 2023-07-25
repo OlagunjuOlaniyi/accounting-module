@@ -37,7 +37,6 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
 
   //get incomes
   const { data, isLoading } = useGetIncomes();
-
   let apiData: any = searchRes?.incomes
     ? searchRes?.incomes
     : filteredData
@@ -62,7 +61,7 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
           queryKey: `incomes`,
         });
         toast.success('Transaction deleted successfully');
-        navigate('/');
+        navigate('/income-and-expense');
         closeModal();
       },
 
@@ -145,7 +144,7 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
       Cell: ({ cell: { value } }: any) => (
         <div className='d-flex'>
           <Dot type={'income'} />
-          <p>{value}</p>
+          <p>{'Income'}</p>
         </div>
       ),
     },

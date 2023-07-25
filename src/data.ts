@@ -11,6 +11,23 @@ export const tabs = [
   { id: 3, title: 'Expense', badge: true },
 ];
 
+export const ledgerTabs = [
+  { id: 'income_ledger', title: 'Income Ledger', badge: false },
+  { id: 'expense_ledger', title: 'Expense Ledger', badge: true },
+  { id: 'asset_ledger', title: 'Asset Ledger', badge: true },
+  { id: 'equity_ledger', title: 'Equity Ledger', badge: true },
+  { id: 'liability_ledger', title: 'Liability Ledger', badge: true },
+];
+
+export const BalanceSheettabs = [
+  // { id: 1, title: "Balance Sheet", badge: false },
+  // { id: 2, title: "Profit and Loss Statement", badge: true },
+  // { id: 3, title: "Cashflow Statement", badge: true },
+  { id: 1, title: 'Balance Sheet', badge: false },
+  { id: 2, title: 'Profit and Loss Statement', badge: true },
+  { id: 4, title: 'Trial Balance', badge: true },
+];
+
 export const income = [
   { id: 1, amount: 'NGN 200,000', title: 'Books & Library Services' },
   { id: 2, amount: 'NGN 210,000', title: 'Donations' },

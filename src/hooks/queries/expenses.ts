@@ -1,5 +1,10 @@
 import { useQuery } from 'react-query';
-import { getExpenses, getSingleExpense } from '../../services/expenseService';
+import {
+  getExpenseGroups,
+  getExpenseTypes,
+  getExpenses,
+  getSingleExpense,
+} from '../../services/expenseService';
 import { ApiRes, IexpenseRes } from '../../types/expenseTypes';
 
 //get expenses
@@ -15,5 +20,23 @@ export const useGetSingleExpenses = (id?: string) => {
   return useQuery<ApiRes | any>({
     queryKey: `expenses-single-${id}`,
     queryFn: () => getSingleExpense(id),
+  });
+};
+
+//get expense types
+export const useGetExpenseTypes = (id: string) => {
+  return useQuery<ApiRes | any>({
+    queryKey: `expenses-type-${id}`,
+    queryFn: () => getExpenseTypes(id),
+    refetchOnWindowFocus: false,
+    enabled: Boolean(id),
+  });
+};
+
+//get expense groups
+export const useGetExpenseGroups = () => {
+  return useQuery<ApiRes | any>({
+    queryKey: `expenses-group`,
+    queryFn: () => getExpenseGroups(),
   });
 };

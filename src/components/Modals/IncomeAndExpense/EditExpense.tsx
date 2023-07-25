@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import Cancel from '../../../icons/Cancel';
 import { IeditModal } from '../../../types/types';
@@ -13,7 +13,11 @@ import Dot from '../../../icons/Dot';
 import { useDebouncedCallback } from 'use-debounce';
 import Button from '../../Button/Button';
 import Addcircle from '../../../icons/Addcircle';
-import { useGetSingleExpenses } from '../../../hooks/queries/expenses';
+import {
+  useGetExpenseGroups,
+  useGetExpenseTypes,
+  useGetSingleExpenses,
+} from '../../../hooks/queries/expenses';
 import { useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
 
@@ -52,13 +56,26 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   //let todaysDate = new Date().toISOString().substring(0, 10);
 
   const [fields, setFields] = useState<StateProps>({
-    expenseType: data?.data[0]?.transaction_type?.name,
-    expenseGroup: data?.data[0]?.transaction_group?.name,
-    paymentMethod: data?.data[0]?.payment_method,
-    amount: data?.data[0]?.amount,
-    description: data?.data[0]?.description,
-    dateOfTransaction: data?.data[0]?.date,
+    expenseType: '',
+    expenseGroup: '',
+    paymentMethod: '',
+    amount: '',
+    description: '',
+    dateOfTransaction: '',
   });
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+
+  useEffect(() => {
+    setFields({
+      ...fields,
+      expenseType: data?.data[0]?.transaction_type?.name,
+      expenseGroup: data?.data[0]?.transaction_group?.name,
+      paymentMethod: data?.data[0]?.payment_method,
+      amount: data?.data[0]?.amount,
+      description: data?.data[0]?.description,
+      dateOfTransaction: data?.data[0]?.date,
+    });
+  }, [data]);
 
   const [errors, setErrors] = useState({
     paymentMethod: '',
@@ -75,6 +92,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   const [expenseGroupDropdown, setExpenseGroupDopdown] =
     useState<boolean>(false);
   const [selection, setSelection] = useState('post');
+  const [expenseTypeDropdown, setExpenseTypeDopdown] = useState<boolean>(false);
 
   //debounce callback to control expense group dropdown
   const debounced = useDebouncedCallback(
@@ -120,8 +138,13 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   };
 
   // select value from dropdown
-  const selectValue = (option: string, name: string) => {
+  const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
+    setSelectedGroupId(id);
+    //refetch expense type
+    setTimeout(() => {
+      refetch();
+    }, 500);
   };
 
   const { mutate, isLoading, isError } = useUpdateExpense();
@@ -181,6 +204,12 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     });
   };
 
+  //get expense groups
+  const { data: groups } = useGetExpenseGroups();
+
+  //get expense types
+  const { data: types, refetch } = useGetExpenseTypes(selectedGroupId);
+
   return (
     <Modal
       isOpen={modalIsOpen}
@@ -199,7 +228,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             <h4>Edit Transaction {data?.data[0]?.transaction_group?.name}</h4>
             <p>
               Select the expense group, type, amount, payment method, and date
-              of the income you want to record
+              of the expense you want to update
             </p>
           </div>
         </div>
@@ -223,11 +252,15 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
                   <input
                     name='expenseGroup'
                     onChange={handleChange}
-                    //value={fields.expenseGroup}
-                    defaultValue={data?.data[0]?.transaction_type?.name}
+                    value={fields.expenseGroup}
                   />
                   <div className='dropdown-tools'>
-                    <div className='dropdown-tool'>
+                    <div
+                      className='dropdown-tool'
+                      onClick={() =>
+                        setExpenseGroupDopdown(!expenseGroupDropdown)
+                      }
+                    >
                       <Dot type='expense' />
                     </div>
                   </div>
@@ -240,17 +273,11 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
                 className='dropdown-menu'
                 onClick={(e: any) => e.stopPropagation()}
               >
-                {[
-                  { id: 1, name: 'Depreciation' },
-                  { id: 2, name: 'Discount' },
-                ].map((el) => (
+                {groups?.data?.map((el: { name: string; id: string }) => (
                   <div
                     className={`dropdown-item`}
                     onClick={() => {
-                      setFields({
-                        ...fields,
-                        expenseGroup: el.name,
-                      });
+                      selectValue(el.name, 'expenseGroup', el.id);
                       setExpenseGroupDopdown(false);
                     }}
                   >
@@ -273,29 +300,67 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             )}
           </div>
 
-          <TextInput
-            defaultValue={data?.data[0]?.transaction_group?.name}
-            label='Expense Type'
-            placeholder='Type or select expense type'
-            name='expenseType'
-            type='text'
-            errorClass={'error-msg'}
-            handleChange={handleChange}
-            //value={fields.expenseType}
-            fieldClass={errors['expenseType'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['expenseType']}
-            id={'expenseType'}
-            onSelectValue={function (a: string, b: string): void {}}
-            isSearchable={false}
-            handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={handleBlur}
-            multi={false}
-            toggleOption={function (a: any): void {
-              throw new Error('');
-            }}
-            selectedValues={undefined}
-          />
+          <div className='dropdown-container'>
+            <div className='input-component'>
+              <label>Expense Type</label>
+              <div className='dropdown-container'>
+                <div
+                  className={`dropdown-input ${
+                    errors['expenseType'] ? 'error-field' : 'input-field'
+                  }`}
+                >
+                  <input
+                    name='expenseType'
+                    onChange={handleChange}
+                    value={fields.expenseType}
+                  />
+                  <div className='dropdown-tools'>
+                    <div
+                      className='dropdown-tool'
+                      onClick={() =>
+                        setExpenseTypeDopdown(!expenseTypeDropdown)
+                      }
+                    >
+                      <Dot type='expense' />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {expenseTypeDropdown && (
+              <div
+                className='dropdown-menu-copy'
+                onClick={(e: any) => e.stopPropagation()}
+              >
+                {types?.expense_type?.map(
+                  (el: { name: string; id: string }) => (
+                    <div
+                      className={`dropdown-item`}
+                      onClick={() => {
+                        selectValue(el.name, 'expenseType', el.id);
+                        setExpenseTypeDopdown(false);
+                      }}
+                    >
+                      <p>{el.name}</p>
+                    </div>
+                  )
+                )}
+                <div className='p-5'>
+                  <Button
+                    disabled={false}
+                    btnText='Add as new expense type'
+                    btnClass='btn-primary'
+                    width='100%'
+                    icon={<Addcircle />}
+                    onClick={() => {
+                      setExpenseTypeDopdown(false);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
           <TextInput
             label={selection === 'post' ? 'Amount' : 'Opening Balance'}

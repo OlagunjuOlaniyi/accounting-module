@@ -3,11 +3,17 @@ import IncomeAndExpenseLayout from './pages/IncomeAndExpense/IncomeAndExpenseLay
 import SingleExpense from './pages/IncomeAndExpense/SingleExpense';
 import SingleIncome from './pages/IncomeAndExpense/SingleIncome';
 import Login from './pages/Login/Login';
+import Chart from './pages/ChartOfAccount/BalanceSheet';
+import ChartofAccountLayout from './pages/ChartOfAccount/ChartofAccountLayout';
+import BalanceSheet from './pages/ChartOfAccount/BalanceSheet';
+import ProfitAndLossView from './pages/ChartOfAccount/ProfitAndLossView';
+import Ledger from './pages/Ledger/Ledger';
+import ProfitAndLossType from './pages/ChartOfAccount/ProfitAndLossType';
 
 export const routes: RouteTypes[] = [
   {
     id: 1,
-    path: '/',
+    path: '/income-and-expense',
     component: IncomeAndExpenseLayout,
   },
   {
@@ -22,7 +28,27 @@ export const routes: RouteTypes[] = [
   },
   {
     id: 4,
-    path: '/login',
+    path: '/',
     component: Login,
+  },
+  {
+    id: 5,
+    path: '/chart-of-account',
+    component: ChartofAccountLayout,
+  },
+  {
+    id: 6,
+    path: '/chart-of-account/view-profit-and-loss/:id',
+    component: ProfitAndLossView,
+  },
+  {
+    id: 8,
+    path: '/chart-of-account/type-profit-and-loss/:id',
+    component: ProfitAndLossType,
+  },
+  {
+    id: 7,
+    path: '/ledger',
+    component: Ledger,
   },
 ];
