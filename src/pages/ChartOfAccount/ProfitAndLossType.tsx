@@ -50,14 +50,14 @@ const ProfitAndLossType = () => {
     // },
 
     {
-      Header: 'DEBIT BALANCE',
+      Header: 'DEBIT AMOUNT',
       accessor: (d: any) => d.amount,
       Cell: ({ cell: { value } }: any) => (
         <p>{type === 'Expense' ? `NGN ${value}` : 'Not Available'}</p>
       ),
     },
     {
-      Header: 'CREDIT BALANCE',
+      Header: 'CREDIT AMOUNT',
       accessor: 'amount',
       Cell: ({ cell: { value } }: any) => (
         <p>{type === 'Income' ? `NGN ${value}` : 'Not Available'}</p>
