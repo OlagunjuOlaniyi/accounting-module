@@ -28,6 +28,16 @@ export const BalanceSheettabs = [
   { id: 4, title: 'Trial Balance', badge: true },
 ];
 
+export const AssetandLiability = [
+  // { id: 1, title: "Balance Sheet", badge: false },
+  // { id: 2, title: "Profit and Loss Statement", badge: true },
+  // { id: 3, title: "Cashflow Statement", badge: true },
+  { id: 1, title: 'Overview', badge: false },
+  { id: 2, title: 'Asset', badge: true },
+  { id: 3, title: 'Liability', badge: true },
+  { id: 4, title: 'Equity', badge: true },
+];
+
 export const income = [
   { id: 1, amount: 'NGN 200,000', title: 'Books & Library Services' },
   { id: 2, amount: 'NGN 210,000', title: 'Donations' },

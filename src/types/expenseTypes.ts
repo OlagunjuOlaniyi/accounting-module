@@ -8,6 +8,7 @@ export interface IexpenseProps {
   date: string;
   attachment: string;
   account: string;
+  name?: string;
 }
 
 export interface IexpenseRes {

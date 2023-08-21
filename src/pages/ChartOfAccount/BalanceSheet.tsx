@@ -17,6 +17,11 @@ import Asset from '../../icons/Asset';
 import Liability from '../../icons/Liability';
 import Equity from '../../icons/Equity';
 import { Ioverview } from '../../types/types';
+import {
+  useGetAssets,
+  useGetEquity,
+  useGetLiabilities,
+} from '../../hooks/queries/chartOfAccount';
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -24,7 +29,10 @@ interface Iprops {
 }
 
 const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
-  const { data } = useGetIncomeAndExpenseOverview();
+  const { data } = useGetAssets();
+  const { data: liability } = useGetLiabilities();
+  const { data: equity } = useGetEquity();
+
   const [activeTab, setActiveTab] = useState<string | number>(1);
   const [searchText, setSearchText] = useState<string>('');
   const [showActions, setShowActions] = useState<boolean>(false);
@@ -47,13 +55,11 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
     id: number;
   }
 
-  let apiData: any = filteredData ? filteredData : data;
-
   const cardDetails: ICardDetails[] = [
     {
       id: 1,
       title: 'ASSET',
-      amount: `NGN 2000`,
+      amount: `NGN ${data?.total_asset?.toLocaleString() ?? 0}`,
       percentage: '2.4%',
       type: 'profit',
       icon: <Asset />,
@@ -61,7 +67,7 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
     {
       id: 2,
       title: 'LIABILITY',
-      amount: `NGN 1000`,
+      amount: `NGN ${liability?.total_liability?.toLocaleString() ?? 0}`,
       percentage: '1.2%',
       type: 'loss',
       icon: <Liability />,
@@ -69,7 +75,7 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
     {
       id: 3,
       title: 'EQUITY',
-      amount: `NGN 500`,
+      amount: `NGN ${equity?.total_equity?.toLocaleString() ?? 0}`,
       percentage: '2.2%',
       type: 'profit',
       icon: <Equity />,
@@ -112,42 +118,7 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
     }, 500);
   };
 
-  //filter for yesterday
-  const fetchYesterday = () => {
-    let date = new Date();
-    date.setDate(date.getDate() - 1);
-    setState([
-      {
-        startDate: date,
-        endDate: date,
-        key: 'selection',
-      },
-    ]);
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-
-  //filter all
-  const fetchAll = () => {
-    let date = new Date();
-    date.setDate(date.getDate() - 1);
-    setState([
-      {
-        startDate: '',
-        endDate: '',
-        key: 'selection',
-      },
-    ]);
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-
   let searchres = useSearch(debouncedValue).data;
-  let searchLoading = useSearch(debouncedValue).isLoading;
 
   //move tab to income after getting response from search
   useEffect(() => {
@@ -155,6 +126,9 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
       setActiveTab(2);
     }
   }, [searchres]);
+
+  let totalLiabilityAndEquity =
+    Number(equity?.total_equity ?? 0) + Number(liability?.total_liability ?? 0);
 
   return (
     <div>
@@ -185,10 +159,10 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
               </div>
             </div>
             <div className='overview-scroll-container'>
-              {apiData?.incomes?.length === 0 ? (
+              {data?.data?.length === 0 ? (
                 <div className='empty-state'>No data available</div>
               ) : (
-                apiData?.incomes?.map((el: any) => (
+                data?.data?.map((el: any) => (
                   <div
                     className='income-expense-overview__statement-wrapper__content'
                     key={el.id}
@@ -208,7 +182,7 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
                 <h3>Total Asset</h3>
               </div>
               <div className=''>
-                <h3>{apiData?.total_income?.toLocaleString()}</h3>
+                <h3>{data?.total_asset?.toLocaleString() ?? 0}</h3>
               </div>
             </div>
           </div>
@@ -227,10 +201,10 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
                 </div>
               </div>
               <div className='overview-scroll-container'>
-                {apiData?.expenses?.length === 0 ? (
+                {liability?.data?.length === 0 ? (
                   <div className='empty-state'>No data available</div>
                 ) : (
-                  apiData?.expenses?.map((el: any) => (
+                  liability?.data?.map((el: any) => (
                     <div
                       className='income-expense-overview__statement-wrapper__content'
                       key={el.id}
@@ -250,7 +224,9 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
                   <h3>TOTAL Liabilities</h3>
                 </div>
                 <div className=''>
-                  <h3>NGN {apiData?.total_expense?.toLocaleString()}</h3>
+                  <h3>
+                    NGN {liability?.total_liability?.toLocaleString() ?? 0}
+                  </h3>
                 </div>
               </div>
             </div>
@@ -266,10 +242,10 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
                 </div>
               </div>
               <div className='overview-scroll-container'>
-                {apiData?.expenses?.length === 0 ? (
+                {equity?.data?.length === 0 ? (
                   <div className='empty-state'>No data available</div>
                 ) : (
-                  apiData?.expenses?.map((el: any) => (
+                  equity?.data?.map((el: any) => (
                     <div
                       className='income-expense-overview__statement-wrapper__content'
                       key={el.id}
@@ -284,12 +260,15 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
                   ))
                 )}
               </div>
-              <div className='income-expense-overview__statement-wrapper__total'>
+              <div
+                className='income-expense-overview__statement-wrapper__total'
+                style={{ borderBottom: 'none' }}
+              >
                 <div className=''>
                   <h3>TOTAL Equity</h3>
                 </div>
                 <div className=''>
-                  <h3>NGN {apiData?.total_expense?.toLocaleString()}</h3>
+                  <h3>NGN {equity?.total_equity?.toLocaleString() ?? 0}</h3>
                 </div>
               </div>
             </div>
@@ -297,21 +276,41 @@ const BalanceSheet = ({ filteredData, filteredLoading }: Iprops) => {
         </div>
 
         <div style={{ paddingBottom: '10px' }}>
-          <div className='income-expense-overview__statement-wrapper__total balance'>
-            <div style={{ display: 'flex', gap: '377px' }}>
+          <div
+            className='income-expense-overview__statement-wrapper__total balance'
+            style={{ borderTop: 'none', marginTop: '5px' }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                width: '50%',
+                paddingTop: '24px',
+                alignItems: 'center',
+              }}
+            >
               <div className=''>
                 <h3>TOTAL ASSET</h3>
               </div>
               <div className=''>
-                <h3>NGN {apiData?.total_income?.toLocaleString()}</h3>
+                <h3>NGN {data?.total_asset?.toLocaleString()}</h3>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '150px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                width: '50%',
+                paddingLeft: '24px',
+                paddingTop: '24px',
+                alignItems: 'center',
+              }}
+            >
               <div className=''>
                 <h3>TOTAL LIABILITIES & SHAREHOLDERS’ EQUITY</h3>
               </div>
               <div className=''>
-                <h3>NGN {apiData?.total_expense?.toLocaleString()}</h3>
+                <h3>NGN {totalLiabilityAndEquity.toLocaleString() ?? 0}</h3>
               </div>
             </div>
           </div>

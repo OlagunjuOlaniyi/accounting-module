@@ -1,44 +1,42 @@
-import React, { useState, useEffect } from "react";
-import Modal from "react-modal";
-import Cancel from "../../../icons/Cancel";
-import { Imodal } from "../../../types/types";
-import TextInput from "../../Input/TextInput";
+import React, { useState } from 'react';
+import Modal from 'react-modal';
+import Cancel from '../../../icons/Cancel';
+import { Imodal } from '../../../types/types';
+import TextInput from '../../Input/TextInput';
 // import "./recordincome.scss";
-import Dropzone from "react-dropzone";
-import upload from "../../../assets/cloud_upload.svg";
-import Cash from "../../../icons/Cash";
-import Bank from "../../../icons/Bank";
-import Dot from "../../../icons/Dot";
-import { useDebouncedCallback } from "use-debounce";
-import Button from "../../Button/Button";
-import Addcircle from "../../../icons/Addcircle";
-import ThumbsIcon from "../../../icons/ThumbsIcon";
-import RadioChecked from "../../../icons/RadioChecked";
-import RadioUnchecked from "../../../icons/RadioUnchecked";
-import toast from "react-hot-toast";
-import { useCreateIncome } from "../../../hooks/mutations/incomes";
-import { useQueryClient } from "react-query";
+import Dropzone from 'react-dropzone';
+import upload from '../../../assets/cloud_upload.svg';
+import Cash from '../../../icons/Cash';
+import Bank from '../../../icons/Bank';
+
+import { useDebouncedCallback } from 'use-debounce';
+import Button from '../../Button/Button';
+import Addcircle from '../../../icons/Addcircle';
+import toast from 'react-hot-toast';
+import { useCreateIncome } from '../../../hooks/mutations/incomes';
+import { useQueryClient } from 'react-query';
 import {
   useGetIncomeGroups,
   useGetIncomeTypes,
-} from "../../../hooks/queries/incomes";
+} from '../../../hooks/queries/incomes';
+import { useCreateEquity } from '../../../hooks/mutations/chartofAccounts';
 
 const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
   const customStyles = {
     content: {
-      top: "50%",
-      left: "50%",
-      right: "auto",
-      bottom: "auto",
-      marginRight: "-50%",
-      transform: "translate(-50%, -50%)",
-      padding: "0px",
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      padding: '0px',
     },
   };
 
   const close = () => {
-    closeModal("income");
+    closeModal('income');
   };
 
   type StateProps = {
@@ -48,26 +46,29 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
     amount: string;
     description: string;
     dateOfTransaction: string;
+    name: string;
   };
 
   let todaysDate = new Date().toISOString().substring(0, 10);
 
   const [fields, setFields] = useState<StateProps>({
-    incomeType: "",
-    incomeGroup: "",
-    paymentMethod: "",
-    amount: "",
-    description: "",
+    incomeType: '',
+    incomeGroup: '',
+    paymentMethod: '',
+    amount: '',
+    description: '',
     dateOfTransaction: todaysDate,
+    name: '',
   });
 
   const [errors, setErrors] = useState({
-    incomeType: "",
-    paymentMethod: "",
-    amount: "",
-    description: "",
-    dateOfTransaction: "",
-    incomeGroup: "",
+    incomeType: '',
+    paymentMethod: '',
+    amount: '',
+    description: '',
+    dateOfTransaction: '',
+    incomeGroup: '',
+    name: '',
   });
 
   //component states
@@ -75,16 +76,16 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
   const [fileUrl, setFileUrl] = useState<any>(null);
   const [incomeGroupDropdown, setIncomeGroupDopdown] = useState<boolean>(false);
   const [incomeTypeDropdown, setIncomeTypeDopdown] = useState<boolean>(false);
-  const [selection, setSelection] = useState("post");
-  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
+  const [selection, setSelection] = useState('create');
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   //debounce callback to control income group dropdown
   const debounced = useDebouncedCallback(
     // function
     (name, value) => {
-      if (name === "incomeGroup") {
+      if (name === 'incomeGroup') {
         setIncomeGroupDopdown(value);
-      } else if (name === "incomeType") {
+      } else if (name === 'incomeType') {
         setIncomeTypeDopdown(value);
       }
     },
@@ -95,20 +96,20 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
   //handle dropdown after seconds wth deounced
   const handleDropdown = (target: string, value: string) => {
     switch (target) {
-      case "incomeGroup":
-        if (value != "") {
-          debounced("incomeGroup", true);
+      case 'incomeGroup':
+        if (value != '') {
+          debounced('incomeGroup', true);
         } else {
-          debounced("incomeGroup", false);
+          debounced('incomeGroup', false);
         }
 
         break;
 
-      case "incomeType":
-        if (value != "") {
-          debounced("incomeType", true);
+      case 'incomeType':
+        if (value != '') {
+          debounced('incomeType', true);
         } else {
-          debounced("incomeType", false);
+          debounced('incomeType', false);
         }
     }
   };
@@ -140,7 +141,7 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
     }
   };
 
-  const { mutate, isLoading, isSuccess, isError } = useCreateIncome();
+  const { mutate, isLoading, isSuccess, isError } = useCreateEquity();
 
   //get expense groups
   const { data: groups } = useGetIncomeGroups();
@@ -161,7 +162,7 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
   //submit form
   const submit = () => {
     if (isNaN(Number(fields.amount))) {
-      toast.error("Amount field can only contain numbers");
+      toast.error('Amount field can only contain numbers');
       return;
     }
 
@@ -172,31 +173,32 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
       transaction_group: fields.incomeGroup,
       transaction_type: fields.incomeType,
       date: fields.dateOfTransaction,
-      attachment: file ? file[0] : "",
-      account: selection === "post" ? "old" : "new",
+      attachment: file ? file[0] : '',
+      name: fields.name,
     };
 
     mutate(dataToSend, {
       onSuccess: (res) => {
         close();
-        toast.success("Transaction recorded successfully");
+        toast.success('Transaction recorded successfully');
         queryClient.invalidateQueries({
-          queryKey: `incomes`,
+          queryKey: `equity`,
         });
 
         setFields({
-          incomeType: "",
-          incomeGroup: "",
-          paymentMethod: "",
-          amount: "",
-          description: "",
+          incomeType: '',
+          incomeGroup: '',
+          paymentMethod: '',
+          amount: '',
+          description: '',
           dateOfTransaction: todaysDate,
+          name: '',
         });
       },
 
       onError: (e) => {
         toast.error(
-          "Error recording transaction \nPlease make sure all fields are filled correctly"
+          'Error recording transaction \nPlease make sure all fields are filled correctly'
         );
       },
     });
@@ -209,14 +211,14 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
       style={customStyles}
       ariaHideApp={false}
     >
-      <div className="record-income">
-        <div style={{ background: "#FBFDFE" }}>
-          <div className="record-income__cancel">
-            <button className="record-income__cancel__btn" onClick={close}>
+      <div className='record-income'>
+        <div style={{ background: '#FBFDFE' }}>
+          <div className='record-income__cancel'>
+            <button className='record-income__cancel__btn' onClick={close}>
               <Cancel />
             </button>
           </div>
-          <div className="record-income__heading">
+          <div className='record-income__heading'>
             <h4>Create Equity</h4>
             <p>
               Select the equity group, type, amount, payment method, and date of
@@ -224,32 +226,32 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
             </p>
           </div>
         </div>
-        <div className="record-income__body">
-          <div className="record-income__body__title">
+        <div className='record-income__body'>
+          <div className='record-income__body__title'>
             <h2>Equity Name</h2>
-            <div className="record-income__body__title__badge">
+            <div className='record-income__body__title__badge'>
               APPROVAL STATUS: Pending
             </div>
           </div>
 
-          {selection === "create" ? (
-            <div className="dropdown-container">
-              <div className="input-component">
+          {selection === 'create' ? (
+            <div className='dropdown-container'>
+              <div className='input-component'>
                 <label>Equity Group</label>
-                <div className="dropdown-container">
+                <div className='dropdown-container'>
                   <div
                     className={`dropdown-input ${
-                      errors["incomeGroup"] ? "error-field" : "input-field"
+                      errors['incomeGroup'] ? 'error-field' : 'input-field'
                     }`}
                   >
                     <input
-                      name="incomeGroup"
+                      name='incomeGroup'
                       onChange={handleChange}
                       value={fields.incomeGroup}
                     />
-                    <div className="dropdown-tools">
-                      <div className="dropdown-tool">
-                        <Dot type="income" />
+                    <div className='dropdown-tools'>
+                      <div className='dropdown-tool'>
+                        <div className='equity'></div>
                       </div>
                     </div>
                   </div>
@@ -258,7 +260,7 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
 
               {incomeGroupDropdown && (
                 <div
-                  className="dropdown-menu-copy"
+                  className='dropdown-menu-copy'
                   onClick={(e: any) => e.stopPropagation()}
                 >
                   {groups?.data
@@ -281,12 +283,12 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
                         <p>{el.name}</p>
                       </div>
                     ))}
-                  <div className="p-5">
+                  <div className='p-5'>
                     <Button
                       disabled={false}
-                      btnText="Add as new income group"
-                      btnClass="btn-primary"
-                      width="100%"
+                      btnText='Add as new income group'
+                      btnClass='btn-primary'
+                      width='100%'
                       icon={<Addcircle />}
                       onClick={() => {
                         setIncomeGroupDopdown(false);
@@ -298,48 +300,48 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
             </div>
           ) : (
             <TextInput
-              label="Equity Group"
-              placeholder="Type Equity group"
-              name="equityGroup"
-              type="dropdown"
-              errorClass={"error-msg"}
+              label='Equity Group'
+              placeholder='Type Equity group'
+              name='equityGroup'
+              type='dropdown'
+              errorClass={'error-msg'}
               handleChange={handleChange}
               value={fields.incomeGroup}
-              fieldClass={errors["incomeGroup"] ? "error-field" : "input-field"}
-              errorMessage={errors["incomeGroup"]}
-              id={"incomeGroup"}
+              fieldClass={errors['incomeGroup'] ? 'error-field' : 'input-field'}
+              errorMessage={errors['incomeGroup']}
+              id={'incomeGroup'}
               onSelectValue={selectValue}
               isSearchable={false}
               handleSearchValue={function (): void {}}
-              searchValue={""}
+              searchValue={''}
               handleBlur={handleBlur}
               multi={false}
               toggleOption={function (a: any): void {
-                throw new Error("");
+                throw new Error('');
               }}
               selectedValues={undefined}
               options={groups?.data}
             />
           )}
 
-          {selection === "create" ? (
-            <div className="dropdown-container">
-              <div className="input-component">
+          {selection === 'create' ? (
+            <div className='dropdown-container'>
+              <div className='input-component'>
                 <label>Equity Type</label>
-                <div className="dropdown-container">
+                <div className='dropdown-container'>
                   <div
                     className={`dropdown-input ${
-                      errors["incomeGroup"] ? "error-field" : "input-field"
+                      errors['incomeGroup'] ? 'error-field' : 'input-field'
                     }`}
                   >
                     <input
-                      name="incomeType"
+                      name='incomeType'
                       onChange={handleChange}
                       value={fields.incomeType}
                     />
-                    <div className="dropdown-tools">
-                      <div className="dropdown-tool">
-                        <Dot type="income" />
+                    <div className='dropdown-tools'>
+                      <div className='dropdown-tool'>
+                        <div className='equity'></div>
                       </div>
                     </div>
                   </div>
@@ -348,7 +350,7 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
 
               {incomeTypeDropdown && (
                 <div
-                  className="dropdown-menu-copy"
+                  className='dropdown-menu-copy'
                   onClick={(e: any) => e.stopPropagation()}
                 >
                   {types?.data?.map((el: { name: string }) => (
@@ -365,12 +367,12 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
                       <p>{el.name}</p>
                     </div>
                   ))}
-                  <div className="p-5">
+                  <div className='p-5'>
                     <Button
                       disabled={false}
-                      btnText="Add as new income type"
-                      btnClass="btn-primary"
-                      width="100%"
+                      btnText='Add as new income type'
+                      btnClass='btn-primary'
+                      width='100%'
                       icon={<Addcircle />}
                       onClick={() => {
                         setIncomeTypeDopdown(false);
@@ -382,24 +384,24 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
             </div>
           ) : (
             <TextInput
-              label="Equity Type"
-              placeholder="Type or select Equity type"
-              name="incomeType"
-              type="dropdown"
-              errorClass={"error-msg"}
+              label='Equity Type'
+              placeholder='Type or select Equity type'
+              name='incomeType'
+              type='dropdown'
+              errorClass={'error-msg'}
               handleChange={handleChange}
               value={fields.incomeType}
-              fieldClass={errors["incomeType"] ? "error-field" : "input-field"}
-              errorMessage={errors["incomeType"]}
-              id={"incomeType"}
+              fieldClass={errors['incomeType'] ? 'error-field' : 'input-field'}
+              errorMessage={errors['incomeType']}
+              id={'incomeType'}
               onSelectValue={selectValue}
               isSearchable={false}
               handleSearchValue={function (): void {}}
-              searchValue={""}
+              searchValue={''}
               handleBlur={handleBlur}
               multi={false}
               toggleOption={function (a: any): void {
-                throw new Error("");
+                throw new Error('');
               }}
               options={types?.data}
               selectedValues={undefined}
@@ -407,103 +409,103 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
           )}
 
           <TextInput
-            label="Equity Name"
-            placeholder="Equity Name"
-            name="Equity Name"
-            type="text"
-            errorClass={"error-msg"}
+            label='Equity Name'
+            placeholder='Equity Name'
+            name='name'
+            type='text'
+            errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.amount}
-            fieldClass={errors["amount"] ? "error-field" : "input-field"}
-            errorMessage={errors["amount"]}
-            id={"amount"}
+            value={fields.name}
+            fieldClass={errors['name'] ? 'error-field' : 'input-field'}
+            errorMessage={errors['name']}
+            id={'name'}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={""}
+            searchValue={''}
             handleBlur={handleBlur}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error("");
+              throw new Error('');
             }}
             selectedValues={undefined}
           />
 
           <TextInput
-            label={selection === "post" ? "Amount" : "Opening Balance"}
+            label={selection === 'post' ? 'Amount' : 'Opening Balance'}
             placeholder={
-              selection === "post" ? "Income amount" : "Opening Balance"
+              selection === 'post' ? 'Income amount' : 'Opening Balance'
             }
-            name="amount"
-            type="text"
-            errorClass={"error-msg"}
+            name='amount'
+            type='text'
+            errorClass={'error-msg'}
             handleChange={handleChange}
             value={fields.amount}
-            fieldClass={errors["amount"] ? "error-field" : "input-field"}
-            errorMessage={errors["amount"]}
-            id={"amount"}
+            fieldClass={errors['amount'] ? 'error-field' : 'input-field'}
+            errorMessage={errors['amount']}
+            id={'amount'}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={""}
+            searchValue={''}
             handleBlur={handleBlur}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error("");
+              throw new Error('');
             }}
             selectedValues={undefined}
           />
 
           <TextInput
-            label="Description"
-            placeholder="Write anything about the income"
-            name="description"
-            type="textarea"
-            errorClass={"error-msg"}
+            label='Description'
+            placeholder='Write anything about the income'
+            name='description'
+            type='textarea'
+            errorClass={'error-msg'}
             handleChange={handleChange}
             value={fields.description}
             fieldClass={
-              errors["description"] ? "error-field" : "textarea-field"
+              errors['description'] ? 'error-field' : 'textarea-field'
             }
-            errorMessage={errors["description"]}
-            id={"description"}
+            errorMessage={errors['description']}
+            id={'description'}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={""}
+            searchValue={''}
             handleBlur={handleBlur}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error("");
+              throw new Error('');
             }}
             selectedValues={undefined}
           />
 
           <TextInput
-            label="Payment Method"
-            placeholder="Select payment method"
-            name="paymentMethod"
-            type="dropdown"
-            errorClass={"error-msg"}
+            label='Payment Method'
+            placeholder='Select payment method'
+            name='paymentMethod'
+            type='dropdown'
+            errorClass={'error-msg'}
             handleChange={handleChange}
             value={fields.paymentMethod}
-            fieldClass={errors["paymentMethod"] ? "error-field" : "input-field"}
-            errorMessage={errors["paymentMethod"]}
-            id={"paymentMethod"}
+            fieldClass={errors['paymentMethod'] ? 'error-field' : 'input-field'}
+            errorMessage={errors['paymentMethod']}
+            id={'paymentMethod'}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={""}
+            searchValue={''}
             handleBlur={undefined}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error("");
+              throw new Error('');
             }}
             options={[
               {
                 id: 1,
                 name: (
-                  <div className="payment-method-dropdown">
+                  <div className='payment-method-dropdown'>
                     <Cash />
                     Cash
                   </div>
@@ -512,7 +514,7 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
               {
                 id: 2,
                 name: (
-                  <div className="payment-method-dropdown">
+                  <div className='payment-method-dropdown'>
                     <Bank />
                     Bank
                   </div>
@@ -523,31 +525,31 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
           />
 
           <TextInput
-            label="Date of Transaction"
-            placeholder=""
-            name="dateOfTransaction"
-            type="date"
-            min={new Date().toISOString().split("T")[0]}
-            errorClass={"error-msg"}
+            label='Date of Transaction'
+            placeholder=''
+            name='dateOfTransaction'
+            type='date'
+            min={new Date().toISOString().split('T')[0]}
+            errorClass={'error-msg'}
             handleChange={handleChange}
             value={fields.dateOfTransaction}
             fieldClass={
-              errors["dateOfTransaction"] ? "error-field" : "input-field"
+              errors['dateOfTransaction'] ? 'error-field' : 'input-field'
             }
-            errorMessage={errors["dateOfTransaction"]}
-            id={"dateOfTransaction"}
+            errorMessage={errors['dateOfTransaction']}
+            id={'dateOfTransaction'}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={""}
+            searchValue={''}
             handleBlur={undefined}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error("");
+              throw new Error('');
             }}
             selectedValues={undefined}
           />
-          <div className="input-component">
+          <div className='input-component'>
             <label>Attachments</label>
           </div>
 
@@ -564,50 +566,50 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
             }}
           >
             {({ getRootProps, getInputProps, acceptedFiles }) => (
-              <section className="image-drop">
-                <div className="image-drop__dash">
+              <section className='image-drop'>
+                <div className='image-drop__dash'>
                   <input
                     {...getInputProps()}
-                    className="image-drop__input"
-                    type="file"
-                    accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
+                    className='image-drop__input'
+                    type='file'
+                    accept='.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*'
                   />
                   <div {...getRootProps()}>
-                    <img src={upload} alt="" />
+                    <img src={upload} alt='' />
 
                     <p>Drag and drop files or</p>
-                    <p style={{ color: "#439ADE" }}>Browse your computer</p>
+                    <p style={{ color: '#439ADE' }}>Browse your computer</p>
                   </div>
                 </div>
 
                 {file && (
                   <>
-                    <div className="upload-done">
+                    <div className='upload-done'>
                       <p>Done !</p>
                     </div>
                     {file.map((el: any) => (
-                      <div className="upload-done__image-name" key={el.path}>
+                      <div className='upload-done__image-name' key={el.path}>
                         <svg
-                          width="16"
-                          height="20"
-                          viewBox="0 0 16 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
+                          width='16'
+                          height='20'
+                          viewBox='0 0 16 20'
+                          fill='none'
+                          xmlns='http://www.w3.org/2000/svg'
                         >
                           <path
-                            d="M10 0H2C0.9 0 0.0100002 0.9 0.0100002 2L0 18C0 19.1 0.89 20 1.99 20H14C15.1 20 16 19.1 16 18V6L10 0ZM2 18V2H9V7H14V18H2Z"
-                            fill="#010C15"
-                            fillOpacity="0.7"
+                            d='M10 0H2C0.9 0 0.0100002 0.9 0.0100002 2L0 18C0 19.1 0.89 20 1.99 20H14C15.1 20 16 19.1 16 18V6L10 0ZM2 18V2H9V7H14V18H2Z'
+                            fill='#010C15'
+                            fillOpacity='0.7'
                           />
                         </svg>
-                        <div className="upload-done__image-name__details">
+                        <div className='upload-done__image-name__details'>
                           <p>{el?.path}</p>
                           <p>{Math.round(el?.size * 0.001)} kb</p>
                         </div>
                         <div
                           style={{
-                            justifySelf: "baseline",
-                            marginLeft: "auto",
+                            justifySelf: 'baseline',
+                            marginLeft: 'auto',
                           }}
                           onClick={() => setFile(null)}
                         >
@@ -622,18 +624,18 @@ const RecordEquity = ({ modalIsOpen, closeModal }: Imodal) => {
           </Dropzone>
         </div>
         <button
-          className="record-income__footer-btn"
+          className='record-income__footer-btn'
           onClick={() => submit()}
           disabled={
-            fields.amount === "" ||
-            fields.dateOfTransaction === "" ||
-            fields.incomeGroup === "" ||
-            fields.incomeType === "" ||
-            fields.paymentMethod === "" ||
+            fields.amount === '' ||
+            fields.dateOfTransaction === '' ||
+            fields.incomeGroup === '' ||
+            fields.incomeType === '' ||
+            fields.paymentMethod === '' ||
             isLoading
           }
         >
-          {isLoading ? "Please wait..." : "Record"}
+          {isLoading ? 'Please wait...' : 'Record'}
         </button>
       </div>
     </Modal>

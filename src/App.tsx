@@ -41,6 +41,14 @@ function App() {
           >
             Ledger
           </NavLink>
+          <NavLink
+            to={'/asset-and-liability'}
+            className={({ isActive, isPending }) =>
+              isPending ? 'pending-nav' : isActive ? 'active-nav' : ''
+            }
+          >
+            Asset and Liability
+          </NavLink>
         </div>
         <Routes>
           {Object.values(routes).map((el) => (

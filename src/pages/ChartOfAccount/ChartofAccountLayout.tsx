@@ -7,9 +7,7 @@ import Clear from '../../icons/Clear';
 import Export from '../../icons/Export';
 import Filter from '../../icons/Filter';
 import Search from '../../icons/Search';
-import IncomeExpenseOverview from '../IncomeAndExpense/IncomeExpenseOverview';
-import IncomeTable from '../IncomeAndExpense/IncomeTable';
-import ExpenseTable from '../IncomeAndExpense/ExpenseTable';
+
 import RightCaret from '../../icons/RightCaret';
 import { DateRange } from 'react-date-range';
 import { changeDateFormat, calcDiffInDays } from '../../utilities';
@@ -25,7 +23,7 @@ import { useDebounce } from 'use-debounce';
 import SmallSpinner from '../../assets/smallspinner.svg';
 import './BalanceSheet.scss';
 import Accounting from '../../icons/Accounting';
-import Cash from '../../icons/Cash';
+
 import CashAccounting from '../../icons/CashAccounting';
 import OverviewCard, {
   ICardProps,
@@ -33,7 +31,7 @@ import OverviewCard, {
 import Asset from '../../icons/Asset';
 import Liability from '../../icons/Liability';
 import Equity from '../../icons/Equity';
-import { Ioverview } from '../../types/types';
+
 import ProfitAndLoss from './ProfitAndLoss';
 import BalanceSheet from './BalanceSheet';
 import Cashflow from './Cashflow';
@@ -46,7 +44,7 @@ import RecordAsset from '../../components/Modals/EquityAssetAndLiability/RecordA
 
 const ChartofAccountLayout = () => {
   const { data } = useGetIncomeAndExpenseOverview();
-  const [activeTab, setActiveTab] = useState<string | number>(2);
+  const [activeTab, setActiveTab] = useState<string | number>(1);
   const [searchText, setSearchText] = useState<string>('');
   const [showActions, setShowActions] = useState<boolean>(false);
   const [showDateFilters, setShowDateFilters] = useState<boolean>(false);
@@ -71,32 +69,6 @@ const ChartofAccountLayout = () => {
     id: number;
   }
 
-  const cardDetails: ICardDetails[] = [
-    {
-      id: 1,
-      title: 'ASSET',
-      amount: `NGN 2000`,
-      percentage: '2.4%',
-      type: 'profit',
-      icon: <Asset />,
-    },
-    {
-      id: 2,
-      title: 'LIABILITY',
-      amount: `NGN 1000`,
-      percentage: '1.2%',
-      type: 'loss',
-      icon: <Liability />,
-    },
-    {
-      id: 3,
-      title: 'EQUITY',
-      amount: `NGN 500`,
-      percentage: '2.2%',
-      type: 'profit',
-      icon: <Equity />,
-    },
-  ];
   const [debouncedValue] = useDebounce(searchText, 1000);
 
   const closeModal = (type: string) => {
@@ -450,13 +422,7 @@ const ChartofAccountLayout = () => {
         {activeTab === 3 && (
           <Cashflow filteredData={data} filteredLoading={isLoading} />
         )}
-        {activeTab === 4 && (
-          <TrialBalance
-            filteredData={data}
-            filteredLoading={isLoading}
-            searchRes={searchres}
-          />
-        )}
+        {activeTab === 4 && <TrialBalance />}
       </div>
 
       <RecordIncome modalIsOpen={modalOpen.income} closeModal={closeModal} />
