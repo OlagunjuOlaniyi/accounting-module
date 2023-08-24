@@ -10,6 +10,8 @@ import ProfitAndLossView from './pages/ChartOfAccount/ProfitAndLossView';
 import Ledger from './pages/Ledger/Ledger';
 import ProfitAndLossType from './pages/ChartOfAccount/ProfitAndLossType';
 import AssetAndLiabilityLayout from './pages/AssetandLiability/AssetAndLiabilityLayout';
+import ViewBalanceSheet from './pages/ChartOfAccount/ViewBalanceSheet';
+import BalanceSheetType from './pages/ChartOfAccount/BalanceSheetType';
 
 export const routes: RouteTypes[] = [
   {
@@ -56,5 +58,16 @@ export const routes: RouteTypes[] = [
     id: 8,
     path: '/asset-and-liability',
     component: AssetAndLiabilityLayout,
+  },
+
+  {
+    id: 9,
+    path: '/chart-of-account/view-balance-sheet/:id',
+    component: ViewBalanceSheet,
+  },
+  {
+    id: 10,
+    path: '/chart-of-account/type-balance-sheet/:id',
+    component: BalanceSheetType,
   },
 ];

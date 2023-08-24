@@ -14,6 +14,12 @@ export const getTrialBalance = async () => {
   return response.data;
 };
 
+//get trial balance
+export const getBalanceSheets = async () => {
+  const response = await axiosInstance.get(`/incomes/balancesheet`);
+  return response.data;
+};
+
 //get asset
 export const getAssets = async () => {
   const response = await axiosInstance.get(`/assets`);

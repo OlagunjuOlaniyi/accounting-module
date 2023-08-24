@@ -4,7 +4,11 @@ import './table.scss';
 import SortArrow from '../../icons/SortArrow';
 import { useNavigate } from 'react-router';
 
-const TableProfitLoss = ({ columns, data }: any) => {
+const TableProfitLoss = ({
+  columns,
+  data,
+  route = 'chart-of-account/type-profit-and-loss',
+}: any) => {
   const navigate = useNavigate();
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
@@ -41,10 +45,9 @@ const TableProfitLoss = ({ columns, data }: any) => {
             <tr
               {...row.getRowProps()}
               onClick={() =>
-                navigate(
-                  `/chart-of-account/type-profit-and-loss/${row?.original?.transaction_type}`,
-                  { state: { from: window.location.pathname } }
-                )
+                navigate(`/${route}/${row?.original?.transaction_type}`, {
+                  state: { from: window.location.pathname },
+                })
               }
               style={{ cursor: 'pointer' }}
             >

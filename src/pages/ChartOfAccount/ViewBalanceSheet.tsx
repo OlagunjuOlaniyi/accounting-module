@@ -9,26 +9,25 @@ type tableData = {
   id: string;
   created_at: string;
   amount: number;
-  transaction_type: { data: { name: string } };
+  transaction_type: any;
 };
 
-const ProfitAndLossView = () => {
+const ViewBalanceSheet = () => {
   const { id } = useParams();
 
   const { transaction_types, type } = JSON.parse(
-    localStorage.getItem('singlePl')!
+    localStorage.getItem('balanceSheet')!
   );
 
   let tableItems: any[] = transaction_types
     ? Object.values(transaction_types).flat()
     : [];
 
-  const keys = Object.keys(transaction_types);
   const groupedData = groupTransactionsByTransactionTypeName(tableItems);
 
-  const resultArray: tableData[] = groupedData.map((data: tableData) => ({
+  const resultArray: tableData[] = groupedData.map((data, index) => ({
     id: tableItems[0].transaction_type.account_code,
-    transaction_type: data?.name,
+    transaction_type: data.name,
     created_at: tableItems[0].created_at,
     amount: data.amount,
   }));
@@ -60,26 +59,36 @@ const ProfitAndLossView = () => {
     {
       Header: 'DEBIT BALANCE',
       accessor: (d: any) => d.amount,
-      Cell: ({ cell: { value } }: any) => (
-        <p>{type === 'Expense' ? `NGN ${value}` : 'Not Available'}</p>
+      Cell: ({ cell: { value } }: { cell: { value: number } }) => (
+        <p>
+          {type === 'bl' ? `NGN ${value.toLocaleString()}` : 'Not Available'}
+        </p>
       ),
     },
     {
       Header: 'CREDIT BALANCE',
       accessor: 'amount',
-      Cell: ({ cell: { value } }: any) => (
-        <p>{type === 'Income' ? `NGN ${value}` : 'Not Available'}</p>
+      Cell: ({ cell: { value } }: { cell: { value: number } }) => (
+        <p>
+          {type === 'Income'
+            ? `NGN ${value.toLocaleString()}`
+            : 'Not Available'}
+        </p>
       ),
     },
   ];
 
   return (
-    <ChartofAccountWrapper id={id}>
+    <ChartofAccountWrapper id={id} breadcrumbSub='Balance Sheet'>
       <div className='table_container'>
-        <TableProfitLoss data={resultArray} columns={columns} />
+        <TableProfitLoss
+          data={resultArray}
+          columns={columns}
+          route='chart-of-account/type-balance-sheet'
+        />
       </div>
     </ChartofAccountWrapper>
   );
 };
 
-export default ProfitAndLossView;
+export default ViewBalanceSheet;

@@ -27,9 +27,11 @@ import { useNavigate } from 'react-router';
 
 const ChartofAccountWrapper = ({
   id,
+  breadcrumbSub = 'Profit & Loss',
   children,
 }: {
   id?: string;
+  breadcrumbSub?: string;
   children: React.ReactNode;
 }) => {
   const navigate = useNavigate();
@@ -132,7 +134,7 @@ const ChartofAccountWrapper = ({
   return (
     <div>
       <p className='sm-test' onClick={() => navigate('/chart-of-account')}>
-        Chart of Account / Profit & Loss /{' '}
+        Chart of Account / {breadcrumbSub} /{' '}
         <b style={{ color: '#010c15' }}>{id}</b>
       </p>
       <div className='ie_overview'>

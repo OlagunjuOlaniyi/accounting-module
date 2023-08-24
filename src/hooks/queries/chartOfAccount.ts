@@ -3,6 +3,7 @@ import {
   getAssetGroups,
   getAssetTypes,
   getAssets,
+  getBalanceSheets,
   getEquity,
   getLiabilities,
   getProfitAndLoss,
@@ -62,5 +63,13 @@ export const useGetEquity = () => {
   return useQuery<any>({
     queryKey: 'equity',
     queryFn: () => getEquity(),
+  });
+};
+
+//get balance sheet
+export const useGetBalanceSheet = () => {
+  return useQuery<any>({
+    queryKey: 'balance-sheet',
+    queryFn: () => getBalanceSheets(),
   });
 };
