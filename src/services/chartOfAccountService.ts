@@ -69,7 +69,7 @@ export const createEquity = async (data: IexpenseProps) => {
   formData.append('account', data.name!);
   formData.append('name', data.name!);
 
-  const response = await axios.post(`${baseURL}equity/`, formData, {
+  const response = await axios.post(`${baseURL}/equity/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${localStorage.token}`,
@@ -91,7 +91,7 @@ export const createLiability = async (data: IexpenseProps) => {
   formData.append('name', data.name!);
   formData.append('account', data.name!);
 
-  const response = await axios.post(`${baseURL}liability/`, formData, {
+  const response = await axios.post(`${baseURL}/liability/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${localStorage.token}`,

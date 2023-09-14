@@ -46,6 +46,36 @@ tbody > tr {
   justify-content: center;
 }
 
+.draft-generated-badge {
+  width: 80px;
+  height: 26px;
+  background: #ffd6a6;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sent-generated-badge {
+  width: 80px;
+  height: 26px;
+  background: #d4f54d;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unsent-generated-badge {
+  width: 80px;
+  height: 26px;
+  background: #ffee55;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .not-generated-badge {
   width: 80px;
   height: 26px;

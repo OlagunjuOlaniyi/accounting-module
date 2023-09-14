@@ -149,6 +149,8 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   //get expense types
   const { data: types, refetch } = useGetExpenseTypes(selectedGroupId);
 
+  console.log(types);
+
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
@@ -183,6 +185,9 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
         toast.success('Transaction recorded successfully');
         queryClient.invalidateQueries({
           queryKey: `expenses`,
+        });
+        queryClient.invalidateQueries({
+          queryKey: `overview`,
         });
         setFields({
           expenseType: '',
@@ -387,7 +392,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                 className='dropdown-menu-copy'
                 onClick={(e: any) => e.stopPropagation()}
               >
-                {types?.expense_type?.map((el: any) => (
+                {types?.data?.map((el: any) => (
                   <div
                     className={`dropdown-item`}
                     onClick={() => {

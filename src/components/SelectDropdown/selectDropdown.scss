@@ -41,7 +41,7 @@
 }
 
 .dropdown-menu {
-  position: relative;
+  position: absolute;
   transform: translateY(4px);
   width: 100%;
   border: 1px solid #ccc;
@@ -70,7 +70,7 @@
 
       &:focus {
         outline: none;
-        border: 1px solid #4b8e64;
+        border: 1px solid #439ade;
       }
     }
   }

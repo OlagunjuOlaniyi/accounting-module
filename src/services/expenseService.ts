@@ -16,7 +16,7 @@ export const addExpense = async (data: IexpenseProps) => {
   formData.append('date', data.date);
   formData.append('account', data.account);
 
-  const response = await axios.post(`${baseURL}expenses/`, formData, {
+  const response = await axios.post(`${baseURL}/expenses/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${localStorage.token}`,
@@ -49,12 +49,16 @@ export const updateExpense = async (data: IexpenseProps) => {
   formData.append('date', data.date);
   formData.append('account', data.account);
 
-  const response = await axios.put(`${baseURL}expenses/${data.id}/`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization: `Bearer ${localStorage.token}`,
-    },
-  });
+  const response = await axios.put(
+    `${baseURL}/expenses/${data.id}/`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.token}`,
+      },
+    }
+  );
   return response.data;
 };
 
@@ -65,8 +69,8 @@ export const deleteExpense = async (id?: string) => {
 };
 
 //get expense types
-export const getExpenseTypes = async (id: string) => {
-  const response = await axiosInstance.get(`/expenses/expensetype/group/${id}`);
+export const getExpenseTypes = async () => {
+  const response = await axiosInstance.get(`/expenses/expense/type`);
   return response.data;
 };
 

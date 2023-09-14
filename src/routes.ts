@@ -3,15 +3,18 @@ import IncomeAndExpenseLayout from './pages/IncomeAndExpense/IncomeAndExpenseLay
 import SingleExpense from './pages/IncomeAndExpense/SingleExpense';
 import SingleIncome from './pages/IncomeAndExpense/SingleIncome';
 import Login from './pages/Login/Login';
-import Chart from './pages/ChartOfAccount/BalanceSheet';
 import ChartofAccountLayout from './pages/ChartOfAccount/ChartofAccountLayout';
-import BalanceSheet from './pages/ChartOfAccount/BalanceSheet';
 import ProfitAndLossView from './pages/ChartOfAccount/ProfitAndLossView';
 import Ledger from './pages/Ledger/Ledger';
 import ProfitAndLossType from './pages/ChartOfAccount/ProfitAndLossType';
 import AssetAndLiabilityLayout from './pages/AssetandLiability/AssetAndLiabilityLayout';
 import ViewBalanceSheet from './pages/ChartOfAccount/ViewBalanceSheet';
 import BalanceSheetType from './pages/ChartOfAccount/BalanceSheetType';
+import BillsandFeesLayout from './pages/BillsandFees/BillsandFeesLayout';
+import CreateBill from './pages/BillsandFees/CreateBill';
+import SingleBill from './pages/BillsandFees/SingleBill';
+import UpdateBill from './pages/BillsandFees/UpdateBill';
+import PaymentStatus from './pages/BillsandFees/PaymentStatus';
 
 export const routes: RouteTypes[] = [
   {
@@ -69,5 +72,30 @@ export const routes: RouteTypes[] = [
     id: 10,
     path: '/chart-of-account/type-balance-sheet/:id',
     component: BalanceSheetType,
+  },
+  {
+    id: 11,
+    path: '/bills-fees-management',
+    component: BillsandFeesLayout,
+  },
+  {
+    id: 12,
+    path: '/createBill',
+    component: CreateBill,
+  },
+  {
+    id: 13,
+    path: '/bill/:id',
+    component: SingleBill,
+  },
+  {
+    id: 13,
+    path: '/update-bill/:id',
+    component: UpdateBill,
+  },
+  {
+    id: 14,
+    path: '/payment-status/:id',
+    component: PaymentStatus,
   },
 ];

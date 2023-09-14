@@ -184,6 +184,9 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
         queryClient.invalidateQueries({
           queryKey: `incomes`,
         });
+        queryClient.invalidateQueries({
+          queryKey: `overview`,
+        });
 
         setFields({
           incomeType: '',

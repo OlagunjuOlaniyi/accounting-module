@@ -51,21 +51,21 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
     },
   ];
 
-  const labels = ['Jul'];
+  const labels = apiData?.income_by_month?.map((a: any) => a.month);
 
   const barData = {
     labels,
     datasets: [
       {
         label: 'Income',
-        data: apiData?.incomes?.map((el: any) => el.amount),
+        data: apiData?.income_by_month?.map((a: any) => a.income),
         backgroundColor: '#43F226',
         borderRadius: 40,
         barThickness: 45,
       },
       {
         label: 'Expense',
-        data: apiData?.expenses?.map((el: any) => el.amount),
+        data: apiData?.expense_by_month?.map((a: any) => a.expense),
         backgroundColor: '#FE5050',
         borderRadius: 40,
         barThickness: 45,

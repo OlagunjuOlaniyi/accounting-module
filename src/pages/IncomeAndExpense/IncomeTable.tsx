@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import Table from '../../components/Table/Table';
-import Dots from '../../icons/Dots';
-import Dot from '../../icons/Dot';
-import Visibility from '../../icons/Visibility';
-import Delete from '../../icons/Delete';
-import Edit from '../../icons/Edit';
-import { useNavigate } from 'react-router';
-import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
-import { useQueryClient } from 'react-query';
-import { toast } from 'react-hot-toast';
-import { useGetIncomes } from '../../hooks/queries/incomes';
-import { useDeleteIncome } from '../../hooks/mutations/incomes';
-import EditIncome from '../../components/Modals/IncomeAndExpense/EditIncome';
-import { IexpenseRes } from '../../types/expenseTypes';
-import { Ioverview } from '../../types/types';
+import React, { useState } from "react";
+import Table from "../../components/Table/Table";
+import Dots from "../../icons/Dots";
+import Dot from "../../icons/Dot";
+import Visibility from "../../icons/Visibility";
+import Delete from "../../icons/Delete";
+import Edit from "../../icons/Edit";
+import { useNavigate } from "react-router";
+import DeleteConfirmation from "../../components/Modals/DeleteConfirmation/DeleteConfirmation";
+import { useQueryClient } from "react-query";
+import { toast } from "react-hot-toast";
+import { useGetIncomes } from "../../hooks/queries/incomes";
+import { useDeleteIncome } from "../../hooks/mutations/incomes";
+import EditIncome from "../../components/Modals/IncomeAndExpense/EditIncome";
+import { IexpenseRes } from "../../types/expenseTypes";
+import { Ioverview } from "../../types/types";
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -26,7 +26,7 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
   const queryClient = useQueryClient();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
-  const [selectedId, setSelectedId] = useState<string>('');
+  const [selectedId, setSelectedId] = useState<string>("");
   const [editModal, setEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
 
@@ -60,41 +60,41 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
         queryClient.invalidateQueries({
           queryKey: `incomes`,
         });
-        toast.success('Transaction deleted successfully');
-        navigate('/income-and-expense');
+        toast.success("Transaction deleted successfully");
+        navigate("/income-and-expense");
         closeModal();
       },
 
       onError: (e) => {
-        toast.error('Error deleting transaction');
+        toast.error("Error deleting transaction");
       },
     });
   };
 
   //badge component on table
   const Badge = ({ value }: { value: boolean }) => {
-    return <div className={'generated-badge'}>Approved</div>;
+    return <div className={"generated-badge"}>Approved</div>;
   };
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
     //get single product/add on data
     return (
-      <div className='action-wrapper'>
+      <div className="action-wrapper">
         <button
           onClick={() => {
             setSelectedId(value);
             setDropdownActions(!dropdownActions);
           }}
-          style={{ all: 'unset', cursor: 'pointer' }}
+          style={{ all: "unset", cursor: "pointer" }}
         >
           <Dots />
 
           {dropdownActions && value === selectedId && (
             <>
-              <div className='action'>
+              <div className="action">
                 <div
-                  className='action__flex'
+                  className="action__flex"
                   onClick={() => navigate(`/income/${value}`)}
                 >
                   <Visibility />
@@ -102,7 +102,7 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
                 </div>
 
                 <div
-                  className='action__flex'
+                  className="action__flex"
                   onClick={() => setEditModal(true)}
                 >
                   <Edit />
@@ -110,7 +110,7 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
                 </div>
 
                 <div
-                  className='action__flex'
+                  className="action__flex"
                   onClick={() => setDeleteModal(true)}
                 >
                   <Delete />
@@ -127,38 +127,38 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
   //table header and columns
   const columns = [
     {
-      Header: 'Transaction Type',
-      accessor: 'transaction_type',
+      Header: "Transaction Type",
+      accessor: "transaction_type",
       Cell: ({ cell: { value } }: any) => <p>{value?.name}</p>,
     },
 
     {
-      Header: 'Transaction Group',
-      accessor: 'transaction_group',
+      Header: "Transaction Group",
+      accessor: "transaction_group",
       Cell: ({ cell: { value } }: any) => <p>{value?.name}</p>,
     },
 
     {
-      Header: 'Account',
-      accessor: 'account',
+      Header: "Account",
+      accessor: "account",
       Cell: ({ cell: { value } }: any) => (
-        <div className='d-flex'>
-          <Dot type={'income'} />
-          <p>{'Income'}</p>
+        <div className="d-flex">
+          <Dot type={"income"} />
+          <p>{"Income"}</p>
         </div>
       ),
     },
     {
-      Header: 'Amount',
-      accessor: 'amount',
+      Header: "Amount",
+      accessor: "amount",
       Cell: ({ cell: { value } }: any) => (
         <p>NGN {Number(value)?.toLocaleString()}</p>
       ),
     },
 
     {
-      Header: 'Approval status',
-      accessor: 'active',
+      Header: "Approval status",
+      accessor: "active",
 
       Cell: ({ cell: { value } }: { cell: { value: boolean } }) => (
         <Badge value={value} />
@@ -166,8 +166,8 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
     },
 
     {
-      Header: 'Actions',
-      accessor: 'id',
+      Header: "Actions",
+      accessor: "id",
       Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <DotsBtn value={value} />
       ),
@@ -176,7 +176,7 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
 
   return (
     <div>
-      <div className='table_container'>
+      <div className="table_container">
         {isLoading ? (
           <p>Loading...</p>
         ) : (
@@ -193,8 +193,8 @@ const IncomeTable = ({ filteredData, searchRes }: Iprops) => {
           deleteFn={deleteTransaction}
           modalIsOpen={deleteModal}
           close={closeModal}
-          deleteBtnText='Delete Transaction'
-          confirmationText='Are you sure you want to delete this transaction?'
+          deleteBtnText="Delete Transaction"
+          confirmationText="Are you sure you want to delete this transaction?"
           loading={deleteLoading}
         />
       </div>

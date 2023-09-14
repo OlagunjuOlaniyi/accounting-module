@@ -10,7 +10,7 @@ import {
   getTrialBalance,
 } from '../../services/chartOfAccountService';
 
-//get p and l
+//get p&l
 export const useGetProfitAndLoss = () => {
   return useQuery<any>({
     queryKey: 'profit-and-loss',

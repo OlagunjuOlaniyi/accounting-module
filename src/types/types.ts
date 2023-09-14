@@ -49,3 +49,27 @@ export interface ILoginRes {
     };
   };
 }
+
+export interface FeeType {
+  name: string;
+  description: string;
+  default_amount: number;
+  classes: number[];
+  students: number[];
+  student: number[];
+  discounts: Discount[];
+}
+
+export interface Discount {
+  value: number;
+  description: string;
+  is_percentage: boolean;
+  students: number[];
+  classes: number[];
+}
+
+export interface Fee {
+  fee_type: FeeType;
+  amount: number;
+  mandatory: boolean;
+}

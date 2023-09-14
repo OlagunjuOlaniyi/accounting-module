@@ -16,7 +16,7 @@ export const addIncome = async (data: IexpenseProps) => {
   formData.append('date', data.date);
   formData.append('account', data.account);
 
-  const response = await axios.post(`${baseURL}incomes/`, formData, {
+  const response = await axios.post(`${baseURL}/incomes/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${localStorage.token}`,
@@ -37,7 +37,7 @@ export const updateIncome = async (data: IexpenseProps) => {
   formData.append('date', data.date);
   formData.append('account', data.account);
 
-  const response = await axios.put(`${baseURL}incomes/${data.id}/`, formData, {
+  const response = await axios.put(`${baseURL}/incomes/${data.id}/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${localStorage.token}`,

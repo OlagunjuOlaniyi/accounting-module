@@ -38,6 +38,13 @@ export const AssetandLiability = [
   { id: 4, title: 'Equity', badge: true },
 ];
 
+export const BillsandFees = [
+  { id: 1, title: 'All Fees', badge: false },
+  { id: 2, title: 'Sent', badge: true },
+  { id: 3, title: 'Unsent', badge: true },
+  { id: 4, title: 'Draft', badge: true },
+];
+
 export const income = [
   { id: 1, amount: 'NGN 200,000', title: 'Books & Library Services' },
   { id: 2, amount: 'NGN 210,000', title: 'Donations' },

@@ -26,6 +26,7 @@ const TextInput = ({
   selectedValues,
   toggleOption,
   defaultValue,
+  disabled,
 }: Iprops) => {
   const [fieldType, setFieldType] = useState('password');
   const toggleField = () => {
@@ -50,7 +51,11 @@ const TextInput = ({
     <div className='input-component'>
       <label>{label}</label>
       {type === 'textarea' ? (
-        <textarea {...fieldProps} defaultValue={defaultValue} />
+        <textarea
+          {...fieldProps}
+          defaultValue={defaultValue}
+          disabled={disabled}
+        />
       ) : type === 'dropdown' ? (
         <SelectDropdown
           placeholder={fieldProps.placeholder}
@@ -69,7 +74,11 @@ const TextInput = ({
         />
       ) : type === 'password' ? (
         <div className='password-input'>
-          <input {...fieldProps} data-validation={validationType} />
+          <input
+            {...fieldProps}
+            data-validation={validationType}
+            disabled={disabled}
+          />
           <p onClick={() => toggleField()}>show</p>
         </div>
       ) : (
@@ -77,6 +86,7 @@ const TextInput = ({
           {...fieldProps}
           data-validation={validationType}
           defaultValue={defaultValue}
+          disabled={disabled}
         />
       )}
       <p className={errorClass}>{errorMessage}</p>

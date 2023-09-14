@@ -49,6 +49,14 @@ function App() {
           >
             Asset and Liability
           </NavLink>
+          <NavLink
+            to={'/bills-fees-management'}
+            className={({ isActive, isPending }) =>
+              isPending ? 'pending-nav' : isActive ? 'active-nav' : ''
+            }
+          >
+            Bills and Fees Management
+          </NavLink>
         </div>
         <Routes>
           {Object.values(routes).map((el) => (
