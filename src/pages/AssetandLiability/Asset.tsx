@@ -126,8 +126,6 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
     );
   };
 
-  console.log(data);
-
   //table header and columns
   const columns = [
     {

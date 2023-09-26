@@ -10,6 +10,7 @@ import Net from '../../icons/Net';
 import { useGetIncomeAndExpenseOverview } from '../../hooks/queries/overview';
 import Spinner from '../../components/Spinner/Spinner';
 import { Ioverview } from '../../types/types';
+import { mergeMonths } from '../../utilities';
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -51,7 +52,10 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
     },
   ];
 
-  const labels = apiData?.income_by_month?.map((a: any) => a.month);
+  const labels = mergeMonths(
+    apiData?.income_by_month || [],
+    apiData?.expense_by_month || []
+  );
 
   const barData = {
     labels,
@@ -142,7 +146,7 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
               </div>
               <div className='income-expense-overview__statement-wrapper__total'>
                 <div className=''>
-                  <h3>TOTAL INCOME</h3>
+                  <h3>Total Income</h3>
                 </div>
                 <div className=''>
                   <h3>NGN {apiData?.total_income?.toLocaleString()}</h3>
@@ -180,7 +184,7 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
               </div>
               <div className='income-expense-overview__statement-wrapper__total'>
                 <div className=''>
-                  <h3>TOTAL EXPENSE</h3>
+                  <h3>Total Expense</h3>
                 </div>
                 <div className=''>
                   <h3>NGN {apiData?.total_expense?.toLocaleString()}</h3>
@@ -191,7 +195,7 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
 
           <div className='income-expense-overview__statement-wrapper__footer footer-final'>
             <p className='income-expense-overview__statement-wrapper__footer__heading'>
-              NET PROFIT (LOSS)
+              Net Profit (Loss)
             </p>
             <p className='income-expense-overview__statement-wrapper__footer__bold-text'>
               NGN {apiData?.profit?.toLocaleString()}

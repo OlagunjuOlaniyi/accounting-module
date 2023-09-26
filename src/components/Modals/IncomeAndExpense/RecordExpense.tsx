@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import Cancel from '../../../icons/Cancel';
 import { Imodal } from '../../../types/types';
@@ -22,6 +22,8 @@ import {
   useGetExpenseGroups,
   useGetExpenseTypes,
 } from '../../../hooks/queries/expenses';
+import Credit from '../../../icons/Credit';
+import { useGetBankList } from '../../../hooks/queries/banks';
 
 const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
@@ -48,6 +50,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     amount: string;
     description: string;
     dateOfTransaction: string;
+    bank: string;
   };
 
   let todaysDate = new Date().toISOString().substring(0, 10);
@@ -59,6 +62,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     amount: '',
     description: '',
     dateOfTransaction: todaysDate,
+    bank: '',
   });
 
   const [errors, setErrors] = useState({
@@ -68,6 +72,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     dateOfTransaction: '',
     expenseGroup: '',
     expenseType: '',
+    bank: '',
   });
 
   //component states
@@ -149,7 +154,14 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   //get expense types
   const { data: types, refetch } = useGetExpenseTypes(selectedGroupId);
 
-  console.log(types);
+  const { data: bank_accounts } = useGetBankList();
+
+  const formattedBankAccounts = bank_accounts?.data?.map(
+    (b: { id: any; account_name: any }) => ({
+      id: b.id,
+      name: b.account_name,
+    })
+  );
 
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
@@ -196,6 +208,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
           amount: '',
           description: '',
           dateOfTransaction: todaysDate,
+          bank: '',
         });
       },
 
@@ -511,9 +524,45 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                   </div>
                 ),
               },
+              {
+                id: 3,
+                name: (
+                  <div className='payment-method-dropdown'>
+                    <Credit />
+                    Credit
+                  </div>
+                ),
+              },
             ]}
             selectedValues={undefined}
           />
+
+          {fields.paymentMethod?.props?.children[1]?.toLowerCase() ===
+            'bank' && (
+            <TextInput
+              label='Bank Accounts'
+              placeholder='Select bank account'
+              name='bank'
+              type='dropdown'
+              errorClass={'error-msg'}
+              handleChange={handleChange}
+              value={fields.bank}
+              fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
+              errorMessage={errors['bank']}
+              id={'bank'}
+              onSelectValue={selectValue}
+              isSearchable={false}
+              handleSearchValue={function (): void {}}
+              searchValue={''}
+              handleBlur={undefined}
+              multi={false}
+              toggleOption={function (a: any): void {
+                throw new Error('');
+              }}
+              options={formattedBankAccounts}
+              selectedValues={undefined}
+            />
+          )}
 
           <TextInput
             label='Date of Transaction'

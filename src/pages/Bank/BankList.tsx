@@ -1,24 +1,20 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Table from '../../components/Table/Table';
+import { useGetExpenses } from '../../hooks/queries/expenses';
 import Dots from '../../icons/Dots';
 import Dot from '../../icons/Dot';
 import Visibility from '../../icons/Visibility';
 import Delete from '../../icons/Delete';
 import Edit from '../../icons/Edit';
 import { useNavigate } from 'react-router';
+import EditExpense from '../../components/Modals/IncomeAndExpense/EditExpense';
 import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
+
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-hot-toast';
-import { useGetIncomes } from '../../hooks/queries/incomes';
-import { useDeleteIncome } from '../../hooks/mutations/incomes';
-import EditIncome from '../../components/Modals/IncomeAndExpense/EditIncome';
-import { IexpenseRes } from '../../types/expenseTypes';
 import { Ioverview } from '../../types/types';
-import {
-  useGetAssets,
-  useGetEquity,
-  useGetLiabilities,
-} from '../../hooks/queries/chartOfAccount';
+import { useGetBankList } from '../../hooks/queries/banks';
+import { useDeleteBank } from '../../hooks/mutations/bank';
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -26,7 +22,7 @@ interface Iprops {
   searchRes: any;
 }
 
-const EquityTable = ({ filteredData, searchRes }: Iprops) => {
+const BankList = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -34,56 +30,47 @@ const EquityTable = ({ filteredData, searchRes }: Iprops) => {
   const [selectedId, setSelectedId] = useState<string>('');
   const [editModal, setEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>('');
 
   const closeModal = () => {
     setDeleteModal(false);
     setEditModal(false);
   };
 
-  //get incomes
-  const { data, isLoading } = useGetEquity();
-  let apiData: any = searchRes?.incomes
-    ? searchRes?.incomes
-    : filteredData
-    ? filteredData?.incomes
-    : data?.data;
-  let sortedData = apiData?.sort((a: any, b: any) => b.id - a.id);
+  //get expenses
+  const { data, isLoading } = useGetBankList();
+
+  let sortedData = data?.data?.sort((a: any, b: any) => b.id - a.id);
 
   //delete transaction
-  const { mutate, isLoading: deleteLoading } = useDeleteIncome();
+  const { mutate, isLoading: deleteLoading } = useDeleteBank();
 
   const deleteTransaction = () => {
     mutate(selectedId, {
       onSuccess: (res) => {
-        queryClient.setQueryData<any>(
-          [`incomes-single-${selectedId}`],
-          (prev: any) => {
-            return prev;
-          }
-        );
-
         queryClient.invalidateQueries({
-          queryKey: `incomes`,
+          queryKey: `banks`,
         });
-        toast.success('Transaction deleted successfully');
-        navigate('/income-and-expense');
+
+        toast.success('Bank deleted successfully');
         closeModal();
       },
 
       onError: (e) => {
-        toast.error('Error deleting transaction');
+        toast.error('Error deleting ');
       },
     });
   };
 
   //badge component on table
   const Badge = ({ value }: { value: boolean }) => {
-    return <div className={'generated-badge'}>Approved</div>;
+    return <div className={'generated-badge'}>Active</div>;
   };
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
     //get single product/add on data
+
     return (
       <div className='action-wrapper'>
         <button
@@ -100,7 +87,7 @@ const EquityTable = ({ filteredData, searchRes }: Iprops) => {
               <div className='action'>
                 <div
                   className='action__flex'
-                  onClick={() => navigate(`/income/${value}`)}
+                  onClick={() => navigate(`/expense/${value}`)}
                 >
                   <Visibility />
                   <p>View</p>
@@ -132,43 +119,28 @@ const EquityTable = ({ filteredData, searchRes }: Iprops) => {
   //table header and columns
   const columns = [
     {
-      Header: 'Transaction Name',
-      accessor: 'name',
-      Cell: ({ cell: { value } }: any) => <p>{value ? value : 'N/A'}</p>,
-    },
-    {
-      Header: 'Transaction Type',
-      accessor: 'transaction_type',
-      Cell: ({ cell: { value } }: any) => <p>{value?.name}</p>,
+      Header: 'Account Name',
+      accessor: 'account_name',
+      Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
 
     {
-      Header: 'Transaction Group',
-      accessor: 'transaction_group',
-      Cell: ({ cell: { value } }: any) => <p>{value?.name}</p>,
+      Header: 'Account number',
+      accessor: 'account_number',
+      Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
 
     {
-      Header: 'Account',
-      accessor: 'account',
-      Cell: ({ cell: { value } }: any) => (
-        <div className='d-flex'>
-          <div className='equity'></div>
-          <p>{'Equity'}</p>
-        </div>
-      ),
-    },
-    {
-      Header: 'Amount',
-      accessor: 'amount',
+      Header: 'Bank Balance',
+      accessor: 'bank_balance',
       Cell: ({ cell: { value } }: any) => (
         <p>NGN {Number(value)?.toLocaleString()}</p>
       ),
     },
 
     {
-      Header: 'Approval status',
-      accessor: 'active',
+      Header: 'Status',
+      accessor: 'delete_status',
 
       Cell: ({ cell: { value } }: { cell: { value: boolean } }) => (
         <Badge value={value} />
@@ -193,7 +165,7 @@ const EquityTable = ({ filteredData, searchRes }: Iprops) => {
           <Table data={data?.data ? sortedData : []} columns={columns} />
         )}
 
-        <EditIncome
+        <EditExpense
           modalIsOpen={editModal}
           closeModal={closeModal}
           selectedId={selectedId}
@@ -203,8 +175,8 @@ const EquityTable = ({ filteredData, searchRes }: Iprops) => {
           deleteFn={deleteTransaction}
           modalIsOpen={deleteModal}
           close={closeModal}
-          deleteBtnText='Delete Transaction'
-          confirmationText='Are you sure you want to delete this transaction?'
+          deleteBtnText='Delete Bank Details'
+          confirmationText='Are you sure you want to delete this bank record?'
           loading={deleteLoading}
         />
       </div>
@@ -212,4 +184,4 @@ const EquityTable = ({ filteredData, searchRes }: Iprops) => {
   );
 };
 
-export default EquityTable;
+export default BankList;

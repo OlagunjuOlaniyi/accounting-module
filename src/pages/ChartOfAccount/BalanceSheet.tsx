@@ -139,7 +139,7 @@ const BalanceSheet = () => {
               {' '}
               <div className='income-expense-overview__statement-wrapper__title'>
                 <div className=''>
-                  <h3>Liabilties</h3>
+                  <h3>Liabilities</h3>
                 </div>
                 <div className=''>
                   <h3>AMOUNT</h3>
@@ -181,7 +181,7 @@ const BalanceSheet = () => {
               </div>
               <div className='income-expense-overview__statement-wrapper__total'>
                 <div className=''>
-                  <h3>TOTAL Liabilities</h3>
+                  <h3>Total Liabilities</h3>
                 </div>
                 <div className=''>
                   <h3>
@@ -237,7 +237,7 @@ const BalanceSheet = () => {
                 style={{ borderBottom: 'none' }}
               >
                 <div className=''>
-                  <h3>TOTAL Equity</h3>
+                  <h3>Total Equity</h3>
                 </div>
                 <div className=''>
                   <h3>
@@ -264,7 +264,7 @@ const BalanceSheet = () => {
               }}
             >
               <div className=''>
-                <h3>TOTAL ASSET</h3>
+                <h3>Total Asset</h3>
               </div>
               <div className=''>
                 <h3>NGN {balance_sheet?.total_asset?.toLocaleString()}</h3>
@@ -281,7 +281,7 @@ const BalanceSheet = () => {
               }}
             >
               <div className=''>
-                <h3>TOTAL LIABILITIES & SHAREHOLDERS’ EQUITY</h3>
+                <h3>Total Liabilities & Shareholder's Equity</h3>
               </div>
               <div className=''>
                 <h3>NGN {totalLiabilityAndEquity.toLocaleString() ?? 0}</h3>

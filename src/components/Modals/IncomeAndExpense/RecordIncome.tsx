@@ -22,6 +22,8 @@ import {
   useGetIncomeGroups,
   useGetIncomeTypes,
 } from '../../../hooks/queries/incomes';
+import { useGetBankList } from '../../../hooks/queries/banks';
+import Credit from '../../../icons/Credit';
 
 const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
@@ -48,6 +50,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
     amount: string;
     description: string;
     dateOfTransaction: string;
+    bank: string;
   };
 
   let todaysDate = new Date().toISOString().substring(0, 10);
@@ -59,6 +62,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
     amount: '',
     description: '',
     dateOfTransaction: todaysDate,
+    bank: '',
   });
 
   const [errors, setErrors] = useState({
@@ -68,6 +72,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
     description: '',
     dateOfTransaction: '',
     incomeGroup: '',
+    bank: '',
   });
 
   //component states
@@ -148,9 +153,17 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
   //get expense types
   const { data: types, refetch } = useGetIncomeTypes(selectedGroupId);
 
+  const { data: bank_accounts } = useGetBankList();
+
+  const formattedBankAccounts = bank_accounts?.data?.map(
+    (b: { id: any; account_name: any }) => ({
+      id: b.id,
+      name: b.account_name,
+    })
+  );
+
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
-    console.log(option, name, id);
     setFields({ ...fields, [name]: option });
     setSelectedGroupId(id);
     //refetch expense type
@@ -195,6 +208,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
           amount: '',
           description: '',
           dateOfTransaction: todaysDate,
+          bank: '',
         });
       },
 
@@ -501,9 +515,46 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
                   </div>
                 ),
               },
+
+              {
+                id: 3,
+                name: (
+                  <div className='payment-method-dropdown'>
+                    <Credit />
+                    Credit
+                  </div>
+                ),
+              },
             ]}
             selectedValues={undefined}
           />
+
+          {fields.paymentMethod?.props?.children[1]?.toLowerCase() ===
+            'bank' && (
+            <TextInput
+              label='Bank Accounts'
+              placeholder='Select bank account'
+              name='bank'
+              type='dropdown'
+              errorClass={'error-msg'}
+              handleChange={handleChange}
+              value={fields.bank}
+              fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
+              errorMessage={errors['bank']}
+              id={'bank'}
+              onSelectValue={selectValue}
+              isSearchable={false}
+              handleSearchValue={function (): void {}}
+              searchValue={''}
+              handleBlur={undefined}
+              multi={false}
+              toggleOption={function (a: any): void {
+                throw new Error('');
+              }}
+              options={formattedBankAccounts}
+              selectedValues={undefined}
+            />
+          )}
 
           <TextInput
             label='Date of Transaction'

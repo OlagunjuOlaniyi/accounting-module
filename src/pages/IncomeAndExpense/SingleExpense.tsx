@@ -24,7 +24,6 @@ const SingleExpense = () => {
   //get expenses
   const { isLoading, data } = useGetSingleExpenses(id);
 
-  console.log(data?.data);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [showDelete, setShowDelete] = useState<boolean>(false);

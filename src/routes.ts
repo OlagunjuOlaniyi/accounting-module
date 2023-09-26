@@ -15,6 +15,7 @@ import CreateBill from './pages/BillsandFees/CreateBill';
 import SingleBill from './pages/BillsandFees/SingleBill';
 import UpdateBill from './pages/BillsandFees/UpdateBill';
 import PaymentStatus from './pages/BillsandFees/PaymentStatus';
+import BankLayout from './pages/Bank/BankLayout';
 
 export const routes: RouteTypes[] = [
   {
@@ -97,5 +98,10 @@ export const routes: RouteTypes[] = [
     id: 14,
     path: '/payment-status/:id',
     component: PaymentStatus,
+  },
+  {
+    id: 15,
+    path: '/banks',
+    component: BankLayout,
   },
 ];

@@ -2,6 +2,7 @@ import { useQuery } from 'react-query';
 
 import { ApiRes, IexpenseRes } from '../../types/expenseTypes';
 import {
+  downloadIncome,
   getIncomeGroups,
   getIncomeTypes,
   getIncomes,
@@ -39,5 +40,12 @@ export const useGetIncomeGroups = () => {
   return useQuery<ApiRes | any>({
     queryKey: `income-group`,
     queryFn: () => getIncomeGroups(),
+  });
+};
+
+export const useDownloadIncomes = () => {
+  return useQuery<ApiRes | any>({
+    queryKey: `download-income`,
+    queryFn: () => downloadIncome(),
   });
 };

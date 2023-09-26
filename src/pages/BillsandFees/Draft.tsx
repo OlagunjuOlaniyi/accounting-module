@@ -1,21 +1,21 @@
-import { useState } from "react";
-import Table from "../../components/Table/Table";
-import Dots from "../../icons/Dots";
-import Visibility from "../../icons/Visibility";
-import Delete from "../../icons/Delete";
-import Edit from "../../icons/Edit";
-import { useQueryClient } from "react-query";
-import { useGetBills } from "../../hooks/queries/billsAndFeesMgt";
-import { filterByStatus } from "../../services/utils";
-import Send from "../../icons/Send";
-import Duplicate from "../../icons/Duplicate";
+import { useState } from 'react';
+import Table from '../../components/Table/Table';
+import Dots from '../../icons/Dots';
+import Visibility from '../../icons/Visibility';
+import Delete from '../../icons/Delete';
+import Edit from '../../icons/Edit';
+import { useQueryClient } from 'react-query';
+import { useGetBills } from '../../hooks/queries/billsAndFeesMgt';
+import { filterByStatus } from '../../services/utils';
+import Send from '../../icons/Send';
+import Duplicate from '../../icons/Duplicate';
 
 const Draft = () => {
   const queryClient = useQueryClient();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
-  const [selectedId, setSelectedId] = useState<string>("");
-  let billStatus: string = "draft";
+  const [selectedId, setSelectedId] = useState<string>('');
+  let billStatus: string = 'draft';
 
   const { data, isLoading } = useGetBills();
 
@@ -26,47 +26,46 @@ const Draft = () => {
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
-    let splitedValue = value.split(",");
+    let splitedValue = value.split(',');
     let id = splitedValue[0];
     let status: string = splitedValue[1];
 
     return (
-      <div className="action-wrapper">
+      <div className='action-wrapper'>
         <button
           onClick={() => {
-            console.log(status);
             setSelectedId(id);
             setDropdownActions(!dropdownActions);
           }}
-          style={{ all: "unset", cursor: "pointer" }}
+          style={{ all: 'unset', cursor: 'pointer' }}
         >
           <Dots />
 
-          {dropdownActions && id === selectedId && status === "draft" && (
+          {dropdownActions && id === selectedId && status === 'draft' && (
             <>
               {/* {billStatus} */}
-              <div className="action">
-                <div className="action__flex">
+              <div className='action'>
+                <div className='action__flex'>
                   <Visibility />
                   <p>View</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Edit />
                   <p>Edit</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Send />
                   <p>Send Bill</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Duplicate />
                   <p>Duplicate</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Delete />
                   <p>Delete</p>
                 </div>
@@ -81,21 +80,21 @@ const Draft = () => {
   //table header and columns
   const columns = [
     {
-      Header: "Bill Name",
-      accessor: "bill_name",
+      Header: 'Bill Name',
+      accessor: 'bill_name',
       Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
     {
-      Header: "Assigned Class",
-      accessor: "classes",
+      Header: 'Assigned Class',
+      accessor: 'classes',
       Cell: ({ cell: { value } }: any) => (
-        <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
           {value.map((item: any) => (
             <div
               style={{
-                background: "#E4EFF9",
-                padding: "2px 12px 2px 12px",
-                borderRadius: "12px",
+                background: '#E4EFF9',
+                padding: '2px 12px 2px 12px',
+                borderRadius: '12px',
               }}
             >
               {item.class_name}
@@ -106,33 +105,33 @@ const Draft = () => {
     },
 
     {
-      Header: "Total Student",
-      accessor: "total_students",
+      Header: 'Total Student',
+      accessor: 'total_students',
       Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
 
     {
-      Header: "Total Amount",
-      accessor: "total_amount",
+      Header: 'Total Amount',
+      accessor: 'total_amount',
       Cell: ({ cell: { value } }: any) => (
         <p>NGN {Number(value)?.toLocaleString()}</p>
       ),
     },
     {
-      Header: "Status",
-      accessor: "status",
+      Header: 'Status',
+      accessor: 'status',
       Cell: ({ cell: { value } }: any) => <Badge value={value} />,
     },
     {
-      Header: "Actions",
+      Header: 'Actions',
       accessor: (d: any) => `${d.id},${d.status}`,
       Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <>
-          <div style={{ display: "flex", gap: "16px" }}>
-            {["draft", "unsent"].includes(value.split(",")[1].toLowerCase()) ? (
+          <div style={{ display: 'flex', gap: '16px' }}>
+            {['draft', 'unsent'].includes(value.split(',')[1].toLowerCase()) ? (
               <Edit />
             ) : (
-              ""
+              ''
             )}
             <DotsBtn value={value} />
           </div>
@@ -142,7 +141,7 @@ const Draft = () => {
   ];
   return (
     <div>
-      <div className="table_container">
+      <div className='table_container'>
         {isLoading ? (
           <p>Loading...</p>
         ) : (

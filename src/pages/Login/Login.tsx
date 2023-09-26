@@ -64,7 +64,7 @@ const Login = () => {
   //submit form
   const submit = async () => {
     let response = await fetchSchoolDetails();
-    console.log(response);
+
     let dataToSend = {
       name: 'demo',
       password: 'edves_account_111',

@@ -39,49 +39,6 @@ const Ledger = () => {
 
   const { data, isLoading } = useGetLedgers();
 
-  const cardDetails: any[] = [
-    {
-      id: 1,
-      title: 'INCOME',
-      amount: `NGN 500`,
-      percentage: '2.4%',
-      type: 'profit',
-      icon: <Income />,
-    },
-    {
-      id: 2,
-      title: 'EXPENSE',
-      amount: `NGN 500`,
-      percentage: '1.2%',
-      type: 'loss',
-      icon: <Expense />,
-    },
-    {
-      id: 3,
-      title: 'NET PROFIT (LOSS)',
-      amount: `NGN 500`,
-      percentage: '2.2%',
-      type: 'profit',
-      icon: <Net />,
-    },
-    {
-      id: 4,
-      title: 'NET PROFIT (LOSS)',
-      amount: `NGN 500`,
-      percentage: '2.2%',
-      type: 'profit',
-      icon: <Net />,
-    },
-    {
-      id: 5,
-      title: 'NET PROFIT (LOSS)',
-      amount: `NGN 500`,
-      percentage: '2.2%',
-      type: 'profit',
-      icon: <Net />,
-    },
-  ];
-
   return (
     <div>
       <div className='ie_overview'>

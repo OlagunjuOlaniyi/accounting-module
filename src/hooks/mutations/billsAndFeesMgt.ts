@@ -7,7 +7,6 @@ import {
   updateBill,
 } from '../../services/billsServices';
 
-//create new expense
 export const useCreateBill = () => {
   return useMutation<any, Fee, any>({
     mutationKey: ['add-bill'],

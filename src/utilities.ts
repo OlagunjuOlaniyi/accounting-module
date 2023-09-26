@@ -48,10 +48,10 @@ export function calculateTotalAmount(data: any) {
 }
 
 //group transactions
-export function groupTransactionsByTransactionTypeName(data) {
-  const groupedTransactions = data.reduce((acc, transaction) => {
+export function groupTransactionsByTransactionTypeName(data: any) {
+  const groupedTransactions = data.reduce((acc: any, transaction: any) => {
     const { name } = transaction.transaction_type;
-    const existingGroup = acc.find((group) => group.name === name);
+    const existingGroup = acc.find((group: any) => group.name === name);
     const amount = parseFloat(transaction.amount);
 
     if (existingGroup) {
@@ -68,4 +68,25 @@ export function groupTransactionsByTransactionTypeName(data) {
 
 export function replacePercent20WithSpaces(str: string) {
   return str.replace(/%20/g, ' ');
+}
+
+interface Response {
+  month: string;
+  expense: string;
+  income: string;
+}
+export function mergeMonths(
+  responses1: Response[],
+  responses2: Response[]
+): string[] {
+  // Combine both arrays
+
+  const mergedResponses = [...responses1, ...responses2];
+
+  let months = mergedResponses.map((r) => r.month);
+  const uniqueMonthsSet = new Set(months);
+
+  // Convert the Set back to an array
+  const uniqueMonthsArray = [...uniqueMonthsSet];
+  return uniqueMonthsArray;
 }

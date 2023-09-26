@@ -75,3 +75,8 @@ export const getIncomeGroups = async () => {
   const response = await axiosInstance.get(`/incomes/incomegroup`);
   return response.data;
 };
+
+export const downloadIncome = async () => {
+  const response = await axiosInstance.get(`/incomes/download`);
+  return response.data;
+};

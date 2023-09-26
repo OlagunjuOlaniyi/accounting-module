@@ -332,7 +332,6 @@ const CreateBill = () => {
     });
   };
 
-  console.log(fees);
   return (
     <div>
       <div className='bills_overview'>
