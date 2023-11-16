@@ -1,0 +1,12 @@
+.multi-level-wrapper {
+  position: absolute;
+  height: 300px;
+  overflow: scroll;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  padding: 20px;
+  margin-bottom: 32px;
+  top: 100%;
+  z-index: 99999;
+  background: #fff;
+  width: 100%;
+}

@@ -5,6 +5,7 @@ import React from 'react';
 import Clear from '../../icons/Clear';
 import Checked from '../../icons/Checked';
 import Unchecked from '../../icons/Unchecked';
+import MultiLevelDropdown from '../MultilevelDropdown/MultilevelDropdown';
 
 const SelectDropdown = ({
   placeholder,
@@ -19,6 +20,7 @@ const SelectDropdown = ({
   multi,
   selectedValues,
   defaultValue,
+  isMultidropdown,
 }: IDropdownProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const searchRef = useRef<any>();
@@ -94,7 +96,7 @@ const SelectDropdown = ({
   return (
     <div className='dropdown-container'>
       <div className={`dropdown-input`} onClick={handleClick}>
-        {multi && selectedValues?.length ? (
+        {(multi || isMultidropdown) && selectedValues?.length ? (
           selectedValues?.length > 3 ? (
             <div className='badges-wrapper'>
               {selectedValues?.slice(0, 3).map((val: { name: string }) => (
@@ -153,7 +155,7 @@ const SelectDropdown = ({
             {options ? (
               getOptions()?.map((el: any) => (
                 <div
-                  key={el?.id}
+                  key={`${el?.id}-${el.name}`}
                   className={`dropdown-item ${
                     isSelected(el?.value) && 'selected'
                   }`}
@@ -178,6 +180,17 @@ const SelectDropdown = ({
               </div>
             )}
           </div>
+        ) : isMultidropdown ? (
+          <div
+            //className='dropdown-menu'
+            onClick={(e: any) => e.stopPropagation()}
+          >
+            <MultiLevelDropdown
+              data={options}
+              selected={selectedValues || []}
+              toggleOption={toggleOption}
+            />
+          </div>
         ) : (
           <div className='dropdown-menu'>
             {isSearchable && options && (
@@ -193,7 +206,7 @@ const SelectDropdown = ({
             {options ? (
               getOptions()?.map((el: any) => (
                 <div
-                  key={el?.id}
+                  key={`${el?.id}-${el.name}`}
                   className={`dropdown-item ${
                     isSelected(el?.value) && 'selected'
                   }`}

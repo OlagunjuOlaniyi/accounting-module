@@ -1,7 +1,7 @@
 import axios from 'axios';
 
+//export const baseURL = `https://edves.cloud/api/v1`;
 export const baseURL = `https://ahmed0111.pythonanywhere.com/api/v1`;
-//export const baseURL = `https://edves.cloud:8000/api/v1`;
 
 type Iprops = {
   Authorization: string;
@@ -38,7 +38,7 @@ axiosInstance.interceptors.response.use(
           reject(error);
         });
       } else {
-        window.location.replace('/login');
+        window.location.replace('/');
         localStorage.clear();
       }
     } else if (error.response.status === 502) {

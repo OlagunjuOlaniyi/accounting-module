@@ -1,4 +1,3 @@
-import { useLocation } from 'react-router-dom';
 import Table from '../../components/Table/Table';
 
 import { useParams } from 'react-router';

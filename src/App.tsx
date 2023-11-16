@@ -33,14 +33,7 @@ function App() {
           >
             Chart of account
           </NavLink>
-          <NavLink
-            to={'/ledger'}
-            className={({ isActive, isPending }) =>
-              isPending ? 'pending-nav' : isActive ? 'active-nav' : ''
-            }
-          >
-            Ledger
-          </NavLink>
+
           <NavLink
             to={'/asset-and-liability'}
             className={({ isActive, isPending }) =>
@@ -58,12 +51,28 @@ function App() {
             Bills and Fees Management
           </NavLink>
           <NavLink
+            to={'/inventory'}
+            className={({ isActive, isPending }) =>
+              isPending ? 'pending-nav' : isActive ? 'active-nav' : ''
+            }
+          >
+            Inventory
+          </NavLink>
+          <NavLink
             to={'/banks'}
             className={({ isActive, isPending }) =>
               isPending ? 'pending-nav' : isActive ? 'active-nav' : ''
             }
           >
             Banks
+          </NavLink>
+          <NavLink
+            to={'/payroll'}
+            className={({ isActive, isPending }) =>
+              isPending ? 'pending-nav' : isActive ? 'active-nav' : ''
+            }
+          >
+            Payroll
           </NavLink>
         </div>
         <Routes>

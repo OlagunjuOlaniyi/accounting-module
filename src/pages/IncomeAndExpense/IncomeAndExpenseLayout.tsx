@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/Button/Button';
 import RecordExpense from '../../components/Modals/IncomeAndExpense/RecordExpense';
 import RecordIncome from '../../components/Modals/IncomeAndExpense/RecordIncome';
@@ -25,7 +25,7 @@ import {
 } from '../../hooks/queries/overview';
 import { useDebounce } from 'use-debounce';
 import SmallSpinner from '../../assets/smallspinner.svg';
-import { useDownloadIncomes } from '../../hooks/queries/incomes';
+
 import { downloadIncome } from '../../services/incomeService';
 
 const IncomeAndExpenseLayout = () => {
@@ -135,6 +135,28 @@ const IncomeAndExpenseLayout = () => {
       console.log(error);
     }
   };
+
+  const dropdownRef = useRef(null);
+
+  // Add a click event listener to the document body to close the dropdown when clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef?.current &&
+        !dropdownRef?.current?.contains(event.target as Node)
+      ) {
+        setShowActions(false);
+        // setShowDateFilters(false);
+        // setShowDateRange(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div>
@@ -272,7 +294,7 @@ const IncomeAndExpenseLayout = () => {
           <Export />
           <p>Download</p>
         </button>
-        <div className='ie_overview__top-level__btn-wrap'>
+        <div className='ie_overview__top-level__btn-wrap' ref={dropdownRef}>
           <Button
             btnText='Create or Record Transaction'
             btnClass='btn-primary'

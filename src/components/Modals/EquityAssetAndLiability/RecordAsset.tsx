@@ -6,23 +6,21 @@ import TextInput from '../../Input/TextInput';
 // import "./recordincome.scss";
 import Dropzone from 'react-dropzone';
 import upload from '../../../assets/cloud_upload.svg';
-import Cash from '../../../icons/Cash';
-import Bank from '../../../icons/Bank';
-import { useDebouncedCallback } from 'use-debounce';
+
 import Button from '../../Button/Button';
 import Addcircle from '../../../icons/Addcircle';
 import toast from 'react-hot-toast';
-import { useCreateIncome } from '../../../hooks/mutations/incomes';
+
 import { useQueryClient } from 'react-query';
-import {
-  useGetIncomeGroups,
-  useGetIncomeTypes,
-} from '../../../hooks/queries/incomes';
+
 import {
   useGetAssetGroups,
   useGetAssetTypes,
 } from '../../../hooks/queries/chartOfAccount';
 import { useCreateAsset } from '../../../hooks/mutations/chartofAccounts';
+import { useGetBanks } from '../../../hooks/queries/banks';
+import { useAddBank } from '../../../hooks/mutations/bank';
+import SelectArrow from '../../../icons/SelectArrow';
 
 const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
@@ -50,6 +48,9 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
     description: string;
     dateOfTransaction: string;
     assetName: string;
+    account_name: string;
+    account_number: string;
+    bank: string;
   };
 
   let todaysDate = new Date().toISOString().substring(0, 10);
@@ -62,6 +63,9 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
     description: '',
     dateOfTransaction: todaysDate,
     assetName: '',
+    account_name: '',
+    account_number: '',
+    bank: '',
   });
 
   const [errors, setErrors] = useState({
@@ -72,6 +76,9 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
     dateOfTransaction: '',
     assetGroup: '',
     assetName: '',
+    account_name: '',
+    account_number: '',
+    bank: '',
   });
 
   //component states
@@ -81,20 +88,14 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
   const [assetTypeDropdown, setAssetTypeDopdown] = useState<boolean>(false);
   const [selection, setSelection] = useState('create');
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [bankId, setBankId] = useState<string>('');
 
-  //debounce callback to control income group dropdown
-  const debounced = useDebouncedCallback(
-    // function
-    (name, value) => {
-      if (name === 'assetGroup') {
-        setAssetGroupDopdown(value);
-      } else if (name === 'assetType') {
-        setAssetTypeDopdown(value);
-      }
-    },
-    // delay in ms
-    1000
-  );
+  const handleSearch = (evt: any) => {
+    setSearchValue(evt.target.value);
+  };
+
+  const { data: banks } = useGetBanks();
 
   //handle dropdown after seconds wth deounced
   const handleDropdown = (target: string, value: string) => {};
@@ -126,22 +127,46 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
     }
   };
 
-  const { mutate, isLoading, isSuccess, isError } = useCreateAsset();
+  const { mutate, isLoading } = useCreateAsset();
+  const { mutate: addBank } = useAddBank();
 
-  //get expense groups
-  const { data: groups } = useGetAssetGroups();
-
-  //get expense types
   const { data: types, refetch } = useGetAssetTypes();
 
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
     setSelectedGroupId(id);
-    //refetch expense type
+    if (name.toLowerCase() === 'bank') {
+      setBankId(id);
+    }
+
     setTimeout(() => {
       refetch();
     }, 500);
+  };
+
+  const createBank = () => {
+    let dataToSend = {
+      name: fields.bank,
+      bank: bankId,
+      account_name: fields.account_name,
+      account_number: fields.account_number,
+      account_type: fields.assetType,
+    };
+
+    addBank(dataToSend, {
+      onSuccess: (res) => {
+        close();
+        toast.success('Bank details recorded');
+        queryClient.invalidateQueries({
+          queryKey: `banks`,
+        });
+      },
+
+      onError: (e) => {
+        toast.error('Error recording bank');
+      },
+    });
   };
 
   //submit form
@@ -152,15 +177,15 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
     }
 
     let dataToSend = {
-      payment_method: fields.paymentMethod.props.children[1],
+      payment_method: '',
       amount: fields.amount,
       description: fields.description,
       transaction_group: fields.assetGroup,
       transaction_type: fields.assetType,
       date: fields.dateOfTransaction,
       attachment: file ? file[0] : '',
-      name: fields.assetName,
-      account: fields.assetName,
+      name: `${fields?.bank} ${fields.account_number} ${fields.assetType}`,
+      account: `${fields?.bank} ${fields.account_number} ${fields.assetType}`,
     };
 
     mutate(dataToSend, {
@@ -179,6 +204,9 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
           description: '',
           dateOfTransaction: todaysDate,
           assetName: '',
+          account_name: '',
+          account_number: '',
+          bank: '',
         });
       },
 
@@ -239,8 +267,12 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
                       className='dropdown-tools'
                       onClick={() => setAssetGroupDopdown(!assetGroupDropdown)}
                     >
-                      <div className='dropdown-tool'>
+                      <div
+                        className='dropdown-tool'
+                        style={{ display: 'flex', gap: '12px' }}
+                      >
                         <div className='asset'></div>
+                        <SelectArrow />
                       </div>
                     </div>
                   </div>
@@ -252,7 +284,11 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
                   className='dropdown-menu-copy'
                   onClick={(e: any) => e.stopPropagation()}
                 >
-                  {groups?.data
+                  {[
+                    { id: 1, name: 'Cash & Cash Equivalent' },
+                    { id: 2, name: 'Fixed Asset(Property,Plant & Equipment)' },
+                    { id: 3, name: 'Staff Loan' },
+                  ]
                     ?.filter((el: { name: string }) =>
                       el.name
                         ?.toLowerCase()
@@ -309,7 +345,7 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
                 throw new Error('');
               }}
               selectedValues={undefined}
-              options={groups?.data}
+              options={[{ id: 1, name: 'Cash & Cash Equivalent' }]}
             />
           )}
 
@@ -332,8 +368,12 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
                       className='dropdown-tools'
                       onClick={() => setAssetTypeDopdown(!assetTypeDropdown)}
                     >
-                      <div className='dropdown-tool'>
+                      <div
+                        className='dropdown-tool'
+                        style={{ display: 'flex', gap: '12px' }}
+                      >
                         <div className='asset'></div>
+                        <SelectArrow />
                       </div>
                     </div>
                   </div>
@@ -345,7 +385,13 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
                   className='dropdown-menu-copy'
                   onClick={(e: any) => e.stopPropagation()}
                 >
-                  {types?.data?.map((el: { name: string }) => (
+                  {[
+                    { id: 1, name: 'Cash at hand' },
+                    { id: 2, name: 'Current' },
+                    { id: 3, name: 'Dormiciliary' },
+                    { id: 4, name: 'Fixed Deposit' },
+                    { id: 5, name: 'Savings' },
+                  ]?.map((el: { name: string }) => (
                     <div
                       className={`dropdown-item`}
                       onClick={() => {
@@ -401,13 +447,86 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
           )}
 
           <TextInput
+            label='Bank Name'
+            placeholder='Select Bank'
+            name='bank'
+            type='dropdown'
+            errorClass={'error-msg'}
+            handleChange={handleChange}
+            value={fields.bank}
+            fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
+            errorMessage={errors['bank']}
+            id={'bank'}
+            onSelectValue={selectValue}
+            isSearchable={true}
+            handleSearchValue={handleSearch}
+            searchValue={searchValue}
+            handleBlur={handleBlur}
+            multi={false}
+            toggleOption={function (a: any): void {
+              throw new Error('');
+            }}
+            selectedValues={undefined}
+            options={banks?.data}
+          />
+
+          <TextInput
+            label={'Account number'}
+            placeholder={'Account number'}
+            name='account_number'
+            type='text'
+            errorClass={'error-msg'}
+            handleChange={handleChange}
+            value={fields.account_number}
+            fieldClass={
+              errors['account_number'] ? 'error-field' : 'input-field'
+            }
+            errorMessage={errors['account_number']}
+            id={'account_number'}
+            onSelectValue={function (a: string, b: string): void {}}
+            isSearchable={false}
+            handleSearchValue={function (): void {}}
+            searchValue={''}
+            handleBlur={handleBlur}
+            multi={false}
+            toggleOption={function (a: any): void {
+              throw new Error('');
+            }}
+            selectedValues={undefined}
+          />
+
+          <TextInput
+            label='Account Name'
+            placeholder='Account Name'
+            name='account_name'
+            type='text'
+            errorClass={'error-msg'}
+            handleChange={handleChange}
+            value={fields.account_name}
+            fieldClass={errors['account_name'] ? 'error-field' : 'input-field'}
+            errorMessage={errors['account_name']}
+            id={'account_name'}
+            onSelectValue={selectValue}
+            isSearchable={false}
+            handleSearchValue={function (): void {}}
+            searchValue={''}
+            handleBlur={handleBlur}
+            multi={false}
+            toggleOption={function (a: any): void {
+              throw new Error('');
+            }}
+            selectedValues={undefined}
+            options={banks?.data}
+          />
+
+          <TextInput
             label='Asset Name'
             placeholder='Asset Name'
             name='assetName'
             type='text'
             errorClass={'error-msg'}
             handleChange={handleChange}
-            value={fields.assetName}
+            value={`${fields?.bank} ${fields.account_number} ${fields.assetType}`}
             fieldClass={errors['assetName'] ? 'error-field' : 'input-field'}
             errorMessage={errors['assetName']}
             id={'assetName'}
@@ -421,6 +540,7 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
               throw new Error('');
             }}
             selectedValues={undefined}
+            disabled={true}
           />
 
           <TextInput
@@ -470,49 +590,6 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
             toggleOption={function (a: any): void {
               throw new Error('');
             }}
-            selectedValues={undefined}
-          />
-
-          <TextInput
-            label='Payment Method'
-            placeholder='Select payment method'
-            name='paymentMethod'
-            type='dropdown'
-            errorClass={'error-msg'}
-            handleChange={handleChange}
-            value={fields.paymentMethod}
-            fieldClass={errors['paymentMethod'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['paymentMethod']}
-            id={'paymentMethod'}
-            onSelectValue={selectValue}
-            isSearchable={false}
-            handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={undefined}
-            multi={false}
-            toggleOption={function (a: any): void {
-              throw new Error('');
-            }}
-            options={[
-              {
-                id: 1,
-                name: (
-                  <div className='payment-method-dropdown'>
-                    <Cash />
-                    Cash
-                  </div>
-                ),
-              },
-              {
-                id: 2,
-                name: (
-                  <div className='payment-method-dropdown'>
-                    <Bank />
-                    Bank
-                  </div>
-                ),
-              },
-            ]}
             selectedValues={undefined}
           />
 
@@ -617,13 +694,15 @@ const RecordLiability = ({ modalIsOpen, closeModal }: Imodal) => {
         </div>
         <button
           className='record-income__footer-btn'
-          onClick={() => submit()}
+          onClick={() => {
+            submit();
+            createBank();
+          }}
           disabled={
             fields.amount === '' ||
             fields.dateOfTransaction === '' ||
             fields.assetGroup === '' ||
             fields.assetType === '' ||
-            fields.paymentMethod === '' ||
             isLoading
           }
         >

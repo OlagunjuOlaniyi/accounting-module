@@ -1,5 +1,6 @@
 import { notification } from 'antd-notifications-messages';
 import moment, { Moment } from 'moment';
+import { SchoolData } from './types/studentTypes';
 
 export const showNotification = (type: any, title: string, message: string) => {
   notification({
@@ -89,4 +90,21 @@ export function mergeMonths(
   // Convert the Set back to an array
   const uniqueMonthsArray = [...uniqueMonthsSet];
   return uniqueMonthsArray;
+}
+
+export function deriveStudentArray(
+  schoolData: SchoolData
+): { id: number; name: string }[] {
+  const studentArray: { id: number; name: string }[] = [];
+
+  for (const classroom of Object.values(schoolData)) {
+    for (const student of classroom.students) {
+      studentArray.push({
+        id: student.idx,
+        name: `${student.firstname} ${student.lastname}`,
+      });
+    }
+  }
+
+  return studentArray;
 }

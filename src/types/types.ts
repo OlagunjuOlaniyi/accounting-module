@@ -11,6 +11,8 @@ export interface RouteTypes {
 export interface Imodal {
   modalIsOpen: boolean;
   closeModal: any;
+  name?: string;
+  sizes?: any;
 }
 
 export interface IeditModal extends Imodal {
@@ -72,4 +74,27 @@ export interface Fee {
   fee_type: FeeType;
   amount: number;
   mandatory: boolean;
+}
+
+export interface PayrollData {
+  staffs: { name: string }[];
+  net_amount: number; // This should be automatically calculated
+  gross_amount: number;
+  payroll_group_modifiers: PayrollGroupModifier[];
+}
+
+export interface PayrollGroupModifier {
+  modifier_name: string;
+  modifier_type: 'ALLOWANCE' | 'DEDUCTION' | '';
+  is_percentage: boolean;
+  amount?: number; // Present if is_percentage is false
+  linking_percentage?: 'BASIC' | 'NET_AMOUNT' | ''; // Customize based on your requirements
+  percentage?: number; // Present if is_percentage is true
+}
+
+export interface RunPayrollData {
+  staffs: { name: string }[];
+  type: ('ALL ALLOWANCE' | 'ALL DEDUCTION')[];
+  transactions_date: string;
+  payment_method: string;
 }

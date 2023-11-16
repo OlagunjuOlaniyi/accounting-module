@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { changeDateFormat, calcDiffInDays } from '../../utilities';
+import { changeDateFormat } from '../../utilities';
 import moment from 'moment';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css';
@@ -18,25 +18,19 @@ import Equity from '../../icons/Equity';
 import { Ioverview } from '../../types/types';
 import {
   useGetAssets,
+  useGetBalanceSheet,
   useGetEquity,
   useGetLiabilities,
 } from '../../hooks/queries/chartOfAccount';
-
-interface Iprops {
-  filteredData?: Ioverview;
-  filteredLoading: Boolean;
-}
+import { useNavigate } from 'react-router';
 
 const Overview = () => {
   const { data } = useGetAssets();
-  const { data: liability } = useGetLiabilities();
-  const { data: equity } = useGetEquity();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<string | number>(1);
   const [searchText, setSearchText] = useState<string>('');
-  const [showActions, setShowActions] = useState<boolean>(false);
-  const [showDateFilters, setShowDateFilters] = useState<boolean>(false);
-  const [showDateRange, setShowDateRange] = useState<boolean>(false);
+
   const [state, setState] = useState<any>([
     {
       startDate: new Date(),
@@ -53,12 +47,13 @@ const Overview = () => {
   interface ICardDetails extends ICardProps {
     id: number;
   }
+  const { data: balance_sheet } = useGetBalanceSheet();
 
   const cardDetails: ICardDetails[] = [
     {
       id: 1,
       title: 'ASSET',
-      amount: `NGN ${data?.total_asset?.toLocaleString() ?? 0}`,
+      amount: `NGN ${balance_sheet?.total_asset?.toLocaleString() ?? 0}`,
       percentage: '2.4%',
       type: 'profit',
       icon: <Asset />,
@@ -66,7 +61,7 @@ const Overview = () => {
     {
       id: 2,
       title: 'LIABILITY',
-      amount: `NGN ${liability?.total_liability?.toLocaleString() ?? 0}`,
+      amount: `NGN ${balance_sheet?.total_liability?.toLocaleString() ?? 0}`,
       percentage: '1.2%',
       type: 'loss',
       icon: <Liability />,
@@ -74,48 +69,31 @@ const Overview = () => {
     {
       id: 3,
       title: 'EQUITY',
-      amount: `NGN ${equity?.total_equity?.toLocaleString() ?? 0}`,
+      amount: `NGN ${balance_sheet?.total_equity?.toLocaleString() ?? 0}`,
       percentage: '2.2%',
       type: 'profit',
       icon: <Equity />,
     },
   ];
+
+  let totalLiabilityAndEquity =
+    Number(balance_sheet?.total_equity ?? 0) +
+    Number(balance_sheet?.total_liability ?? 0);
+
+  const assets = Object.entries(balance_sheet?.asset_by_group || {});
+  const liability = Object.entries(balance_sheet?.liability_by_group || {});
+  const equity = Object.entries(balance_sheet?.equity_by_group || {});
   const [debouncedValue] = useDebounce(searchText, 1000);
-
-  const closeModal = (type: string) => {
-    setModalOpen({ income: false, expense: false });
-  };
-
-  const openModal = (type: string) => {
-    type === 'income'
-      ? setModalOpen({ income: true, expense: false })
-      : setModalOpen({ income: false, expense: true });
-  };
 
   let formatedStartDate = changeDateFormat(
     moment(state[0]?.startDate).format('l')
   );
   let formatedEndDate = changeDateFormat(moment(state[0]?.endDate).format('l'));
 
-  const { isLoading, refetch } = useFilterIncomeAndExpenseOverview(
+  const { refetch } = useFilterIncomeAndExpenseOverview(
     formatedStartDate,
     state[0]?.endDate ? formatedEndDate : formatedStartDate
   );
-
-  //filter for today
-  const fetchToday = () => {
-    setState([
-      {
-        startDate: new Date(),
-        endDate: new Date(),
-        key: 'selection',
-      },
-    ]);
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
 
   let searchres = useSearch(debouncedValue).data;
 
@@ -125,9 +103,6 @@ const Overview = () => {
       setActiveTab(2);
     }
   }, [searchres]);
-
-  let totalLiabilityAndEquity =
-    Number(equity?.total_equity ?? 0) + Number(liability?.total_liability ?? 0);
 
   return (
     <div>
@@ -158,19 +133,31 @@ const Overview = () => {
               </div>
             </div>
             <div className='overview-scroll-container'>
-              {data?.data?.length === 0 ? (
+              {assets?.length === 0 ? (
                 <div className='empty-state'>No data available</div>
               ) : (
-                data?.data?.map((el: any) => (
+                assets?.map(([group, data]: any) => (
                   <div
                     className='income-expense-overview__statement-wrapper__content'
-                    key={el.id}
+                    key={group}
+                    onClick={() => {
+                      navigate(
+                        `/chart-of-account/view-balance-sheet/${group}?from=asset_by_group`
+                      );
+                      localStorage.setItem(
+                        'balanceSheet',
+                        JSON.stringify({
+                          ...balance_sheet?.asset_by_group[group],
+                          type: 'bl',
+                        })
+                      );
+                    }}
                   >
                     <div className='income-expense-overview__statement-wrapper__content__left'>
-                      <p>{el.transaction_type?.name}</p>
+                      <p>{group}</p>
                     </div>
                     <div className='income-expense-overview__statement-wrapper__content__right'>
-                      <p>{Number(el.amount).toLocaleString()}</p>
+                      <p>{Number(data.balance).toLocaleString()}</p>
                     </div>
                   </div>
                 ))
@@ -181,7 +168,7 @@ const Overview = () => {
                 <h3>Total Asset</h3>
               </div>
               <div className=''>
-                <h3>{data?.total_asset?.toLocaleString() ?? 0}</h3>
+                <h3>{balance_sheet?.total_asset?.toLocaleString() ?? 0}</h3>
               </div>
             </div>
           </div>
@@ -200,19 +187,34 @@ const Overview = () => {
                 </div>
               </div>
               <div className='overview-scroll-container'>
-                {liability?.data?.length === 0 ? (
+                {liability?.length === 0 ? (
                   <div className='empty-state'>No data available</div>
                 ) : (
-                  liability?.data?.map((el: any) => (
+                  liability?.map(([group, data]: any) => (
                     <div
                       className='income-expense-overview__statement-wrapper__content'
-                      key={el.id}
+                      key={group}
+                      onClick={() => {
+                        navigate(
+                          `/chart-of-account/view-balance-sheet/${group}?from=asset_by_group`
+                        );
+                        localStorage.setItem(
+                          'balanceSheet',
+                          JSON.stringify({
+                            ...balance_sheet?.liability_by_group[group],
+                            type: 'bl',
+                          })
+                        );
+                      }}
                     >
                       <div className='income-expense-overview__statement-wrapper__content__left'>
-                        <p>{el.transaction_type?.name}</p>
+                        <p>{group}</p>
                       </div>
                       <div className='income-expense-overview__statement-wrapper__content__right'>
-                        <p>{Number(el.amount).toLocaleString()}</p>
+                        <p>
+                          {' '}
+                          <p>{Number(data.balance).toLocaleString()}</p>
+                        </p>
                       </div>
                     </div>
                   ))
@@ -224,7 +226,7 @@ const Overview = () => {
                 </div>
                 <div className=''>
                   <h3>
-                    NGN {liability?.total_liability?.toLocaleString() ?? 0}
+                    NGN {balance_sheet?.total_liability?.toLocaleString() ?? 0}
                   </h3>
                 </div>
               </div>
@@ -241,19 +243,31 @@ const Overview = () => {
                 </div>
               </div>
               <div className='overview-scroll-container'>
-                {equity?.data?.length === 0 ? (
+                {equity?.length === 0 ? (
                   <div className='empty-state'>No data available</div>
                 ) : (
-                  equity?.data?.map((el: any) => (
+                  equity.map(([group, data]: any) => (
                     <div
                       className='income-expense-overview__statement-wrapper__content'
-                      key={el.id}
+                      key={group}
+                      onClick={() => {
+                        navigate(
+                          `/chart-of-account/view-balance-sheet/${group}?from=asset_by_group`
+                        );
+                        localStorage.setItem(
+                          'balanceSheet',
+                          JSON.stringify({
+                            ...balance_sheet?.equity_by_group[group],
+                            type: 'bl',
+                          })
+                        );
+                      }}
                     >
                       <div className='income-expense-overview__statement-wrapper__content__left'>
-                        <p>{el.transaction_type?.name}</p>
+                        <p>{group}</p>
                       </div>
                       <div className='income-expense-overview__statement-wrapper__content__right'>
-                        <p>{Number(el.amount).toLocaleString()}</p>
+                        <p>{Number(data.balance).toLocaleString()}</p>
                       </div>
                     </div>
                   ))
@@ -267,7 +281,9 @@ const Overview = () => {
                   <h3>Total Equity</h3>
                 </div>
                 <div className=''>
-                  <h3>NGN {equity?.total_equity?.toLocaleString() ?? 0}</h3>
+                  <h3>
+                    NGN {balance_sheet?.total_equity?.toLocaleString() ?? 0}
+                  </h3>
                 </div>
               </div>
             </div>
@@ -292,7 +308,7 @@ const Overview = () => {
                 <h3>Total Asset</h3>
               </div>
               <div className=''>
-                <h3>NGN {data?.total_asset?.toLocaleString()}</h3>
+                <h3>NGN {balance_sheet?.total_asset?.toLocaleString()}</h3>
               </div>
             </div>
             <div

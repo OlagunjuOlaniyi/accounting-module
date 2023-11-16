@@ -24,6 +24,7 @@ import {
 } from '../../../hooks/queries/incomes';
 import { useGetBankList } from '../../../hooks/queries/banks';
 import Credit from '../../../icons/Credit';
+import SelectArrow from '../../../icons/SelectArrow';
 
 const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
@@ -82,6 +83,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
   const [incomeTypeDropdown, setIncomeTypeDopdown] = useState<boolean>(false);
   const [selection, setSelection] = useState('post');
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+  const [bankId, setBankId] = useState('');
 
   //debounce callback to control income group dropdown
   const debounced = useDebouncedCallback(
@@ -166,6 +168,9 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
     setSelectedGroupId(id);
+    if (name === 'bank') {
+      setBankId(id);
+    }
     //refetch expense type
     setTimeout(() => {
       refetch();
@@ -180,7 +185,10 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
     }
 
     let dataToSend = {
-      payment_method: fields.paymentMethod.props.children[1],
+      payment_method:
+        fields.paymentMethod.props.children[1] === 'Bank'
+          ? bankId
+          : fields.paymentMethod.props.children[1],
       amount: fields.amount,
       description: fields.description,
       transaction_group: fields.incomeGroup,
@@ -382,9 +390,11 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
                   <div className='dropdown-tools'>
                     <div
                       className='dropdown-tool'
+                      style={{ display: 'flex', gap: '12px' }}
                       onClick={() => setIncomeTypeDopdown(!incomeTypeDropdown)}
                     >
                       <Dot type='income' />
+                      <SelectArrow />
                     </div>
                   </div>
                 </div>
@@ -502,7 +512,7 @@ const RecordIncome = ({ modalIsOpen, closeModal }: Imodal) => {
                 name: (
                   <div className='payment-method-dropdown'>
                     <Cash />
-                    Cash
+                    CASH
                   </div>
                 ),
               },

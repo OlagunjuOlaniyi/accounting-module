@@ -27,6 +27,7 @@ const TextInput = ({
   toggleOption,
   defaultValue,
   disabled,
+  isMultidropdown,
 }: Iprops) => {
   const [fieldType, setFieldType] = useState('password');
   const toggleField = () => {
@@ -71,6 +72,7 @@ const TextInput = ({
           toggleOption={toggleOption}
           type={type}
           defaultValue={defaultValue}
+          isMultidropdown={isMultidropdown}
         />
       ) : type === 'password' ? (
         <div className='password-input'>

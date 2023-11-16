@@ -56,6 +56,11 @@ export const createAsset = async (data: IexpenseProps) => {
   return response.data;
 };
 
+export const deleteAsset = async (id: string) => {
+  const response = await axiosInstance.delete(`/assets/${id}`);
+  return response.data;
+};
+
 //create equity
 export const createEquity = async (data: IexpenseProps) => {
   const formData = new FormData();
@@ -99,3 +104,107 @@ export const createLiability = async (data: IexpenseProps) => {
   });
   return response.data;
 };
+
+export const downloadTrialBalance = async () => {
+  const response = await axiosInstance.get(`/incomes/download_balancesheet`);
+  return response.data;
+};
+
+export const downloadBalanceSheet = async () => {
+  const response = await axiosInstance.get(`/incomes/download_trialbalance`);
+  return response.data;
+};
+
+export const recordCashDeposit = async (data: any) => {
+  const formData = new FormData();
+  formData.append('amount', data.amount);
+  formData.append('description', data.description);
+  formData.append('transaction_method', data.transaction_method);
+  formData.append('bank', data.bank);
+  formData.append('date', data.date);
+
+  const response = await axios.post(
+    `${baseURL}/assets/cashdeposit/cash/`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const recordCashWithdrawal = async (data: any) => {
+  const formData = new FormData();
+  formData.append('amount', data.amount);
+  formData.append('description', data.description);
+  formData.append('transaction_method', data.transaction_method);
+  formData.append('bank', data.bank);
+  formData.append('date', data.date);
+
+  const response = await axios.post(
+    `${baseURL}/assets/cashwithdrawal/cash/`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const recordBankTransfer = async (data: any) => {
+  const formData = new FormData();
+  formData.append('amount', data.amount);
+  formData.append('description', data.description);
+  formData.append('transaction_method', data.transaction_method);
+  formData.append('source_bank', data.source_bank);
+  formData.append('destination_bank', data.destination_bank);
+  formData.append('bank_charges', data.bank_charges);
+  formData.append('date', data.date);
+
+  const response = await axios.post(
+    `${baseURL}/assets/bank/banktransfer/`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+export const recordBankDeposit = async (data: any) => {
+  const formData = new FormData();
+  formData.append('amount', data.amount);
+  formData.append('description', data.description);
+  formData.append('transaction_method', data.transaction_method);
+  formData.append('bank', data.bank);
+  formData.append('date', data.date);
+
+  const response = await axios.post(
+    `${baseURL}/assets/bankdeposit/bank/`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.token}`,
+      },
+    }
+  );
+  return response.data;
+};
+
+// export const recordWithdrawalAndDeposit = async (data: any) => {
+//   const response = await axiosInstance.post(
+//     `/assets/bank/withdrawal_and_deposit/`,
+//     data
+//   );
+//   return response.data;
+// };

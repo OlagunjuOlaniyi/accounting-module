@@ -1,6 +1,6 @@
-import Modal from "react-modal";
-import "./attachment.scss";
-import Cancel from "../../../icons/Cancel";
+import Modal from 'react-modal';
+import './attachment.scss';
+import Cancel from '../../../icons/Cancel';
 
 type Iprops = {
   modalIsOpen: boolean;
@@ -11,13 +11,13 @@ type Iprops = {
 const Attachment = ({ modalIsOpen, close, attachmentUrl, type }: Iprops) => {
   const customStyles = {
     content: {
-      top: "50%",
-      left: "50%",
-      right: "auto",
-      bottom: "auto",
-      marginRight: "-50%",
-      transform: "translate(-50%, -50%)",
-      padding: "0px",
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      padding: '0px',
     },
   };
   return (
@@ -27,19 +27,19 @@ const Attachment = ({ modalIsOpen, close, attachmentUrl, type }: Iprops) => {
       style={customStyles}
       ariaHideApp={false}
     >
-      <div className="attachment-header">
-        <p>
+      <div className='attachment-header'>
+        <p style={{ visibility: 'hidden' }}>
           {attachmentUrl?.replace(
             `https://accounting-modules.s3.amazonaws.com/${type}s/`,
-            ""
+            ''
           )}
         </p>
-        <button className="record-income__cancel__btn" onClick={close}>
+        <button className='record-income__cancel__btn' onClick={close}>
           <Cancel />
         </button>
       </div>
-      <div className="attachment-body">
-        <img src={attachmentUrl} alt="" />
+      <div className='attachment-body'>
+        <img src={attachmentUrl} alt='' />
       </div>
     </Modal>
   );

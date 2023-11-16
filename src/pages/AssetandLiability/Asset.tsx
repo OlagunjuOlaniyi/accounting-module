@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Table from '../../components/Table/Table';
 import Dots from '../../icons/Dots';
-import Dot from '../../icons/Dot';
+
 import Visibility from '../../icons/Visibility';
 import Delete from '../../icons/Delete';
 import Edit from '../../icons/Edit';
@@ -9,13 +9,19 @@ import { useNavigate } from 'react-router';
 import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-hot-toast';
-import { useGetIncomes } from '../../hooks/queries/incomes';
-import { useDeleteIncome } from '../../hooks/mutations/incomes';
+
 import EditIncome from '../../components/Modals/IncomeAndExpense/EditIncome';
-import { IexpenseRes } from '../../types/expenseTypes';
+
 import { Ioverview } from '../../types/types';
 import { useGetAssets } from '../../hooks/queries/chartOfAccount';
 import EditAsset from '../../components/Modals/EquityAssetAndLiability/EditAsset';
+import { useDeleteAsset } from '../../hooks/mutations/chartofAccounts';
+import RecordIcon from '../../icons/RecordIcon';
+import BackupTableIcon from '../../icons/BackupTableIcon';
+import RecordTransferIcon from '../../icons/RecordTransferIcon';
+import LeaderboardIcon from '../../icons/LeaderboardIcon';
+import HouseIcon from '../../icons/HouseIcon';
+import AssetModal from '../../components/Modals/Asset/AssetModal';
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -31,6 +37,14 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
   const [selectedId, setSelectedId] = useState<string>('');
   const [editModal, setEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [type, setType] = useState<
+    | 'record_cash_deposit'
+    | 'record_cash_withdrawal'
+    | 'record_bank_withdrawal'
+    | 'record_bank_deposit'
+    | 'record_bank_transfer'
+    | ''
+  >('');
 
   const closeModal = () => {
     setDeleteModal(false);
@@ -47,23 +61,15 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
   let sortedData = apiData?.sort((a: any, b: any) => b.id - a.id);
 
   //delete transaction
-  const { mutate, isLoading: deleteLoading } = useDeleteIncome();
+  const { mutate, isLoading: deleteLoading } = useDeleteAsset();
 
   const deleteTransaction = () => {
     mutate(selectedId, {
       onSuccess: (res) => {
-        queryClient.setQueryData<any>(
-          [`incomes-single-${selectedId}`],
-          (prev: any) => {
-            return prev;
-          }
-        );
-
         queryClient.invalidateQueries({
-          queryKey: `incomes`,
+          queryKey: `assets`,
         });
         toast.success('Transaction deleted successfully');
-        navigate('/income-and-expense');
         closeModal();
       },
 
@@ -80,24 +86,26 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
-    //get single product/add on data
+    let splitedValue = value.split(',');
+    let id = splitedValue[0];
+    let transaction_type: string = splitedValue[1];
     return (
       <div className='action-wrapper'>
         <button
           onClick={() => {
-            setSelectedId(value);
+            setSelectedId(id);
             setDropdownActions(!dropdownActions);
           }}
           style={{ all: 'unset', cursor: 'pointer' }}
         >
           <Dots />
 
-          {dropdownActions && value === selectedId && (
+          {dropdownActions && id === selectedId && (
             <>
               <div className='action'>
                 <div
                   className='action__flex'
-                  onClick={() => navigate(`/income/${value}`)}
+                  onClick={() => navigate(`/income/${id}`)}
                 >
                   <Visibility />
                   <p>View</p>
@@ -110,6 +118,69 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
                   <Edit />
                   <p>Edit</p>
                 </div>
+                {transaction_type?.toLowerCase() === 'cash at hand' && (
+                  <>
+                    <div
+                      className='action__flex'
+                      onClick={() => setType('record_cash_deposit')}
+                    >
+                      <RecordIcon />
+                      <p>Record Cash Deposit</p>
+                    </div>
+
+                    <div
+                      className='action__flex'
+                      onClick={() => setType('record_cash_withdrawal')}
+                    >
+                      <BackupTableIcon />
+                      <p>Record Cash Withdrawal</p>
+                    </div>
+                  </>
+                )}
+
+                {(transaction_type?.toLowerCase() === 'savings' ||
+                  transaction_type?.toLowerCase() === 'current') && (
+                  <>
+                    <div
+                      className='action__flex'
+                      onClick={() => setType('record_bank_transfer')}
+                    >
+                      <RecordTransferIcon />
+                      <p>Record Bank Transfer</p>
+                    </div>
+
+                    <div
+                      className='action__flex'
+                      onClick={() => setType('record_bank_deposit')}
+                    >
+                      <RecordIcon />
+
+                      <p>Record Bank Deposit</p>
+                    </div>
+                    <div
+                      className='action__flex'
+                      onClick={() => setType('record_bank_withdrawal')}
+                    >
+                      <BackupTableIcon />
+                      <p>Record Bank Withdrawal</p>
+                    </div>
+
+                    <div
+                      className='action__flex'
+                      onClick={() => setEditModal(true)}
+                    >
+                      <LeaderboardIcon />
+                      <p>Record Bank Charges</p>
+                    </div>
+                    <div
+                      className='action__flex'
+                      onClick={() => setEditModal(true)}
+                    >
+                      <HouseIcon />
+                      <p>Record Bank Interest</p>
+                    </div>
+                  </>
+                )}
 
                 <div
                   className='action__flex'
@@ -174,7 +245,7 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
 
     {
       Header: 'Actions',
-      accessor: 'id',
+      accessor: (d: any) => `${d.id},${d.transaction_type?.name}`,
       Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <DotsBtn value={value} />
       ),
@@ -205,6 +276,12 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
           deleteBtnText='Delete Transaction'
           confirmationText='Are you sure you want to delete this transaction?'
           loading={deleteLoading}
+        />
+
+        <AssetModal
+          modalIsOpen={type !== ''}
+          closeModal={setType}
+          type={type}
         />
       </div>
     </div>

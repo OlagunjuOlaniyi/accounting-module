@@ -7,7 +7,7 @@ import axios from 'axios';
 //add income
 export const addIncome = async (data: IexpenseProps) => {
   const formData = new FormData();
-  formData.append('payment_method', data.payment_method?.toUpperCase());
+  formData.append('payment_method', data.payment_method);
   formData.append('description', data.description);
   formData.append('amount', data.amount);
   formData.append('transaction_group', data.transaction_group);
@@ -28,7 +28,7 @@ export const addIncome = async (data: IexpenseProps) => {
 //update income
 export const updateIncome = async (data: IexpenseProps) => {
   const formData = new FormData();
-  formData.append('payment_method', data.payment_method?.toUpperCase());
+  formData.append('payment_method', data.payment_method);
   formData.append('description', data.description);
   formData.append('amount', data.amount);
   formData.append('transaction_group', data.transaction_group);

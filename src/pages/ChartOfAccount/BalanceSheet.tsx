@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css';
 
@@ -10,13 +8,8 @@ import OverviewCard, {
 import Asset from '../../icons/Asset';
 import Liability from '../../icons/Liability';
 import Equity from '../../icons/Equity';
-import { Ioverview } from '../../types/types';
-import {
-  useGetAssets,
-  useGetBalanceSheet,
-  useGetEquity,
-  useGetLiabilities,
-} from '../../hooks/queries/chartOfAccount';
+
+import { useGetBalanceSheet } from '../../hooks/queries/chartOfAccount';
 import { useNavigate } from 'react-router';
 
 const BalanceSheet = () => {

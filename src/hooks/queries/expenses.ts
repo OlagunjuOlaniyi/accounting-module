@@ -27,7 +27,7 @@ export const useGetSingleExpenses = (id?: string) => {
 export const useGetExpenseTypes = (id: string) => {
   return useQuery<ApiRes | any>({
     queryKey: `expenses-type`,
-    queryFn: () => getExpenseTypes(),
+    queryFn: () => getExpenseTypes(id),
     refetchOnWindowFocus: false,
     enabled: Boolean(id),
   });

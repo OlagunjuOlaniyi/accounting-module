@@ -30,32 +30,54 @@ const IncomeExpenseOverview = ({ filteredData, filteredLoading }: Iprops) => {
       id: 1,
       title: 'INCOME',
       amount: `NGN ${apiData ? apiData?.total_income?.toLocaleString() : 0}`,
-      percentage: '2.4%',
-      type: 'profit',
+      percentage: '',
+      type: '',
       icon: <Income />,
     },
     {
       id: 2,
       title: 'EXPENSE',
       amount: `NGN ${apiData ? apiData?.total_expense?.toLocaleString() : 0}`,
-      percentage: '1.2%',
-      type: 'loss',
+      percentage: '',
+      type: '',
       icon: <Expense />,
     },
     {
       id: 3,
       title: 'NET PROFIT (LOSS)',
       amount: `NGN ${apiData ? apiData?.profit?.toLocaleString() : 0}`,
-      percentage: '2.2%',
-      type: apiData?.profit?.toLocaleString().includes('-') ? 'loss' : 'profit',
+      percentage: '',
+      //type: apiData?.profit?.toLocaleString().includes('-') ? 'loss' : 'profit',
+      type: '',
       icon: <Net />,
     },
   ];
 
-  const labels = mergeMonths(
+  const unorderedLabels = mergeMonths(
     apiData?.income_by_month || [],
     apiData?.expense_by_month || []
   );
+
+  const labels: string[] = unorderedLabels.sort((a, b) => {
+    // Define a mapping of month names to their numerical representation
+    const monthMap: { [key: string]: number } = {
+      Jan: 1,
+      Feb: 2,
+      Mar: 3,
+      Apr: 4,
+      May: 5,
+      Jun: 6,
+      Jul: 7,
+      Aug: 8,
+      Sep: 9,
+      Oct: 10,
+      Nov: 11,
+      Dec: 12,
+    };
+
+    // Compare the numerical representations of the months
+    return monthMap[a] - monthMap[b];
+  });
 
   const barData = {
     labels,

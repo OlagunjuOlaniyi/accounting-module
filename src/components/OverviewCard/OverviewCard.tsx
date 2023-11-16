@@ -1,14 +1,14 @@
-import React from "react";
-import Income from "../../icons/Income";
-import Received, { IreceivedIconProps } from "../../icons/Received";
-import "./overviewcard.scss";
+import React from 'react';
+import Income from '../../icons/Income';
+import Received, { IreceivedIconProps } from '../../icons/Received';
+import './overviewcard.scss';
 
 export type ICardProps = {
   type: string;
   title: string;
   amount: string | number;
   percentage: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
 };
 const OverviewCard = ({
   type,
@@ -18,20 +18,20 @@ const OverviewCard = ({
   icon,
 }: ICardProps) => {
   return (
-    <div className="overview-card">
-      <div className="overview-card__top">
+    <div className='overview-card'>
+      <div className='overview-card__top'>
         {icon}
-        <p className="overview-card__top__text">{title}</p>
+        <p className='overview-card__top__text'>{title}</p>
       </div>
 
-      <div className="overview-card__body">
+      <div className='overview-card__body'>
         <h2>{amount}</h2>
-        <div className="overview-card__body__projection">
+        {/* <div className='overview-card__body__projection'>
           <Received type={type} />
           <p className={`overview-card__body__little-text-${type}`}>
             {percentage}
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

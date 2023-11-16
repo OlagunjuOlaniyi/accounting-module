@@ -22,6 +22,8 @@ import {
   useGetSingleIncome,
 } from '../../../hooks/queries/incomes';
 import { useUpdateIncome } from '../../../hooks/mutations/incomes';
+import { useGetBankList } from '../../../hooks/queries/banks';
+import Credit from '../../../icons/Credit';
 
 const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   const queryClient = useQueryClient();
@@ -51,6 +53,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     amount: string;
     description: string;
     dateOfTransaction: string;
+    bank: string;
   };
 
   //let todaysDate = new Date().toISOString().substring(0, 10);
@@ -62,6 +65,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     amount: '',
     description: '',
     dateOfTransaction: '',
+    bank: '',
   });
 
   useEffect(() => {
@@ -83,6 +87,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     dateOfTransaction: '',
     incomeGroup: '',
     incomeType: '',
+    bank: '',
   });
 
   //component states
@@ -92,6 +97,7 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   const [selection, setSelection] = useState('post');
   const [incomeTypeDropdown, setIncomeTypeDopdown] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+  const [bankId, setBankId] = useState('');
 
   //debounce callback to control income group dropdown
   const debounced = useDebouncedCallback(
@@ -140,21 +146,34 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
     setSelectedGroupId(id);
+    if (name === 'bank') {
+      setBankId(id);
+    }
     //refetch expense type
     setTimeout(() => {
       refetch();
     }, 500);
   };
-
   const { mutate, isLoading, isError } = useUpdateIncome();
+  const { data: bank_accounts } = useGetBankList();
+
+  const formattedBankAccounts = bank_accounts?.data?.map(
+    (b: { id: any; account_name: any }) => ({
+      id: b.id,
+      name: b.account_name,
+    })
+  );
 
   //submit form
   const submit = () => {
     let dataToSend = {
       id: id ? id : selectedId,
-      payment_method: fields?.paymentMethod?.props?.children[1]
-        ? fields?.paymentMethod?.props?.children[1]
-        : data?.data[0]?.payment_method,
+      payment_method:
+        fields.paymentMethod?.props?.children[1] === 'Bank'
+          ? bankId
+          : fields?.paymentMethod?.props?.children[1]
+          ? fields?.paymentMethod?.props?.children[1]
+          : data?.data[0]?.payment_method,
       amount: fields.amount ? fields.amount : data?.data[0]?.amount,
       description: fields.description
         ? fields.description
@@ -449,9 +468,44 @@ const EditIncome = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
                   </div>
                 ),
               },
+              {
+                id: 3,
+                name: (
+                  <div className='payment-method-dropdown'>
+                    <Credit />
+                    Credit
+                  </div>
+                ),
+              },
             ]}
             selectedValues={undefined}
           />
+          {fields.paymentMethod?.props?.children[1]?.toLowerCase() ===
+            'bank' && (
+            <TextInput
+              label='Bank Accounts'
+              placeholder='Select bank account'
+              name='bank'
+              type='dropdown'
+              errorClass={'error-msg'}
+              handleChange={handleChange}
+              value={fields.bank}
+              fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
+              errorMessage={errors['bank']}
+              id={'bank'}
+              onSelectValue={selectValue}
+              isSearchable={false}
+              handleSearchValue={function (): void {}}
+              searchValue={''}
+              handleBlur={undefined}
+              multi={false}
+              toggleOption={function (a: any): void {
+                throw new Error('');
+              }}
+              options={formattedBankAccounts}
+              selectedValues={undefined}
+            />
+          )}
 
           <TextInput
             label='Date of Transaction'

@@ -17,4 +17,5 @@ export interface IDropdownProps extends InputHTMLAttributes<HTMLInputElement> {
   toggleOption: (a: any) => void;
   multi: boolean;
   selectedValues: any;
+  isMultidropdown?: boolean;
 }

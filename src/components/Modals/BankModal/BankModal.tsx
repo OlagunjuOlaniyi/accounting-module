@@ -5,8 +5,6 @@ import { Imodal } from '../../../types/types';
 import TextInput from '../../Input/TextInput';
 import '../../Modals/IncomeAndExpense/recordincome.scss';
 
-import { useCreateExpense } from '../../../hooks/mutations/expenses';
-
 import { useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 

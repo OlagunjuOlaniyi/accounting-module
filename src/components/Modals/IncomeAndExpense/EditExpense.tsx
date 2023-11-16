@@ -22,11 +22,21 @@ import { useQueryClient } from 'react-query';
 import { useParams } from 'react-router';
 
 import toast from 'react-hot-toast';
+import { useGetBankList } from '../../../hooks/queries/banks';
+import Credit from '../../../icons/Credit';
 
 const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   const queryClient = useQueryClient();
   const { id } = useParams();
   const { data } = useGetSingleExpenses(id ? id : selectedId);
+
+  const { data: bank_accounts } = useGetBankList();
+  const formattedBankAccounts = bank_accounts?.data?.map(
+    (b: { id: any; account_name: any }) => ({
+      id: b.id,
+      name: b.account_name,
+    })
+  );
 
   const customStyles = {
     content: {
@@ -51,6 +61,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     amount: string;
     description: string;
     dateOfTransaction: string;
+    bank: string;
   };
 
   //let todaysDate = new Date().toISOString().substring(0, 10);
@@ -62,18 +73,19 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     amount: '',
     description: '',
     dateOfTransaction: '',
+    bank: '',
   });
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   useEffect(() => {
     setFields({
       ...fields,
-      expenseType: data?.data[0]?.transaction_type?.name,
-      expenseGroup: data?.data[0]?.transaction_group?.name,
-      paymentMethod: data?.data[0]?.payment_method,
-      amount: data?.data[0]?.amount,
-      description: data?.data[0]?.description,
-      dateOfTransaction: data?.data[0]?.date,
+      expenseType: data?.data?.transaction_type?.name,
+      expenseGroup: data?.data?.transaction_group?.name,
+      paymentMethod: data?.data?.payment_method,
+      amount: data?.data?.amount,
+      description: data?.data?.description,
+      dateOfTransaction: data?.data?.date,
     });
   }, [data]);
 
@@ -93,6 +105,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     useState<boolean>(false);
   const [selection, setSelection] = useState('post');
   const [expenseTypeDropdown, setExpenseTypeDopdown] = useState<boolean>(false);
+  const [bankId, setBankId] = useState('');
 
   //debounce callback to control expense group dropdown
   const debounced = useDebouncedCallback(
@@ -140,6 +153,9 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
+    if (name === 'bank') {
+      setBankId(id);
+    }
     setSelectedGroupId(id);
     //refetch expense type
     setTimeout(() => {
@@ -153,23 +169,26 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
   const submit = () => {
     let dataToSend = {
       id: id ? id : selectedId,
-      payment_method: fields?.paymentMethod?.props?.children[1]
-        ? fields?.paymentMethod?.props?.children[1]
-        : data?.data[0]?.payment_method,
-      amount: fields.amount ? fields.amount : data?.data[0]?.amount,
+      payment_method:
+        fields.paymentMethod.props.children[1] === 'Bank'
+          ? bankId
+          : fields?.paymentMethod?.props?.children[1]
+          ? fields?.paymentMethod?.props?.children[1]
+          : data?.data?.payment_method,
+      amount: fields.amount ? fields.amount : data?.data?.amount,
       description: fields.description
         ? fields.description
-        : data?.data[0]?.description,
+        : data?.data?.description,
       transaction_group: fields.expenseGroup
         ? fields.expenseGroup
-        : data?.data[0]?.transaction_group?.name,
+        : data?.data?.transaction_group?.name,
       transaction_type: fields.expenseType
         ? fields.expenseType
-        : data?.data[0]?.transaction_type?.name,
+        : data?.data?.transaction_type?.name,
       date: fields.dateOfTransaction
         ? fields.dateOfTransaction
-        : data?.data[0]?.date,
-      attachment: file ? file[0] : '',
+        : data?.data?.date,
+      attachment: file ? file : '',
       account: selection === 'post' ? 'old' : 'new',
     };
 
@@ -225,7 +244,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             </button>
           </div>
           <div className='record-income__heading'>
-            <h4>Edit Transaction {data?.data[0]?.transaction_group?.name}</h4>
+            <h4>Edit Transaction {data?.data?.transaction_group?.name}</h4>
             <p>
               Select the expense group, type, amount, payment method, and date
               of the expense you want to update
@@ -367,7 +386,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             placeholder={
               selection === 'post' ? 'Expense amount' : 'Opening Balance'
             }
-            defaultValue={data?.data[0]?.amount}
+            defaultValue={data?.data?.amount}
             name='amount'
             type='text'
             errorClass={'error-msg'}
@@ -392,7 +411,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
             label='Description'
             placeholder='Write anything about the expense'
             name='description'
-            defaultValue={data?.data[0]?.description}
+            defaultValue={data?.data?.description}
             type='textarea'
             errorClass={'error-msg'}
             handleChange={handleChange}
@@ -417,7 +436,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
           <TextInput
             label='Payment Method'
             placeholder='Select payment method'
-            //defaultValue={data?.data[0]?.payment_method}
+            //defaultValue={data?.data?.payment_method}
             name='paymentMethod'
             type='dropdown'
             errorClass={'error-msg'}
@@ -454,9 +473,45 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
                   </div>
                 ),
               },
+              {
+                id: 3,
+                name: (
+                  <div className='payment-method-dropdown'>
+                    <Credit />
+                    Credit
+                  </div>
+                ),
+              },
             ]}
             selectedValues={undefined}
           />
+
+          {fields.paymentMethod?.props?.children[1]?.toLowerCase() ===
+            'bank' && (
+            <TextInput
+              label='Bank Accounts'
+              placeholder='Select bank account'
+              name='bank'
+              type='dropdown'
+              errorClass={'error-msg'}
+              handleChange={handleChange}
+              value={fields.bank}
+              fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
+              errorMessage={errors['bank']}
+              id={'bank'}
+              onSelectValue={selectValue}
+              isSearchable={false}
+              handleSearchValue={function (): void {}}
+              searchValue={''}
+              handleBlur={undefined}
+              multi={false}
+              toggleOption={function (a: any): void {
+                throw new Error('');
+              }}
+              options={formattedBankAccounts}
+              selectedValues={undefined}
+            />
+          )}
 
           <TextInput
             label='Date of Transaction'
@@ -482,7 +537,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
               throw new Error('');
             }}
             selectedValues={undefined}
-            defaultValue={data?.data[0]?.date}
+            defaultValue={data?.data?.date}
           />
           <div className='input-component'>
             <label>Attachments</label>
@@ -537,8 +592,8 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
                         />
                       </svg>
                       <div className='upload-done__image-name__details'>
-                        <p>{file[0]?.path}</p>
-                        <p>{Math.round(file[0]?.size * 0.001)} kb</p>
+                        <p>{file?.path}</p>
+                        <p>{Math.round(file?.size * 0.001)} kb</p>
                       </div>
                     </div>
                   </>

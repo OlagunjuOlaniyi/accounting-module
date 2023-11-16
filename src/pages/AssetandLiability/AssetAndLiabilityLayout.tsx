@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/Button/Button';
 import { AssetandLiability } from '../../data';
 import Addcircle from '../../icons/Addcircle';
@@ -22,10 +22,6 @@ import {
 import { useDebounce } from 'use-debounce';
 import SmallSpinner from '../../assets/smallspinner.svg';
 import '../ChartOfAccount/BalanceSheet.scss';
-
-import OverviewCard, {
-  ICardProps,
-} from '../../components/OverviewCard/OverviewCard';
 
 import RecordIncome from '../../components/Modals/IncomeAndExpense/RecordIncome';
 import RecordExpense from '../../components/Modals/IncomeAndExpense/RecordExpense';
@@ -60,10 +56,27 @@ const AssetAndLiabilityLayout = () => {
     liability: false,
     asset: false,
   });
+  const dropdownRef = useRef(null);
 
-  interface ICardDetails extends ICardProps {
-    id: number;
-  }
+  // Add a click event listener to the document body to close the dropdown when clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef?.current &&
+        !dropdownRef?.current?.contains(event.target as Node)
+      ) {
+        setShowActions(false);
+        // setShowDateFilters(false);
+        setShowDateRange(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const [debouncedValue] = useDebounce(searchText, 1000);
 
@@ -297,7 +310,7 @@ const AssetAndLiabilityLayout = () => {
           <p>Download</p>
         </button>
 
-        <div className='ie_overview__top-level__btn-wrap'>
+        <div className='ie_overview__top-level__btn-wrap' ref={dropdownRef}>
           <Button
             btnText='Create Transaction'
             btnClass='btn-primary'

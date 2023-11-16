@@ -66,10 +66,17 @@ const Login = () => {
     let response = await fetchSchoolDetails();
 
     let dataToSend = {
-      name: 'demo',
+      name: response?.data[0]?.arm?.name,
       password: 'edves_account_111',
       idx: response?.data[0]?.idx,
       school_url: response?.data[0]?.subdomain,
+      address: response?.data[0]?.address
+        ? response?.data[0]?.subdomain
+        : 'Nigeria',
+      contact: `${
+        response?.data[0]?.school_group_name?.split(' ')[0]
+      }@gmail.com`,
+      logo: response?.data[0]?.arm?.logo,
     };
 
     mutate(dataToSend, {

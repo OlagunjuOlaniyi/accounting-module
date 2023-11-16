@@ -30,7 +30,6 @@ const BankList = () => {
   const [selectedId, setSelectedId] = useState<string>('');
   const [editModal, setEditModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
 
   const closeModal = () => {
     setDeleteModal(false);
@@ -49,7 +48,7 @@ const BankList = () => {
     mutate(selectedId, {
       onSuccess: (res) => {
         queryClient.invalidateQueries({
-          queryKey: `banks`,
+          queryKey: `list-of-banks`,
         });
 
         toast.success('Bank deleted successfully');
@@ -144,14 +143,6 @@ const BankList = () => {
 
       Cell: ({ cell: { value } }: { cell: { value: boolean } }) => (
         <Badge value={value} />
-      ),
-    },
-
-    {
-      Header: 'Actions',
-      accessor: 'id',
-      Cell: ({ cell: { value } }: { cell: { value: string } }) => (
-        <DotsBtn value={value} />
       ),
     },
   ];

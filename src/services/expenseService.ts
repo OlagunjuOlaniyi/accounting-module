@@ -7,7 +7,7 @@ import { baseURL } from './utils';
 //add expense
 export const addExpense = async (data: IexpenseProps) => {
   const formData = new FormData();
-  formData.append('payment_method', data.payment_method?.toUpperCase());
+  formData.append('payment_method', data.payment_method);
   formData.append('description', data.description);
   formData.append('amount', data.amount);
   formData.append('transaction_group', data.transaction_group);
@@ -40,7 +40,7 @@ export const getSingleExpense = async (id?: string) => {
 //update expense
 export const updateExpense = async (data: IexpenseProps) => {
   const formData = new FormData();
-  formData.append('payment_method', data.payment_method?.toUpperCase());
+  formData.append('payment_method', data.payment_method);
   formData.append('description', data.description);
   formData.append('amount', data.amount);
   formData.append('transaction_group', data.transaction_group);
@@ -69,8 +69,8 @@ export const deleteExpense = async (id?: string) => {
 };
 
 //get expense types
-export const getExpenseTypes = async () => {
-  const response = await axiosInstance.get(`/expenses/expense/type`);
+export const getExpenseTypes = async (id: string) => {
+  const response = await axiosInstance.get(`/expenses/expensetype/group/${id}`);
   return response.data;
 };
 

@@ -46,6 +46,17 @@ tbody > tr {
   justify-content: center;
 }
 
+.low,
+.not {
+  width: 80px;
+  height: 26px;
+  background: #ffddab;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .draft-generated-badge {
   width: 80px;
   height: 26px;

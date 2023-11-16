@@ -25,12 +25,7 @@ import './BalanceSheet.scss';
 import Accounting from '../../icons/Accounting';
 
 import CashAccounting from '../../icons/CashAccounting';
-import OverviewCard, {
-  ICardProps,
-} from '../../components/OverviewCard/OverviewCard';
-import Asset from '../../icons/Asset';
-import Liability from '../../icons/Liability';
-import Equity from '../../icons/Equity';
+import { ICardProps } from '../../components/OverviewCard/OverviewCard';
 
 import ProfitAndLoss from './ProfitAndLoss';
 import BalanceSheet from './BalanceSheet';
@@ -41,6 +36,11 @@ import RecordExpense from '../../components/Modals/IncomeAndExpense/RecordExpens
 import RecordEquity from '../../components/Modals/EquityAssetAndLiability/RecordEquity';
 import RecordLiability from '../../components/Modals/EquityAssetAndLiability/RecordLiability';
 import RecordAsset from '../../components/Modals/EquityAssetAndLiability/RecordAsset';
+import {
+  downloadBalanceSheet,
+  downloadTrialBalance,
+} from '../../services/chartOfAccountService';
+import { downloadIncome } from '../../services/incomeService';
 
 const ChartofAccountLayout = () => {
   const { data } = useGetIncomeAndExpenseOverview();
@@ -64,10 +64,6 @@ const ChartofAccountLayout = () => {
     liability: false,
     asset: false,
   });
-
-  interface ICardDetails extends ICardProps {
-    id: number;
-  }
 
   const [debouncedValue] = useDebounce(searchText, 1000);
 
@@ -191,6 +187,43 @@ const ChartofAccountLayout = () => {
       setActiveTab(2);
     }
   }, [searchres]);
+
+  const downloadBs = async () => {
+    try {
+      const res = await downloadBalanceSheet();
+      window.open(res.pdf_url, '_blank');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const downloadTb = async () => {
+    try {
+      const res = await downloadTrialBalance();
+      window.open(res.pdf_url, '_blank');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const downloadPL = async () => {
+    try {
+      const res = await downloadIncome();
+      window.open(res.pdf_url, '_blank');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const download = () => {
+    if (activeTab === 1) {
+      downloadTb();
+    } else if (activeTab === 2) {
+      downloadPL();
+    } else if (activeTab === 4) {
+      downloadBs();
+    }
+  };
   return (
     <div>
       <div className='ie_overview'>
@@ -307,7 +340,10 @@ const ChartofAccountLayout = () => {
           </button>
         )}
 
-        <button className='ie_overview__top-level__filter-download'>
+        <button
+          className='ie_overview__top-level__filter-download'
+          onClick={download}
+        >
           {' '}
           <Export />
           <p>Download</p>

@@ -24,6 +24,7 @@ import {
 } from '../../../hooks/queries/expenses';
 import Credit from '../../../icons/Credit';
 import { useGetBankList } from '../../../hooks/queries/banks';
+import SelectArrow from '../../../icons/SelectArrow';
 
 const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
@@ -83,6 +84,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   const [expenseTypeDropdown, setExpenseTypeDopdown] = useState<boolean>(false);
   const [selection, setSelection] = useState('post');
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+  const [bankId, setBankId] = useState('');
 
   //debounce callback to control expense group dropdown
   const debounced = useDebouncedCallback(
@@ -166,6 +168,9 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
+    if (name === 'bank') {
+      setBankId(id);
+    }
     setSelectedGroupId(id);
     //refetch expense type
     setTimeout(() => {
@@ -181,7 +186,10 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
     }
 
     let dataToSend = {
-      payment_method: fields.paymentMethod.props.children[1],
+      payment_method:
+        fields.paymentMethod.props.children[1] === 'Bank'
+          ? bankId
+          : fields.paymentMethod.props.children[1],
       amount: fields.amount,
       description: fields.description,
       transaction_group: fields.expenseGroup,
@@ -389,11 +397,13 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                   <div className='dropdown-tools'>
                     <div
                       className='dropdown-tool'
+                      style={{ display: 'flex', gap: '12px' }}
                       onClick={() =>
                         setExpenseTypeDopdown(!expenseTypeDropdown)
                       }
                     >
                       <Dot type='expense' />
+                      <SelectArrow />
                     </div>
                   </div>
                 </div>
@@ -405,7 +415,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                 className='dropdown-menu-copy'
                 onClick={(e: any) => e.stopPropagation()}
               >
-                {types?.data?.map((el: any) => (
+                {types?.expense_type?.map((el: any) => (
                   <div
                     className={`dropdown-item`}
                     onClick={() => {
@@ -511,7 +521,7 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
                 name: (
                   <div className='payment-method-dropdown'>
                     <Cash />
-                    Cash
+                    CASH
                   </div>
                 ),
               },

@@ -6,7 +6,6 @@ import {
   updateIncome,
 } from '../../services/incomeService';
 
-//create new expense
 export const useCreateIncome = () => {
   return useMutation<IexpenseRes, IexpenseProps, any>({
     mutationKey: ['add-income'],

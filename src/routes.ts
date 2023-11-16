@@ -16,6 +16,13 @@ import SingleBill from './pages/BillsandFees/SingleBill';
 import UpdateBill from './pages/BillsandFees/UpdateBill';
 import PaymentStatus from './pages/BillsandFees/PaymentStatus';
 import BankLayout from './pages/Bank/BankLayout';
+import InventoryLayout from './pages/Inventory/InventoryLayout';
+import SingleProduct from './pages/Inventory/SingleProduct';
+import ProductHistory from './pages/Inventory/ProductHistory';
+import PayrollLayout from './pages/Payroll/PayrollLayout';
+import CreatePayroll from './pages/Payroll/CreatePayroll';
+import SinglePayroll from './pages/Payroll/SinglePayroll';
+import ViewStaffPayslip from './pages/Payroll/ViewStaffPayslip';
 
 export const routes: RouteTypes[] = [
   {
@@ -103,5 +110,40 @@ export const routes: RouteTypes[] = [
     id: 15,
     path: '/banks',
     component: BankLayout,
+  },
+  {
+    id: 16,
+    path: '/inventory',
+    component: InventoryLayout,
+  },
+  {
+    id: 16,
+    path: '/inventory/:id',
+    component: SingleProduct,
+  },
+  {
+    id: 17,
+    path: '/payroll',
+    component: PayrollLayout,
+  },
+  {
+    id: 18,
+    path: '/create-payroll',
+    component: CreatePayroll,
+  },
+  {
+    id: 19,
+    path: '/inventory/history/:id',
+    component: ProductHistory,
+  },
+  {
+    id: 20,
+    path: '/payroll/:id',
+    component: SinglePayroll,
+  },
+  {
+    id: 20,
+    path: '/payroll/payslip/:id',
+    component: ViewStaffPayslip,
   },
 ];
