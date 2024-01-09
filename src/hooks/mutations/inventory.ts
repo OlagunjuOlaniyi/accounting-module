@@ -6,7 +6,10 @@ import {
   editProduct,
   restockProduct,
 } from '../../services/inventoryService';
-import { getStaffPayslip } from '../../services/payrollService';
+import {
+  getStaffPayslip,
+  updateStaffPayslip,
+} from '../../services/payrollService';
 
 export const useAddProduct = () => {
   return useMutation<any, any, any>({
@@ -47,5 +50,12 @@ export const useGetStaffPayslip = (id: string) => {
     mutationKey: ['get-staff-payslip'],
     mutationFn: (data: { staff: { name: string } }) =>
       getStaffPayslip(id, data),
+  });
+};
+
+export const useUpdateStaffPayslip = (id: string) => {
+  return useMutation<any, any, any>({
+    mutationKey: ['update-staff-payslip'],
+    mutationFn: (data: any) => updateStaffPayslip(id, data),
   });
 };

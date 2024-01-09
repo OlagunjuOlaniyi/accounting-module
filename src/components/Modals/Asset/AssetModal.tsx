@@ -8,9 +8,10 @@ import RecordBankTransfer from './RecordBankTransfer';
 
 interface IassetModal extends Imodal {
   type: string;
+  bankId: string;
 }
 
-const AssetModal = ({ modalIsOpen, closeModal, type }: IassetModal) => {
+const AssetModal = ({ modalIsOpen, closeModal, type, bankId }: IassetModal) => {
   const close = () => {
     closeModal('');
   };
@@ -40,8 +41,12 @@ const AssetModal = ({ modalIsOpen, closeModal, type }: IassetModal) => {
       {type === 'record_bank_withdrawal' && (
         <RecordBankWithdrawal close={close} />
       )}
-      {type === 'record_bank_deposit' && <RecordBankDeposit close={close} />}
-      {type === 'record_bank_transfer' && <RecordBankTransfer close={close} />}
+      {type === 'record_bank_deposit' && (
+        <RecordBankDeposit close={close} bankId={bankId} />
+      )}
+      {type === 'record_bank_transfer' && (
+        <RecordBankTransfer close={close} bankId={bankId} />
+      )}
     </Modal>
   );
 };

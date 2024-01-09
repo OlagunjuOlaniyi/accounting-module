@@ -5,13 +5,21 @@ import {
 } from '../../types/payrollTypes';
 import {
   getPayroll,
+  getPayrollOverview,
   listStaffAllowanceandDeduction,
 } from '../../services/payrollService';
 
 export const useGetPayroll = () => {
-  return useQuery<PayrollResponse>({
-    queryKey: 'products',
+  return useQuery<PayrollResponse[]>({
+    queryKey: `payroll`,
     queryFn: () => getPayroll(),
+  });
+};
+
+export const useGetPayrollOverview = (id: string) => {
+  return useQuery<PayrollResponse>({
+    queryKey: `payroll-${id}`,
+    queryFn: () => getPayrollOverview(id),
   });
 };
 

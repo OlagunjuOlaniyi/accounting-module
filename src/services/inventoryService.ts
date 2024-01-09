@@ -101,7 +101,7 @@ export const restockProduct = async (id: string, data: any) => {
   );
   formData.append('reorder_level', data.reorder_level);
   formData.append('transaction_date', data.date);
-  formData.append('sizes', JSON.stringify(data.sizes));
+  formData.append('sizes', data.sizes);
 
   const response = await axios.put(
     `${baseURL}/inventory/restock/${id}/`,
@@ -117,7 +117,9 @@ export const restockProduct = async (id: string, data: any) => {
 };
 
 export const discardProduct = async (id?: string) => {
-  const response = await axiosInstance.delete(`/inventory/${id}/`);
+  const response = await axiosInstance.delete(`/inventory/${id}/`, {
+    action: 'DELETE',
+  });
   return response.data;
 };
 

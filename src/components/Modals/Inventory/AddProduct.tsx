@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from 'react';
 import Modal from 'react-modal';
 import Cancel from '../../../icons/Cancel';
 import { Imodal } from '../../../types/types';
@@ -26,6 +26,10 @@ import SizePriceComponent, {
   SizePrice,
 } from '../../SizePriceComponent/SizePriceComponent';
 import AddCircleBlue from '../../../icons/AddCircleBlue';
+import { useCurrency } from '../../../context/CurrencyContext';
+import ToggleChecked from '../../../icons/ToggleChecked';
+import ToggleUnchecked from '../../../icons/ToggleUnchecked';
+import Clear from '../../../icons/Clear';
 
 interface SizeQuantiyData {
   size: string;
@@ -34,6 +38,8 @@ interface SizeQuantiyData {
 
 const AddProduct = ({ modalIsOpen, closeModal }: Imodal) => {
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
+  const [customSize, setCustomSize] = useState<boolean>(false);
   const customStyles = {
     content: {
       top: '50%',
@@ -233,12 +239,16 @@ const AddProduct = ({ modalIsOpen, closeModal }: Imodal) => {
 
   //submit form
   const submit = () => {
+    if (!file) {
+      toast.error('Please upload a product image');
+      return;
+    }
     if (file.map((el: any) => Math.round((el?.size / 1024) * 0.001)) > 1) {
       toast.error('Image cannot be more than 1mb');
       return;
     }
 
-    const updatedSizes = sizeQuantityData.map((item) => ({
+    const updatedSizes = sizeQuantityData?.map((item) => ({
       ...item,
       ppu: Number(fields.ppu),
       spu: Number(fields.spu),
@@ -294,6 +304,32 @@ const AddProduct = ({ modalIsOpen, closeModal }: Imodal) => {
         toast.error('Error recording transaction');
       },
     });
+  };
+
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      addTag();
+    }
+  };
+
+  const addTag = () => {
+    if (
+      inputValue.trim() !== '' &&
+      !selected.some((item: any) => item.name === inputValue.trim())
+    ) {
+      setSelected([
+        ...selected,
+        { name: inputValue.trim(), id: Math.random() * 500 },
+      ]);
+      setInputValue('');
+    }
   };
 
   return (
@@ -528,36 +564,101 @@ const AddProduct = ({ modalIsOpen, closeModal }: Imodal) => {
           </p>
 
           <div>
+            {sameUnitPrice && (
+              <div
+                onClick={() => setCustomSize(!customSize)}
+                style={{
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  margin: '20px 0px',
+                  width: '200px',
+                }}
+              >
+                {customSize ? <ToggleChecked /> : <ToggleUnchecked />}
+                <p>Custom size</p>
+              </div>
+            )}
             {sameUnitPrice ? (
               <>
-                <TextInput
-                  label='Size'
-                  placeholder='Select size'
-                  name='size'
-                  type='dropdown'
-                  errorClass={'error-msg'}
-                  handleChange={handleChange}
-                  value={fields.size}
-                  fieldClass={errors['size'] ? 'error-field' : 'input-field'}
-                  errorMessage={errors['size']}
-                  id={'size'}
-                  onSelectValue={selectValue}
-                  isSearchable={false}
-                  handleSearchValue={() => {}}
-                  searchValue={''}
-                  handleBlur={undefined}
-                  multi={true}
-                  toggleOption={toggleOption}
-                  options={
-                    sizeOptions[
-                      fields.product_category_name
-                        ?.toLowerCase()
-                        .split(' ')
-                        .join('')
-                    ]
-                  }
-                  selectedValues={selected}
-                />
+                {customSize ? (
+                  <div className='input-component'>
+                    <label>Size</label>
+                    <div
+                      className={`dropdown-input`}
+                      style={{ marginBottom: '16px' }}
+                    >
+                      {selected?.length ? (
+                        selected?.length > 3 ? (
+                          <div className='badges-wrapper'>
+                            {selected
+                              ?.slice(0, 3)
+                              .map((val: { name: string }) => (
+                                <div className='multi-badge'>
+                                  <p>{val?.name}</p>{' '}
+                                  <div onClick={() => toggleOption(val)}>
+                                    <Clear />
+                                  </div>
+                                </div>
+                              ))}
+                            <p> and {selected?.length - 3} others</p>
+                          </div>
+                        ) : (
+                          <div className='badges-wrapper'>
+                            {selected?.length > 0 &&
+                              selected?.map((val: { name: string }) => (
+                                <div className='multi-badge'>
+                                  <p>{val?.name}</p>{' '}
+                                  <div onClick={() => toggleOption(val)}>
+                                    <Clear />
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        )
+                      ) : (
+                        ''
+                      )}
+                      <input
+                        type='text'
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type and press ',' to add sizes"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <TextInput
+                    label='Size'
+                    placeholder='Select size'
+                    name='size'
+                    type='dropdown'
+                    errorClass={'error-msg'}
+                    handleChange={handleChange}
+                    value={fields.size}
+                    fieldClass={errors['size'] ? 'error-field' : 'input-field'}
+                    errorMessage={errors['size']}
+                    id={'size'}
+                    onSelectValue={selectValue}
+                    isSearchable={false}
+                    handleSearchValue={() => {}}
+                    searchValue={''}
+                    handleBlur={undefined}
+                    multi={true}
+                    toggleOption={toggleOption}
+                    options={
+                      sizeOptions[
+                        fields.product_category_name
+                          ?.toLowerCase()
+                          .split(' ')
+                          .join('')
+                      ]
+                    }
+                    selectedValues={selected}
+                  />
+                )}
                 {selected.map((s: any, index: number) => (
                   <div>
                     <div className='input-component'>
@@ -588,7 +689,7 @@ const AddProduct = ({ modalIsOpen, closeModal }: Imodal) => {
                 >
                   <TextInput
                     label={'Purchasing Price per unit'}
-                    placeholder={'Product purchasing amount (NGN)'}
+                    placeholder={`Product purchasing amount (${currency})`}
                     name='ppu'
                     type='text'
                     errorClass={'error-msg'}
@@ -608,7 +709,7 @@ const AddProduct = ({ modalIsOpen, closeModal }: Imodal) => {
                   />
                   <TextInput
                     label={'Selling Price per unit'}
-                    placeholder={'Product selling amount (NGN)'}
+                    placeholder={`Product selling amount (${currency})`}
                     name='spu'
                     type='text'
                     errorClass={'error-msg'}
@@ -629,7 +730,7 @@ const AddProduct = ({ modalIsOpen, closeModal }: Imodal) => {
                 </div>
                 <TextInput
                   label={'Total Purchasing price per unit'}
-                  placeholder={'Total product purchasing amount (NGN)'}
+                  placeholder={`Total product purchasing amount (${currency})`}
                   name='total'
                   type='text'
                   errorClass={'error-msg'}

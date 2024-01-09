@@ -15,9 +15,13 @@ import ViewPayment from '../../icons/ViewPayment';
 import {
   useDeleteBill,
   useDuplicateBill,
+  useSendBill,
+  useUnsendBill,
 } from '../../hooks/mutations/billsAndFeesMgt';
 import toast from 'react-hot-toast';
 import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 interface Iprops {
   filteredData?: any;
@@ -28,6 +32,7 @@ interface Iprops {
 const Overview = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -46,6 +51,8 @@ const Overview = () => {
   };
 
   const { mutate } = useDuplicateBill();
+  const { mutate: sendBill } = useSendBill();
+  const { mutate: unsendBill } = useUnsendBill();
   const { mutate: deleteBillFn, isLoading: deleteLoading } = useDeleteBill();
 
   const duplicate = () => {
@@ -63,6 +70,39 @@ const Overview = () => {
       },
     });
   };
+
+  const send = () => {
+    sendBill(selectedId, {
+      onSuccess: (res) => {
+        close();
+        toast.success(res?.detail);
+        queryClient.invalidateQueries({
+          queryKey: `bills`,
+        });
+      },
+
+      onError: (e) => {
+        toast.error('Error sending bill');
+      },
+    });
+  };
+
+  const unsend = () => {
+    unsendBill(selectedId, {
+      onSuccess: (res) => {
+        close();
+        toast.success(res?.detail);
+        queryClient.invalidateQueries({
+          queryKey: `bills`,
+        });
+      },
+
+      onError: (e) => {
+        toast.error('Error unsending bill');
+      },
+    });
+  };
+
   const deleteBill = () => {
     deleteBillFn(selectedId, {
       onSuccess: (res) => {
@@ -89,6 +129,8 @@ const Overview = () => {
     let splitedValue = value.split(',');
     let id = splitedValue[0];
     let status: string = splitedValue[1];
+    let bill_name = splitedValue[2];
+    let owner = splitedValue[3];
 
     return (
       <div className='action-wrapper'>
@@ -124,7 +166,7 @@ const Overview = () => {
                   <p>Edit</p>
                 </div>
 
-                <div className='action__flex'>
+                <div className='action__flex' onClick={() => send()}>
                   <Send />
                   <p>Send Bill</p>
                 </div>
@@ -160,25 +202,38 @@ const Overview = () => {
                   <p>View</p>
                 </div>
 
-                <div className='action__flex'>
+                <div className='action__flex' onClick={() => duplicate()}>
                   <Duplicate />
                   <p>Duplicate</p>
                 </div>
 
                 <div
                   className='action__flex'
-                  onClick={() => navigate(`/payment-status/${id}`)}
+                  onClick={() => {
+                    navigate(`/payment-status/${id}?bill_name=${bill_name}`);
+
+                    localStorage.setItem(
+                      'bills_and_fees',
+                      JSON.stringify({
+                        owner: owner,
+                        bill_id: id,
+                      })
+                    );
+                  }}
                 >
                   <ViewPayment />
                   <p>View Payment Status</p>
                 </div>
 
-                <div className='action__flex'>
+                <div className='action__flex' onClick={() => unsend()}>
                   <Unsend />
                   <p>Unsend Bill</p>
                 </div>
 
-                <div className='action__flex'>
+                <div
+                  className='action__flex'
+                  onClick={() => toggleDeleteConfirmation()}
+                >
                   <Delete />
                   <p>Delete</p>
                 </div>
@@ -214,12 +269,15 @@ const Overview = () => {
                   <p>Duplicate</p>
                 </div>
 
-                <div className='action__flex'>
+                <div className='action__flex' onClick={() => send()}>
                   <Unsend />
                   <p>Resend Bill</p>
                 </div>
 
-                <div className='action__flex'>
+                <div
+                  className='action__flex'
+                  onClick={() => toggleDeleteConfirmation()}
+                >
                   <Delete />
                   <p>Delete</p>
                 </div>
@@ -241,21 +299,28 @@ const Overview = () => {
     {
       Header: 'Assigned Class',
       accessor: 'classes',
-      Cell: ({ cell: { value } }: any) => (
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-          {value.map((item: any) => (
-            <div
-              style={{
-                background: '#E4EFF9',
-                padding: '2px 12px 2px 12px',
-                borderRadius: '12px',
-              }}
-            >
-              {item.class_name}
-            </div>
-          ))}
-        </div>
-      ),
+      Cell: ({ cell: { value } }: any) => {
+        const displayItems = value?.slice(0, 5);
+        const remainingItems = value?.length - 5;
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
+            {displayItems?.map((item: any) => (
+              <div
+                key={item?.name} // Add a unique key for each item
+                style={{
+                  background: '#E4EFF9',
+                  padding: '2px 12px 2px 12px',
+                  borderRadius: '12px',
+                }}
+              >
+                {item?.name}
+              </div>
+            ))}
+            {remainingItems > 0 && <p> and {remainingItems} more</p>}
+          </div>
+        );
+      },
     },
 
     {
@@ -268,7 +333,9 @@ const Overview = () => {
       Header: 'Total Amount',
       accessor: 'total_amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
     {
@@ -278,7 +345,7 @@ const Overview = () => {
     },
     {
       Header: 'Actions',
-      accessor: (d: any) => `${d.id},${d.status}`,
+      accessor: (d: any) => `${d.id},${d.status},${d.bill_name},${d.owner}`,
       Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <>
           <div style={{ display: 'flex', gap: '16px' }}>

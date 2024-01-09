@@ -33,6 +33,7 @@ import Asset from './Asset';
 import AssetTable from './Asset';
 import LiabilityTable from './Liability';
 import EquityTable from './Equity';
+import Header from '../../components/Header/Header';
 
 const AssetAndLiabilityLayout = () => {
   const { data } = useGetIncomeAndExpenseOverview();
@@ -202,6 +203,7 @@ const AssetAndLiabilityLayout = () => {
   }, [searchres]);
   return (
     <div>
+      <Header />
       <div className='ie_overview'>
         <h2 className='ie_overview__title'>Asset and Liability Management</h2>
       </div>

@@ -27,6 +27,7 @@ import { useDebounce } from 'use-debounce';
 import SmallSpinner from '../../assets/smallspinner.svg';
 
 import { downloadIncome } from '../../services/incomeService';
+import Header from '../../components/Header/Header';
 
 const IncomeAndExpenseLayout = () => {
   const [activeTab, setActiveTab] = useState<string | number>(1);
@@ -160,6 +161,7 @@ const IncomeAndExpenseLayout = () => {
 
   return (
     <div>
+      <Header />
       <div className='ie_overview'>
         <h2 className='ie_overview__title'>Income And Expense Management</h2>
       </div>

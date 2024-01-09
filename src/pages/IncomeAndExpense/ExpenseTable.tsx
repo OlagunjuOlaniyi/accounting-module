@@ -13,6 +13,8 @@ import { useDeleteExpense } from '../../hooks/mutations/expenses';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-hot-toast';
 import { Ioverview } from '../../types/types';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -23,6 +25,7 @@ interface Iprops {
 const ExpenseTable = ({ filteredData, searchRes }: Iprops) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -152,7 +155,9 @@ const ExpenseTable = ({ filteredData, searchRes }: Iprops) => {
       Header: 'Amount',
       accessor: 'amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
 
@@ -176,6 +181,7 @@ const ExpenseTable = ({ filteredData, searchRes }: Iprops) => {
 
   return (
     <div>
+      <Header />
       <div className='table_container'>
         {isLoading ? (
           <p>Loading...</p>

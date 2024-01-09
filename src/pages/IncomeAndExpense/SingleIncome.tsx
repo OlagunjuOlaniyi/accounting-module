@@ -16,6 +16,8 @@ import { useDeleteIncome } from '../../hooks/mutations/incomes';
 import Attachment from '../../components/Modals/AttachmentModal/Attachment';
 import ImageIcon from '../../icons/ImageIcon';
 import EditIncome from '../../components/Modals/IncomeAndExpense/EditIncome';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 const SingleIncome = () => {
   const { id } = useParams();
@@ -23,6 +25,7 @@ const SingleIncome = () => {
   const queryClient = useQueryClient();
 
   const { isLoading, data } = useGetSingleIncome(id);
+  const { currency } = useCurrency();
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
@@ -73,9 +76,9 @@ const SingleIncome = () => {
     }
   };
 
-  console.log(data);
   return (
     <>
+      <Header />
       {isLoading ? (
         <p>Loading...</p>
       ) : (
@@ -136,7 +139,7 @@ const SingleIncome = () => {
 
             <div className='single-expense-wrapper__title__right'>
               <h2>
-                NGN{' '}
+                {currency}{' '}
                 {Array.isArray(data?.data)
                   ? Number(data?.data[0]?.amount).toLocaleString()
                   : Number(data?.data?.amount).toLocaleString()}

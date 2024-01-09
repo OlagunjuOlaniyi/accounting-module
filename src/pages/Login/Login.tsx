@@ -83,6 +83,7 @@ const Login = () => {
       onSuccess: (res) => {
         //toast.success('Login successful');
         localStorage.setItem('userDetails', JSON.stringify(res?.data));
+        localStorage.setItem('currency', response?.data[0]?.currency);
         localStorage.setItem('token', res?.data?.tokens?.access);
         window.location.replace('/income-and-expense');
       },

@@ -25,7 +25,6 @@ import './BalanceSheet.scss';
 import Accounting from '../../icons/Accounting';
 
 import CashAccounting from '../../icons/CashAccounting';
-import { ICardProps } from '../../components/OverviewCard/OverviewCard';
 
 import ProfitAndLoss from './ProfitAndLoss';
 import BalanceSheet from './BalanceSheet';
@@ -41,6 +40,7 @@ import {
   downloadTrialBalance,
 } from '../../services/chartOfAccountService';
 import { downloadIncome } from '../../services/incomeService';
+import Header from '../../components/Header/Header';
 
 const ChartofAccountLayout = () => {
   const { data } = useGetIncomeAndExpenseOverview();
@@ -226,6 +226,7 @@ const ChartofAccountLayout = () => {
   };
   return (
     <div>
+      <Header />
       <div className='ie_overview'>
         <h2 className='ie_overview__title'>Balance Sheet</h2>
 

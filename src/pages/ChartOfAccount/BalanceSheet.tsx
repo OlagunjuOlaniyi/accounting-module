@@ -11,11 +11,13 @@ import Equity from '../../icons/Equity';
 
 import { useGetBalanceSheet } from '../../hooks/queries/chartOfAccount';
 import { useNavigate } from 'react-router';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const BalanceSheet = () => {
   const navigate = useNavigate();
 
   const { data: balance_sheet } = useGetBalanceSheet();
+  const { currency } = useCurrency();
 
   interface ICardDetails extends ICardProps {
     id: number;
@@ -25,7 +27,9 @@ const BalanceSheet = () => {
     {
       id: 1,
       title: 'ASSET',
-      amount: `NGN ${balance_sheet?.total_asset?.toLocaleString() ?? 0}`,
+      amount: `${currency} ${
+        balance_sheet?.total_asset?.toLocaleString() ?? 0
+      }`,
       percentage: '2.4%',
       type: 'profit',
       icon: <Asset />,
@@ -33,7 +37,9 @@ const BalanceSheet = () => {
     {
       id: 2,
       title: 'LIABILITY',
-      amount: `NGN ${balance_sheet?.total_liability?.toLocaleString() ?? 0}`,
+      amount: `${currency} ${
+        balance_sheet?.total_liability?.toLocaleString() ?? 0
+      }`,
       percentage: '1.2%',
       type: 'loss',
       icon: <Liability />,
@@ -41,7 +47,9 @@ const BalanceSheet = () => {
     {
       id: 3,
       title: 'EQUITY',
-      amount: `NGN ${balance_sheet?.total_equity?.toLocaleString() ?? 0}`,
+      amount: `${currency} ${
+        balance_sheet?.total_equity?.toLocaleString() ?? 0
+      }`,
       percentage: '2.2%',
       type: 'profit',
       icon: <Equity />,
@@ -178,7 +186,8 @@ const BalanceSheet = () => {
                 </div>
                 <div className=''>
                   <h3>
-                    NGN {balance_sheet?.total_liability?.toLocaleString() ?? 0}
+                    {currency}{' '}
+                    {balance_sheet?.total_liability?.toLocaleString() ?? 0}
                   </h3>
                 </div>
               </div>
@@ -234,7 +243,8 @@ const BalanceSheet = () => {
                 </div>
                 <div className=''>
                   <h3>
-                    NGN {balance_sheet?.total_equity?.toLocaleString() ?? 0}
+                    {currency}{' '}
+                    {balance_sheet?.total_equity?.toLocaleString() ?? 0}
                   </h3>
                 </div>
               </div>
@@ -260,7 +270,9 @@ const BalanceSheet = () => {
                 <h3>Total Asset</h3>
               </div>
               <div className=''>
-                <h3>NGN {balance_sheet?.total_asset?.toLocaleString()}</h3>
+                <h3>
+                  {currency} {balance_sheet?.total_asset?.toLocaleString()}
+                </h3>
               </div>
             </div>
             <div
@@ -277,7 +289,9 @@ const BalanceSheet = () => {
                 <h3>Total Liabilities & Shareholder's Equity</h3>
               </div>
               <div className=''>
-                <h3>NGN {totalLiabilityAndEquity.toLocaleString() ?? 0}</h3>
+                <h3>
+                  {currency} {totalLiabilityAndEquity.toLocaleString() ?? 0}
+                </h3>
               </div>
             </div>
           </div>

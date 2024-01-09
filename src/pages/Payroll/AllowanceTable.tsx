@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router';
 import { PayrollResponse } from '../../types/payrollTypes';
 import DuplicateIcon from '../../icons/DuplicateIcon';
 import RunPayroll from '../../components/Modals/Payroll/RunPayroll';
+import { useCurrency } from '../../context/CurrencyContext';
 
 interface Iprops {
   filteredData?: PayrollResponse;
@@ -19,6 +20,7 @@ interface Iprops {
 
 const AllowanceTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -62,7 +64,7 @@ const AllowanceTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
                   onClick={() => navigate(`/payroll/${value}?type=allowance`)}
                 >
                   <Visibility />
-                  <p>View Payroll</p>
+                  <p>View Allowance</p>
                 </div>
                 <div
                   className='action__flex'
@@ -141,7 +143,9 @@ const AllowanceTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
       Header: 'TOTAL ALLOWANCE',
       accessor: (d: any) => d?.total_allowance?.total,
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value).toLocaleString()}</p>
+        <p>
+          {currency} {Number(value).toLocaleString()}
+        </p>
       ),
     },
 
@@ -149,7 +153,9 @@ const AllowanceTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
       Header: 'TOTAL GROSS AMOUNT',
       accessor: 'total_gross_amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value).toLocaleString()}</p>
+        <p>
+          {currency} {Number(value).toLocaleString()}
+        </p>
       ),
     },
 

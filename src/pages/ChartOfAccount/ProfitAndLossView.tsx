@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import { groupTransactionsByTransactionTypeName } from '../../utilities';
 import TableProfitLoss from '../../components/Table/TableProfitLoss';
+import { useCurrency } from '../../context/CurrencyContext';
 
 type tableData = {
   id: string;
@@ -14,6 +15,7 @@ type tableData = {
 
 const ProfitAndLossView = () => {
   const { id } = useParams();
+  const { currency } = useCurrency();
 
   const { transaction_types, type } = JSON.parse(
     localStorage.getItem('singlePl')!
@@ -61,14 +63,14 @@ const ProfitAndLossView = () => {
       Header: 'DEBIT BALANCE',
       accessor: (d: any) => d.amount,
       Cell: ({ cell: { value } }: any) => (
-        <p>{type === 'Expense' ? `NGN ${value}` : 'Not Available'}</p>
+        <p>{type === 'Expense' ? `${currency} ${value}` : 'Not Available'}</p>
       ),
     },
     {
       Header: 'CREDIT BALANCE',
       accessor: 'amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>{type === 'Income' ? `NGN ${value}` : 'Not Available'}</p>
+        <p>{type === 'Income' ? `${currency} ${value}` : 'Not Available'}</p>
       ),
     },
   ];

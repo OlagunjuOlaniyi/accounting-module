@@ -9,13 +9,19 @@ import ToggleUnchecked from '../../icons/ToggleUnchecked';
 import ToggleChecked from '../../icons/ToggleChecked';
 import { useGetSchoolDetails } from '../../hooks/queries/SchoolQuery';
 import { useNavigate } from 'react-router';
-import { useGetClasses } from '../../hooks/queries/billsAndFeesMgt';
+import {
+  useGetClasses,
+  useGetFeeTypes,
+} from '../../hooks/queries/billsAndFeesMgt';
 import { Discount, Fee } from '../../types/types';
 import toast from 'react-hot-toast';
 import { useQueryClient } from 'react-query';
 import { useCreateBill } from '../../hooks/mutations/billsAndFeesMgt';
 import DeleteRed from '../../icons/DeleteRed';
 import ClassAndStudentSelection from '../../components/ClassAndStudentSelection/ClassAndStudentSelection';
+import { useGetStudents } from '../../hooks/queries/students';
+import MultiLevelDropdown from '../../components/MultilevelDropdown/MultilevelDropdown';
+import Header from '../../components/Header/Header';
 
 const CreateBill = () => {
   const navigate = useNavigate();
@@ -32,6 +38,8 @@ const CreateBill = () => {
   const [selectedDiscount, setSelectedDiscount] = useState(200);
   const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
   const [selectedFeeForDiscount, setSelectedFeeForDiscount] = useState('');
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [selected, setSelected] = useState<any>([]);
 
   const [discountValue, setDiscounValue] = useState('');
   const [discountedAmount, setDiscountAmout] = useState(0);
@@ -44,7 +52,6 @@ const CreateBill = () => {
         default_amount: 0.0,
         classes: [],
         students: [],
-        student: [],
         discounts: [],
       },
       amount: 0.0,
@@ -70,6 +77,7 @@ const CreateBill = () => {
       (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
         discountValue) /
       100;
+
     setDiscountAmout(Number(discounted).toLocaleString());
   };
 
@@ -88,9 +96,11 @@ const CreateBill = () => {
 
   const { data: schoolData } = useGetSchoolDetails();
   const { data: classes } = useGetClasses();
+  const { data: classesAndStudents } = useGetStudents();
+
   const formattedClasses = classes?.results?.map((c: any) => ({
-    id: c.id,
-    name: c.class_name,
+    id: c?.idx,
+    name: c?.class_field,
   }));
 
   const toggleClasses = (option: any) => {
@@ -135,7 +145,6 @@ const CreateBill = () => {
         default_amount: 0.0,
         classes: [],
         students: [],
-        student: [],
         discounts: [],
       },
       amount: 0.0,
@@ -181,7 +190,12 @@ const CreateBill = () => {
     );
     setDiscounts(updatedDiscount);
   };
-  const handleClassChange = (index: number, selectedClasses: number[]) => {
+
+  const handleClassChange = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
     const updatedFees = fees.map((fee, i) =>
       i === index
         ? {
@@ -189,12 +203,39 @@ const CreateBill = () => {
             fee_type: {
               ...fee.fee_type,
               classes: selectedClasses,
+              students: selectedStudents,
             },
           }
         : fee
     );
 
     setFees(updatedFees);
+  };
+
+  const handleClassChangeForDiscount = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    const updatedDiscount = discounts.map((discount, i) =>
+      i === index
+        ? {
+            ...discount,
+            classes: selectedClasses,
+            students: selectedStudents,
+          }
+        : discount
+    );
+
+    setDiscounts(updatedDiscount);
+  };
+
+  const handleClassDropdownChangeForDiscount = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    handleClassChangeForDiscount(index, selectedClasses, selectedStudents);
   };
 
   const handleStudentChange = (index: number, selectedStudents: number[]) => {
@@ -210,22 +251,22 @@ const CreateBill = () => {
           }
         : fee
     );
-    setFees(updatedFees);
+
+    // setFees(updatedFees);
   };
 
   const handleClassDropdownChange = (
     index: number,
-    selectedClasses: number[]
+    selectedClasses: number[],
+    selectedStudents: any
   ) => {
-    // Call the handleClassChange function to update the fees state
-    handleClassChange(index, selectedClasses);
+    handleClassChange(index, selectedClasses, selectedStudents);
   };
 
   const handleStudentDropdownChange = (
     index: number,
     selectedStudents: number[]
   ) => {
-    // Call the handleClassChange function to update the fees state
     handleStudentChange(index, selectedStudents);
   };
 
@@ -263,10 +304,6 @@ const CreateBill = () => {
     setFees(updatedFees);
   };
 
-  let classIds = selectedClasses.map((item: { id: number }) => {
-    return item.id;
-  });
-
   const showClasses = (fee: string) => {
     if (fee == '') {
       toast.error('Please enter the fee type first');
@@ -289,6 +326,8 @@ const CreateBill = () => {
 
   const { mutate, isLoading } = useCreateBill();
 
+  const { data: fee_types } = useGetFeeTypes();
+
   //submit form
   const submit = () => {
     if (isNaN(Number(fields.amount))) {
@@ -300,31 +339,56 @@ const CreateBill = () => {
       bill_name: fields.billName,
       due_date: fields.dueDate,
       status: 'draft',
-      classes: classIds,
+      classes: selectedClasses?.map(({ name }) => ({ name })),
       fees: fees,
       amount: fields.amount,
       mandatory: false,
+      discounts: discounts,
     };
+    console.log(dataToSend);
 
-    mutate(dataToSend, {
-      onSuccess: (res) => {
-        close();
-        toast.success('Bill created successfully');
-        queryClient.invalidateQueries({
-          queryKey: `bills`,
-        });
+    // mutate(dataToSend, {
+    //   onSuccess: (res) => {
+    //     close();
+    //     toast.success('Bill created successfully');
+    //     queryClient.invalidateQueries({
+    //       queryKey: `bills`,
+    //     });
 
-        setFields({ ...fields });
-        navigate('/bills-fees-management');
-      },
+    //     setFields({ ...fields });
+    //     navigate('/bills-fees-management');
+    //   },
 
-      onError: (e) => {
-        toast.error('Error creating bill');
-      },
-    });
+    //   onError: (e) => {
+    //     toast.error('Error creating bill');
+    //   },
+    // });
   };
+
+  const handleClassDiscountChange = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    const updatedFees = fees.map((fee, i) =>
+      i === index
+        ? {
+            ...fee,
+            fee_type: {
+              ...fee.fee_type,
+              classes: selectedClasses,
+              students: selectedStudents,
+            },
+          }
+        : fee
+    );
+
+    setFees(updatedFees);
+  };
+
   return (
     <div>
+      <Header />
       <div className='bills_overview'>
         <h2 className='bills_overview__title'>{fields.billName || ''} Bill</h2>
         <h1 className='bills_overview__approval'>APPROVAL STATUS: Pending</h1>
@@ -333,13 +397,13 @@ const CreateBill = () => {
 
       <div className='bills_schoolInfo'>
         <div className='bills_schoolInfo__logo'>
-          <img src={schoolData && schoolData.data[0].arm.logo} alt='' />
+          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt='' />
         </div>
         <div className='bills_schoolInfo__details'>
-          {schoolData && schoolData?.data[0].arm.name}
-          <br /> {fields.billName ? `${fields.billName} BILL` : ''}
+          {schoolData && schoolData?.data[0]?.arm?.name}
+          <br /> {fields.billName ? `${fields.billName}` : ''}
           <p className='bills_schoolInfo__details__email'>
-            Email: {schoolData && schoolData?.data[0].arm.email}
+            Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
         </div>
       </div>
@@ -351,11 +415,11 @@ const CreateBill = () => {
             placeholder='Bill Name'
             className='bills_form__top__input'
             name='billName'
-            type='dropdown'
+            type='text'
+            fieldClass={'input-field'}
             errorClass={'error-msg'}
             handleChange={handleChange}
             value={fields.billName}
-            fieldClass={''}
             errorMessage={''}
             id={'billName'}
             onSelectValue={selectValue}
@@ -458,10 +522,8 @@ const CreateBill = () => {
               searchValue={''}
               handleBlur={''}
               multi={false}
-              toggleOption={function (a: any): void {
-                throw new Error('');
-              }}
-              selectedValues={undefined}
+              toggleOption={() => {}}
+              selectedValues={[]}
               options={[]}
               disabled={true}
             />
@@ -501,6 +563,9 @@ const CreateBill = () => {
                               name=''
                               id=''
                               value={fee.fee_type.name}
+                              onClick={() =>
+                                setShowDiscountDropdown(!showDiscountDropdown)
+                              }
                               onChange={(e) =>
                                 handleFeeTypeChange(
                                   index,
@@ -516,21 +581,44 @@ const CreateBill = () => {
                               <AddCircleBlue />
                             </button>
                           </div>
+                          <div className='discount_dropdown'>
+                            {showDiscountDropdown &&
+                              fee_types?.results?.map(
+                                (fee: { name: string }) => (
+                                  <div
+                                    className='discount_dropdown__item'
+                                    onClick={() => {
+                                      handleFeeTypeChange(
+                                        index,
+                                        'name',
+                                        fee.name
+                                      );
+                                      setShowDiscountDropdown(false);
+                                    }}
+                                  >
+                                    <p>{fee?.name}</p>
+                                  </div>
+                                )
+                              )}
+                          </div>
                           {selectedFee !== '' &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
-                                classes={classes?.results}
+                                classes={classesAndStudents}
                                 cancel={() => showClasses(fee.fee_type.name)}
-                                selectedClassesInFees={fee.fee_type.classes}
-                                onClassChange={(selectedClasses: number[]) =>
+                                selectedClassesInParent={fee.fee_type.classes}
+                                selectedStudentsInParent={fee.fee_type.students}
+                                onClassChange={(
+                                  selectedClasses: any,
+                                  selectedStudents: any
+                                ) =>
                                   handleClassDropdownChange(
                                     index,
-                                    selectedClasses
+                                    selectedClasses,
+                                    selectedStudents
                                   )
                                 }
-                                onStudentsChange={(
-                                  selectedStudents: number[]
-                                ) =>
+                                onStudentsChange={(selectedStudents: any) =>
                                   handleStudentDropdownChange(
                                     index,
                                     selectedStudents
@@ -602,10 +690,10 @@ const CreateBill = () => {
               </div>
             )}
 
-            {/* <p onClick={() => setAddDiscount(!addDiscount)}>
+            <p onClick={() => setAddDiscount(!addDiscount)}>
               <AddCircleBlue />
               Add Discount
-            </p> */}
+            </p>
 
             {discounts.length > 0 &&
               addDiscount &&
@@ -615,7 +703,7 @@ const CreateBill = () => {
                     style={{
                       display: 'flex',
                       flexDirection: 'row',
-                      gap: '70px',
+                      justifyContent: 'space-between',
                       alignItems: 'flex-end',
                       marginBottom: '20px',
                     }}
@@ -637,7 +725,7 @@ const CreateBill = () => {
                           id=''
                           value={d.value}
                           onChange={(e) =>
-                            handleDiscountChange(index, 'name', e.target.value)
+                            handleDiscountChange(index, 'value', e.target.value)
                           }
                           placeholder='type or select fee type'
                         />
@@ -647,13 +735,18 @@ const CreateBill = () => {
                         {selectedDiscount !== 200 &&
                           selectedDiscount === index && (
                             <ClassAndStudentSelection
-                              classes={classes?.results}
+                              selectedClassesInParent={d.classes}
+                              selectedStudentsInParent={d.students}
+                              classes={classesAndStudents}
                               cancel={() => showClassesForDiscount(index)}
-                              selectedClassesInFees={d.classes}
-                              onClassChange={(selectedClasses: number[]) =>
-                                handleClassDropdownChange(
+                              onClassChange={(
+                                selectedClasses: any,
+                                selectedStudents: any
+                              ) =>
+                                handleClassDropdownChangeForDiscount(
                                   index,
-                                  selectedClasses
+                                  selectedClasses,
+                                  selectedStudents
                                 )
                               }
                               onStudentsChange={(selectedStudents: number[]) =>
@@ -711,7 +804,15 @@ const CreateBill = () => {
                         type='text'
                         name=''
                         id=''
+                        value={d.description}
                         placeholder='Reason for discount'
+                        onChange={(e) =>
+                          handleDiscountChange(
+                            index,
+                            'description',
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
                   </div>
@@ -723,12 +824,28 @@ const CreateBill = () => {
                       gap: '10px',
                     }}
                   >
-                    {percentage ? (
-                      <button onClick={() => setPercentage(!percentage)}>
+                    {d.is_percentage ? (
+                      <button
+                        onClick={() =>
+                          handleDiscountChange(
+                            index,
+                            'is_percentage',
+                            !d.is_percentage
+                          )
+                        }
+                      >
                         <ToggleChecked />
                       </button>
                     ) : (
-                      <button onClick={() => setPercentage(!percentage)}>
+                      <button
+                        onClick={() =>
+                          handleDiscountChange(
+                            index,
+                            'is_percentage',
+                            !d.is_percentage
+                          )
+                        }
+                      >
                         <ToggleUnchecked />
                       </button>
                     )}
@@ -820,6 +937,7 @@ const CreateBill = () => {
 
         <div style={{ display: 'flex', flexDirection: 'row', gap: '25px' }}>
           <button
+            onClick={() => submit()}
             style={{
               background: '#E4EFF9',
               padding: '16px 20px',
@@ -839,7 +957,7 @@ const CreateBill = () => {
             }}
             onClick={() => submit()}
           >
-            Send Bill
+            Create Bill
           </button>
 
           {/* <Button

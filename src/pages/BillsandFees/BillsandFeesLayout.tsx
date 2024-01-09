@@ -36,6 +36,7 @@ import Overview from './Overview';
 import Draft from './Draft';
 import Sent from './Sent';
 import Unsent from './Unsent';
+import Header from '../../components/Header/Header';
 
 const BillsandFeesLayout = () => {
   const navigate = useNavigate();
@@ -191,6 +192,7 @@ const BillsandFeesLayout = () => {
   }, [searchres]);
   return (
     <div>
+      <Header />
       <div>
         <div className='ie_overview'>
           <h2 className='ie_overview__title'>Bills/Fees Management</h2>

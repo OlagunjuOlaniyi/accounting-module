@@ -9,22 +9,18 @@ import { useNavigate } from 'react-router';
 import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-hot-toast';
-import { useGetIncomes } from '../../hooks/queries/incomes';
+
 import { useDeleteIncome } from '../../hooks/mutations/incomes';
 import EditIncome from '../../components/Modals/IncomeAndExpense/EditIncome';
-import { IexpenseRes } from '../../types/expenseTypes';
-import { Ioverview } from '../../types/types';
+
 import OverviewCard, {
   ICardProps,
 } from '../../components/OverviewCard/OverviewCard';
-import Asset from '../../icons/Asset';
-import Liability from '../../icons/Liability';
-import Equity from '../../icons/Equity';
-import Net from '../../icons/Net';
+
 import TotalCredit from '../../icons/TotalCredit';
 import TotalDebit from '../../icons/TotalDebit';
 import { useGetTrialBalance } from '../../hooks/queries/chartOfAccount';
-import { removeLastItem } from '../../utilities';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const TrialBalance = () => {
   interface ICardDetails extends ICardProps {
@@ -33,6 +29,7 @@ const TrialBalance = () => {
 
   //get incomes
   const { data, isLoading } = useGetTrialBalance();
+  const { currency } = useCurrency();
 
   //let modifiedArray = removeLastItem(data);
 
@@ -43,7 +40,7 @@ const TrialBalance = () => {
     {
       id: 1,
       title: 'TOTAL DEBIT',
-      amount: `NGN ${totalDebit?.toLocaleString()}`,
+      amount: `${currency} ${totalDebit?.toLocaleString()}`,
       percentage: '2.4%',
       type: 'profit',
       icon: <TotalDebit />,
@@ -51,7 +48,7 @@ const TrialBalance = () => {
     {
       id: 2,
       title: 'TOTAL CREDIT',
-      amount: `NGN ${totalCredit?.toLocaleString()}`,
+      amount: `${currency} ${totalCredit?.toLocaleString()}`,
       percentage: '1.2%',
       type: 'loss',
       icon: <TotalCredit />,
@@ -173,7 +170,9 @@ const TrialBalance = () => {
       Header: 'CREDIT BALANCE',
       accessor: 'credit_balance',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
 
@@ -181,7 +180,9 @@ const TrialBalance = () => {
       Header: 'DEBIT BALANCE',
       accessor: 'debit_balance',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
     {

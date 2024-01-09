@@ -1,21 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import Table from '../../components/Table/Table';
-import { useGetExpenses } from '../../hooks/queries/expenses';
+
 import Dots from '../../icons/Dots';
-import Dot from '../../icons/Dot';
 import Visibility from '../../icons/Visibility';
 import Delete from '../../icons/Delete';
 import Edit from '../../icons/Edit';
 import { useNavigate } from 'react-router';
 import EditExpense from '../../components/Modals/IncomeAndExpense/EditExpense';
-import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
-import { useDeleteExpense } from '../../hooks/mutations/expenses';
-import { useQueryClient } from 'react-query';
-import { toast } from 'react-hot-toast';
+
 import moment from 'moment';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const LedgerTable = ({ data }: any) => {
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -92,7 +90,9 @@ const LedgerTable = ({ data }: any) => {
       Header: 'Amount',
       accessor: 'amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
 

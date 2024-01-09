@@ -19,6 +19,7 @@ import Expense from '../../icons/Expense';
 import Net from '../../icons/Net';
 import { useGetProfitAndLoss } from '../../hooks/queries/chartOfAccount';
 import { useNavigate } from 'react-router';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const ProfitAndLoss = () => {
   const navigate = useNavigate();
@@ -45,12 +46,15 @@ const ProfitAndLoss = () => {
   }
 
   let apiData: any = data;
+  const { currency } = useCurrency();
 
   const cardDetails: ICardDetails[] = [
     {
       id: 1,
       title: 'INCOME',
-      amount: `NGN ${apiData ? apiData?.total_income?.toLocaleString() : 0}`,
+      amount: `${currency} ${
+        apiData ? apiData?.total_income?.toLocaleString() : 0
+      }`,
       percentage: ' 2.4%',
       type: 'profit',
       icon: <Income />,
@@ -58,7 +62,9 @@ const ProfitAndLoss = () => {
     {
       id: 2,
       title: 'EXPENSE',
-      amount: `NGN ${apiData ? apiData?.total_expense?.toLocaleString() : 0}`,
+      amount: `${currency} ${
+        apiData ? apiData?.total_expense?.toLocaleString() : 0
+      }`,
       percentage: '1.2%',
       type: 'loss',
       icon: <Expense />,
@@ -66,7 +72,7 @@ const ProfitAndLoss = () => {
     {
       id: 3,
       title: 'NET PROFIT',
-      amount: `NGN ${apiData ? apiData?.profit?.toLocaleString() : 0}`,
+      amount: `${currency} ${apiData ? apiData?.profit?.toLocaleString() : 0}`,
       percentage: '2.2%',
       type: 'profit',
       icon: <Net />,
@@ -162,7 +168,7 @@ const ProfitAndLoss = () => {
                     </div>
                     <div className='income-expense-overview__statement-wrapper__content__right'>
                       <p>
-                        NGN{' '}
+                        {currency}{' '}
                         {Number(
                           apiData?.income_by_group[groupName].balance
                         ).toLocaleString()}
@@ -177,7 +183,9 @@ const ProfitAndLoss = () => {
                 <h3>Total Income</h3>
               </div>
               <div className=''>
-                <h3>NGN {apiData?.total_income?.toLocaleString()}</h3>
+                <h3>
+                  {currency} {apiData?.total_income?.toLocaleString()}
+                </h3>
               </div>
             </div>
           </div>
@@ -219,7 +227,7 @@ const ProfitAndLoss = () => {
                       </div>
                       <div className='income-expense-overview__statement-wrapper__content__right'>
                         <p>
-                          NGN{' '}
+                          {currency}{' '}
                           {Number(
                             apiData?.expense_by_group[groupName].balance
                           ).toLocaleString()}
@@ -235,7 +243,9 @@ const ProfitAndLoss = () => {
                 <h3>Total Expense</h3>
               </div>
               <div className=''>
-                <h3>NGN {apiData?.total_expense?.toLocaleString()}</h3>
+                <h3>
+                  {currency} {apiData?.total_expense?.toLocaleString()}
+                </h3>
               </div>
             </div>
           </div>
@@ -246,7 +256,7 @@ const ProfitAndLoss = () => {
             Net Profit (Loss)
           </p>
           <p className='income-expense-overview__statement-wrapper__footer__bold-text'>
-            NGN {apiData?.profit?.toLocaleString()}
+            {currency} {apiData?.profit?.toLocaleString()}
           </p>
         </div>
         {/* <div style={{ paddingBottom: "10px" }}>
@@ -256,7 +266,7 @@ const ProfitAndLoss = () => {
                 <h3>TOTAL ASSET</h3>
               </div>
               <div className="">
-                <h3>NGN {apiData?.total_income?.toLocaleString()}</h3>
+                <h3>{currency} {apiData?.total_income?.toLocaleString()}</h3>
               </div>
             </div>
             <div style={{ display: "flex", gap: "150px" }}>
@@ -264,7 +274,7 @@ const ProfitAndLoss = () => {
                 <h3>TOTAL LIABILITIES & SHAREHOLDERS’ EQUITY</h3>
               </div>
               <div className="">
-                <h3>NGN {apiData?.total_expense?.toLocaleString()}</h3>
+                <h3>{currency} {apiData?.total_expense?.toLocaleString()}</h3>
               </div>
             </div>
           </div>

@@ -24,10 +24,14 @@ import { useDiscardProduct } from '../../hooks/mutations/inventory';
 import RadioChecked from '../../icons/RadioChecked';
 import RadioUnchecked from '../../icons/RadioUnchecked';
 import Calendar from '../../icons/Calendar';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 const ProductHistory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currency } = useCurrency();
+
   const queryClient = useQueryClient();
   const queryParams = new URLSearchParams(location.search);
   let action = queryParams.get('action');
@@ -151,6 +155,7 @@ const ProductHistory = () => {
 
   return (
     <>
+      <Header />
       {isLoading ? (
         <p>Loading...</p>
       ) : (
@@ -229,7 +234,7 @@ const ProductHistory = () => {
                       <h2>N/A</h2>
                     ) : (
                       <h2>
-                        NGN{' '}
+                        {currency}{' '}
                         {Number(
                           data?.data?.sizes.find(
                             (product: { size: string }) =>
@@ -355,7 +360,26 @@ const ProductHistory = () => {
                       </p>
                       <p>{el.amount}</p>
                       <p>{el.residual_amount}</p>
-                      <p>N/A</p>
+                      <p>
+                        <>
+                          {el?.students?.length > 0 ? (
+                            <div className='items-center'>
+                              {el?.students?.map(
+                                (el: { name: string }, index: number) => (
+                                  <div
+                                    key={index}
+                                    className='rounded-2xl h-[25px] bg-[#E4EFF9] mb-3 items-center justify-center p-2'
+                                  >
+                                    <p>{el?.name}</p>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ) : (
+                            <p>No student selected</p>
+                          )}
+                        </>
+                      </p>
                     </div>
                   ))}
                 </div>

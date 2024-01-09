@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router';
 import Dispense from '../../icons/Dispense';
 import Restock from '../../icons/Restock';
 import HistoryIcon from '../../icons/HistoryIcon';
+import { useCurrency } from '../../context/CurrencyContext';
 
 interface Iprops {
   filteredData?: any[];
@@ -19,6 +20,7 @@ interface Iprops {
 
 const ProductTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -171,7 +173,7 @@ const ProductTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
       Cell: ({ cell: { value } }: any) => (
         <p>
           {value !== 'VARIES'
-            ? ` NGN ${Number(value)?.toLocaleString()}`
+            ? `${currency} ${Number(value)?.toLocaleString()}`
             : value}
         </p>
       ),

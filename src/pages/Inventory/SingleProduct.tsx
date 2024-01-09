@@ -21,10 +21,14 @@ import DispenseModal from '../../components/Modals/Inventory/DispenseModal';
 import RestockModal from '../../components/Modals/Inventory/RestockModal';
 import EditProduct from '../../components/Modals/Inventory/EditProduct';
 import { useDiscardProduct } from '../../hooks/mutations/inventory';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 const SingleProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currency } = useCurrency();
+
   const queryClient = useQueryClient();
   const queryParams = new URLSearchParams(location.search);
   let action = queryParams.get('action');
@@ -94,6 +98,7 @@ const SingleProduct = () => {
 
   return (
     <>
+      <Header />
       {isLoading ? (
         <p>Loading...</p>
       ) : (
@@ -172,7 +177,7 @@ const SingleProduct = () => {
                       <h2>N/A</h2>
                     ) : (
                       <h2>
-                        NGN{' '}
+                        {currency}{' '}
                         {Number(
                           data?.data?.sizes.find(
                             (product: { size: string }) =>

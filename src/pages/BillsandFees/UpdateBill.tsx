@@ -17,6 +17,8 @@ import { useQueryClient } from 'react-query';
 import { useUpdateBill } from '../../hooks/mutations/billsAndFeesMgt';
 import DeleteRed from '../../icons/DeleteRed';
 import ClassAndStudentSelection from '../../components/ClassAndStudentSelection/ClassAndStudentSelection';
+import { useGetStudents } from '../../hooks/queries/students';
+import Header from '../../components/Header/Header';
 
 const CreateBill = () => {
   const navigate = useNavigate();
@@ -53,8 +55,15 @@ const CreateBill = () => {
 
   useEffect(() => {
     setFees(data?.fees);
-    setFields({ ...fields, dueDate: data?.due_date });
+    setFields({
+      ...fields,
+      dueDate: data?.due_date,
+      billName: data?.bill_name,
+    });
   }, [data]);
+
+  const { data: classesAndStudents, isLoading: studentsLoading } =
+    useGetStudents();
 
   const [discounts, setDiscounts] = useState<Discount[]>([
     {
@@ -104,9 +113,10 @@ const CreateBill = () => {
   const { data: schoolData } = useGetSchoolDetails();
   const { data: classes } = useGetClasses();
   const formattedClasses = classes?.results?.map((c: any) => ({
-    id: c.id,
-    name: c.class_name,
+    id: c.idx,
+    name: c?.class_field,
   }));
+  console.log(formattedClasses);
 
   const toggleClasses = (option: any) => {
     setSelectedClasses((prevSelected: any) => {
@@ -150,7 +160,6 @@ const CreateBill = () => {
         default_amount: 0.0,
         classes: [],
         students: [],
-        student: [],
         discounts: [],
       },
       amount: 0.0,
@@ -272,10 +281,6 @@ const CreateBill = () => {
     setFees(updatedFees);
   };
 
-  let classIds = selectedClasses.map((item: { id: number }) => {
-    return item.id;
-  });
-
   const showClasses = (fee: string) => {
     if (fee == '') {
       toast.error('Please enter the fee type first');
@@ -309,7 +314,7 @@ const CreateBill = () => {
       bill_name: fields.billName,
       due_date: fields.dueDate,
       status: 'draft',
-      classes: classIds,
+      classes: selectedClasses,
       fees: fees,
       amount: fields.amount,
       mandatory: false,
@@ -334,6 +339,7 @@ const CreateBill = () => {
 
   return (
     <div>
+      <Header />
       <div className='bills_overview'>
         <h2 className='bills_overview__title'>{fields.billName || ''} Bill</h2>
         <h1 className='bills_overview__approval'>APPROVAL STATUS: Pending</h1>
@@ -342,13 +348,13 @@ const CreateBill = () => {
 
       <div className='bills_schoolInfo'>
         <div className='bills_schoolInfo__logo'>
-          <img src={schoolData && schoolData.data[0].arm.logo} alt='' />
+          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt='' />
         </div>
         <div className='bills_schoolInfo__details'>
-          {schoolData && schoolData?.data[0].arm.name}
+          {schoolData && schoolData?.data[0]?.arm?.name}
           <br /> {fields.billName ? `${fields.billName} BILL` : ''}
           <p className='bills_schoolInfo__details__email'>
-            Email: {schoolData && schoolData?.data[0].arm.email}
+            Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
         </div>
       </div>
@@ -360,12 +366,12 @@ const CreateBill = () => {
             placeholder='Bill Name'
             className='bills_form__top__input'
             name='billName'
-            type='dropdown'
+            type='text'
             errorClass={'error-msg'}
             handleChange={handleChange}
             value={fields.billName}
             defaultValue={data && data?.bill_name}
-            fieldClass={''}
+            fieldClass={'input-field'}
             errorMessage={''}
             id={'billName'}
             onSelectValue={selectValue}
@@ -378,12 +384,7 @@ const CreateBill = () => {
               throw new Error('');
             }}
             selectedValues={undefined}
-            options={[
-              { id: 1, name: 'Third term 2022/2023' },
-              { id: 2, name: 'First term 2023/2024' },
-              { id: 3, name: 'Second term 2023/2024' },
-              { id: 4, name: 'Third term 2023/2024' },
-            ]}
+            options={[]}
           />
 
           <TextInput
@@ -517,9 +518,10 @@ const CreateBill = () => {
                           {selectedFee !== '' &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
-                                classes={classes?.results}
+                                classes={classesAndStudents}
                                 cancel={() => showClasses(fee.fee_type.name)}
-                                selectedClassesInFees={fee.fee_type.classes}
+                                selectedClassesInParent={fee.fee_type.classes}
+                                selectedStudentsInParent={fee.fee_type.students}
                                 onClassChange={(selectedClasses: number[]) =>
                                   handleClassDropdownChange(
                                     index,

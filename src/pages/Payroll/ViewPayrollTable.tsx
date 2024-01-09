@@ -13,6 +13,7 @@ import { AllowanceOrDeduction } from '../../types/payrollTypes';
 
 import RemitAllowance from '../../components/Modals/Payroll/RemitAllowance';
 import RemitDeductions from '../../components/Modals/Payroll/RemitDeductions';
+import { useCurrency } from '../../context/CurrencyContext';
 
 interface Iprops {
   filteredData?: AllowanceOrDeduction;
@@ -29,6 +30,7 @@ const ViewPayrollTable = ({
 }: Iprops) => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -108,9 +110,11 @@ const ViewPayrollTable = ({
 
   const uniqueDetailNames = Array.from(
     new Set(
-      filteredData?.flatMap((item: any) =>
-        item?.details.map((detail: { name: string }) => detail?.name)
-      )
+      filteredData
+        ?.filter((el) => el.name !== '')
+        ?.flatMap((item: any) =>
+          item?.details.map((detail: { name: string }) => detail?.name)
+        )
     )
   );
 
@@ -125,7 +129,9 @@ const ViewPayrollTable = ({
             (detail: { name: string }) => detail.name === detailName
           )?.amount;
 
-          return amount ? `NGN ${Number(amount).toLocaleString()}` : 'N/A';
+          return amount
+            ? `${currency} ${Number(amount).toLocaleString()}`
+            : 'N/A';
         },
       })),
       {

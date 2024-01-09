@@ -1,22 +1,26 @@
-import { useState } from "react";
-import Table from "../../components/Table/Table";
-import Dots from "../../icons/Dots";
-import Visibility from "../../icons/Visibility";
-import Delete from "../../icons/Delete";
-import Edit from "../../icons/Edit";
-import { useQueryClient } from "react-query";
-import { useGetBills } from "../../hooks/queries/billsAndFeesMgt";
-import { filterByStatus } from "../../services/utils";
-import Duplicate from "../../icons/Duplicate";
-import Unsend from "../../icons/Unsend";
+import { useState } from 'react';
+import Table from '../../components/Table/Table';
+import Dots from '../../icons/Dots';
+import Visibility from '../../icons/Visibility';
+import Delete from '../../icons/Delete';
+import Edit from '../../icons/Edit';
+import { useQueryClient } from 'react-query';
+import { useGetBills } from '../../hooks/queries/billsAndFeesMgt';
+import { filterByStatus } from '../../services/utils';
+import Duplicate from '../../icons/Duplicate';
+import Unsend from '../../icons/Unsend';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 const Unsent = () => {
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
+
   const { data, isLoading } = useGetBills();
-  let billStatus: string = "unsent";
+  let billStatus: string = 'unsent';
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
-  const [selectedId, setSelectedId] = useState<string>("");
+  const [selectedId, setSelectedId] = useState<string>('');
 
   //badge component on table
   const Badge = ({ value }: { value: boolean }) => {
@@ -25,46 +29,46 @@ const Unsent = () => {
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
-    let splitedValue = value.split(",");
+    let splitedValue = value.split(',');
     let id = splitedValue[0];
     let status: string = splitedValue[1];
 
     return (
-      <div className="action-wrapper">
+      <div className='action-wrapper'>
         <button
           onClick={() => {
             setSelectedId(id);
             setDropdownActions(!dropdownActions);
           }}
-          style={{ all: "unset", cursor: "pointer" }}
+          style={{ all: 'unset', cursor: 'pointer' }}
         >
           <Dots />
 
-          {dropdownActions && id === selectedId && status === "unsent" && (
+          {dropdownActions && id === selectedId && status === 'unsent' && (
             <>
               {/* {billStatus} */}
-              <div className="action">
-                <div className="action__flex">
+              <div className='action'>
+                <div className='action__flex'>
                   <Visibility />
                   <p>View</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Edit />
                   <p>Edit</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Duplicate />
                   <p>Duplicate</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Unsend />
                   <p>Resend Bill</p>
                 </div>
 
-                <div className="action__flex">
+                <div className='action__flex'>
                   <Delete />
                   <p>Delete</p>
                 </div>
@@ -79,21 +83,21 @@ const Unsent = () => {
   //table header and columns
   const columns = [
     {
-      Header: "Bill Name",
-      accessor: "bill_name",
+      Header: 'Bill Name',
+      accessor: 'bill_name',
       Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
     {
-      Header: "Assigned Class",
-      accessor: "classes",
+      Header: 'Assigned Class',
+      accessor: 'classes',
       Cell: ({ cell: { value } }: any) => (
-        <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
-          {value.map((item: any) => (
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
+          {value?.map((item: any) => (
             <div
               style={{
-                background: "#E4EFF9",
-                padding: "2px 12px 2px 12px",
-                borderRadius: "12px",
+                background: '#E4EFF9',
+                padding: '2px 12px 2px 12px',
+                borderRadius: '12px',
               }}
             >
               {item.class_name}
@@ -104,33 +108,35 @@ const Unsent = () => {
     },
 
     {
-      Header: "Total Student",
-      accessor: "total_students",
+      Header: 'Total Student',
+      accessor: 'total_students',
       Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
 
     {
-      Header: "Total Amount",
-      accessor: "total_amount",
+      Header: 'Total Amount',
+      accessor: 'total_amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
     {
-      Header: "Status",
-      accessor: "status",
+      Header: 'Status',
+      accessor: 'status',
       Cell: ({ cell: { value } }: any) => <Badge value={value} />,
     },
     {
-      Header: "Actions",
+      Header: 'Actions',
       accessor: (d: any) => `${d.id},${d.status}`,
       Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <>
-          <div style={{ display: "flex", gap: "16px" }}>
-            {["draft", "unsent"].includes(value.split(",")[1].toLowerCase()) ? (
+          <div style={{ display: 'flex', gap: '16px' }}>
+            {['draft', 'unsent'].includes(value.split(',')[1].toLowerCase()) ? (
               <Edit />
             ) : (
-              ""
+              ''
             )}
             <DotsBtn value={value} />
           </div>
@@ -140,7 +146,7 @@ const Unsent = () => {
   ];
   return (
     <div>
-      <div className="table_container">
+      <div className='table_container'>
         {isLoading ? (
           <p>Loading...</p>
         ) : (

@@ -3,13 +3,11 @@ import Table from '../../components/Table/Table';
 import Dots from '../../icons/Dots';
 import Dot from '../../icons/Dot';
 import Visibility from '../../icons/Visibility';
-import Delete from '../../icons/Delete';
-import Edit from '../../icons/Edit';
+
 import { useNavigate } from 'react-router';
 
-import Dispense from '../../icons/Dispense';
-import Restock from '../../icons/Restock';
-import HistoryIcon from '../../icons/HistoryIcon';
+import { useCurrency } from '../../context/CurrencyContext';
+import moment from 'moment';
 
 interface Iprops {
   filteredData?: any[];
@@ -23,6 +21,7 @@ const DispensedProductTable = ({
   isLoading,
 }: Iprops) => {
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -66,46 +65,7 @@ const DispensedProductTable = ({
                   onClick={() => navigate(`/inventory/${value}`)}
                 >
                   <Visibility />
-                  <p>View</p>
-                </div>
-
-                <div
-                  className='action__flex'
-                  onClick={() => navigate(`/inventory/${value}?action=edit`)}
-                >
-                  <Edit />
-                  <p>Edit</p>
-                </div>
-                <div
-                  className='action__flex'
-                  onClick={() =>
-                    navigate(`/inventory/${value}?action=dispense`)
-                  }
-                >
-                  <Dispense />
-                  <p>Dispense</p>
-                </div>
-                <div
-                  className='action__flex'
-                  onClick={() => navigate(`/inventory/${value}?action=restock`)}
-                >
-                  <Restock />
-                  <p>Restock</p>
-                </div>
-                <div
-                  className='action__flex'
-                  onClick={() => navigate(`/inventory/history/${value}`)}
-                >
-                  <HistoryIcon />
-                  <p>Product History</p>
-                </div>
-
-                <div
-                  className='action__flex'
-                  onClick={() => navigate(`/inventory/${value}?action=delete`)}
-                >
-                  <Delete />
-                  <p>Discard</p>
+                  <p>View Product</p>
                 </div>
               </div>
             </>
@@ -124,84 +84,69 @@ const DispensedProductTable = ({
 
     {
       Header: 'PRODUCT NAME',
-      accessor: (d: any) => `${d?.name},${d?.image}`,
-      Cell: ({ cell: { value } }: any) => (
-        <div className='d-flex'>
-          <img
-            width={'32px'}
-            height={'32px'}
-            src={value.split(',')[1]}
-            alt=''
-          />
-          <p>{value.split(',')[0]}</p>
-        </div>
-      ),
+      accessor: (d: any) => `${d?.product?.name}`,
+      Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
 
     {
-      Header: 'CATEGORY',
-      accessor: (d: any) =>
-        `${d?.product_group?.name},${d?.product_group?.category?.name}`,
-      Cell: ({ cell: { value } }: any) => (
-        <div>
-          <p style={{ marginBottom: '5px' }}>{value.split(',')[0]}</p>
-          <div className='d-flex'>
-            <Dot type={'income'} />
-            <p>{value.split(',')[1]}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      Header: 'QUANTITY',
+      Header: 'DISPENSED QUANTITY',
       accessor: 'sizes',
       Cell: ({ cell: { value } }: any) => (
         <div>
-          <p>
-            {value?.reduce(
-              (total: number, size: any) => total + size.quantity,
-              0
-            )}
-          </p>
-          <p>
-            Varies in : <b>Size</b>
-          </p>
+          {value?.map((el: { size: string; quantity: number }) => (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <p>Size: {el?.size}</p>
+              <p>Quantity: {el?.quantity}</p>
+            </div>
+          ))}
         </div>
       ),
     },
     {
-      Header: 'AMOUNT',
-      accessor: 'general_selling_price',
-      Cell: ({ cell: { value } }: any) => (
-        <p>
-          {value !== 'VARIES'
-            ? ` NGN ${Number(value)?.toLocaleString()}`
-            : value}
-        </p>
-      ),
+      Header: 'DATE',
+      accessor: 'created_at',
+      Cell: ({ cell: { value } }: any) => <p>{moment(value).format('lll')}</p>,
     },
 
     {
-      Header: 'STATUS',
-      accessor: 'status',
-      Cell: ({ cell: { value } }: { cell: { value: string } }) => (
-        <Badge value={value} />
-      ),
+      Header: 'STUDENTS',
+      accessor: 'students',
+      Cell: ({ cell: { value } }: any) => {
+        const visibleStudents = value?.slice(0, 2);
+        const remainingCount = value?.length - visibleStudents?.length;
+
+        return (
+          <>
+            {value?.length > 0 ? (
+              <div className='flex gap-2 items-center'>
+                {visibleStudents?.map((el: { name: string }, index: number) => (
+                  <div
+                    key={index}
+                    className='rounded-2xl h-[25px] bg-[#E4EFF9] mb-3 flex items-center justify-center p-2'
+                  >
+                    <p>{el?.name}</p>
+                  </div>
+                ))}
+                {remainingCount > 0 && (
+                  <div className='rounded-2xl h-[25px] mb-3 flex items-center justify-center p-2'>
+                    <p>and {remainingCount} others</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p>No student selected</p>
+            )}
+          </>
+        );
+      },
     },
 
     {
       Header: 'Actions',
-      accessor: (d: any) => `${d.id}`,
+      accessor: (d: any) => `${d?.product?.id}`,
       Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <>
           <div style={{ display: 'flex', gap: '16px' }}>
-            <div
-              style={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/inventory/${value}?action=edit`)}
-            >
-              <Edit />
-            </div>
-
             <DotsBtn value={value} />
           </div>
         </>

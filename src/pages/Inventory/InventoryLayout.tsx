@@ -30,6 +30,7 @@ import {
 
 import { baseURL } from '../../services/utils';
 import DispensedProductTable from './DispensedProductTable';
+import Header from '../../components/Header/Header';
 
 const InventoryLayout = () => {
   const [activeTab, setActiveTab] = useState<string>('all products');
@@ -54,8 +55,7 @@ const InventoryLayout = () => {
 
   const { data, isLoading } = useGetProducts();
 
-  const { data: dispensedData, isLoading: dispensedLoading } =
-    useGetDispensedProducts();
+  const { data: dispensedData } = useGetDispensedProducts();
 
   // //filter for today
   // const fetchToday = () => {
@@ -98,6 +98,7 @@ const InventoryLayout = () => {
 
   return (
     <div>
+      <Header />
       <div className='ie_overview'>
         <h2 className='ie_overview__title'>Inventory Management</h2>
       </div>
@@ -257,7 +258,7 @@ const InventoryLayout = () => {
       <div>
         {activeTab.toLowerCase() === 'dispensed products' ? (
           <DispensedProductTable
-            filteredData={dispensedData?.data}
+            filteredData={dispensedData || []}
             isLoading={isLoading}
             searchRes={searchres}
           />

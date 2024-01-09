@@ -22,6 +22,7 @@ import RecordTransferIcon from '../../icons/RecordTransferIcon';
 import LeaderboardIcon from '../../icons/LeaderboardIcon';
 import HouseIcon from '../../icons/HouseIcon';
 import AssetModal from '../../components/Modals/Asset/AssetModal';
+import { useCurrency } from '../../context/CurrencyContext';
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -32,6 +33,7 @@ interface Iprops {
 const AssetTable = ({ filteredData, searchRes }: Iprops) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -230,7 +232,9 @@ const AssetTable = ({ filteredData, searchRes }: Iprops) => {
       Header: 'Amount',
       accessor: 'amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
 

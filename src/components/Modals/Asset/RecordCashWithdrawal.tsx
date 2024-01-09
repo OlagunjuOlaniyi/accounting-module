@@ -149,9 +149,7 @@ const RecordCashWithdrawal = ({ close }: any) => {
       },
 
       onError: (e) => {
-        toast.error(
-          'Error recording transaction \nPlease make sure all fields are filled correctly'
-        );
+        toast.error(e?.response?.data?.error);
       },
     });
   };

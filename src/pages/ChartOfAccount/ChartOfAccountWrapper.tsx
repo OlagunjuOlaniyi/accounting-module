@@ -24,6 +24,7 @@ import OverviewCard, {
   ICardProps,
 } from '../../components/OverviewCard/OverviewCard';
 import { useNavigate } from 'react-router';
+import Header from '../../components/Header/Header';
 
 const ChartofAccountWrapper = ({
   id,
@@ -133,6 +134,7 @@ const ChartofAccountWrapper = ({
   }, [searchres]);
   return (
     <div>
+      <Header />
       <p className='sm-test' onClick={() => navigate('/chart-of-account')}>
         Chart of Account / {breadcrumbSub} /{' '}
         <b style={{ color: '#010c15' }}>{id}</b>

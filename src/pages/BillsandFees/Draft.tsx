@@ -9,9 +9,12 @@ import { useGetBills } from '../../hooks/queries/billsAndFeesMgt';
 import { filterByStatus } from '../../services/utils';
 import Send from '../../icons/Send';
 import Duplicate from '../../icons/Duplicate';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 const Draft = () => {
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -89,7 +92,7 @@ const Draft = () => {
       accessor: 'classes',
       Cell: ({ cell: { value } }: any) => (
         <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-          {value.map((item: any) => (
+          {value?.map((item: any) => (
             <div
               style={{
                 background: '#E4EFF9',
@@ -114,7 +117,9 @@ const Draft = () => {
       Header: 'Total Amount',
       accessor: 'total_amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
     {

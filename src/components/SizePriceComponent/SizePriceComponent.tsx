@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import DeleteRed from '../../icons/DeleteRed';
+import ToggleChecked from '../../icons/ToggleChecked';
 import './sizepricecomponent.scss';
+import ToggleUnchecked from '../../icons/ToggleUnchecked';
 
 export interface SizePrice {
   size: string;
@@ -21,6 +24,7 @@ const SizePriceComponent: React.FC<SizePriceComponentProps> = ({
   onDelete,
   sizeOptions,
 }) => {
+  const [customSize, setCustomSize] = useState<boolean>(false);
   const handleInputChange = () => {
     onSizePriceChange(sizePrice);
   };
@@ -29,26 +33,52 @@ const SizePriceComponent: React.FC<SizePriceComponentProps> = ({
 
   return (
     <div className='size-price-component'>
+      <div
+        onClick={() => setCustomSize(!customSize)}
+        style={{
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '5px',
+          margin: '20px 0px',
+        }}
+      >
+        {customSize ? <ToggleChecked /> : <ToggleUnchecked />}
+        <p>Custom size</p>
+      </div>
+
       <div className='size-price-component__flex'>
         <div className='input-component'>
           <label>Size</label>
-          <select
-            className='input-field'
-            value={sizePrice.size}
-            onChange={(e) => {
-              sizePrice.size = e.target.value;
-              handleInputChange();
-            }}
-          >
-            <option value='Select size' selected>
-              Select size
-            </option>
-            {sizeOptions?.map((option) => (
-              <option key={option?.name} value={option?.name}>
-                {option?.name}
+          {customSize ? (
+            <input
+              placeholder='Enter custom size'
+              className='input-field'
+              value={sizePrice.size}
+              onChange={(e) => {
+                sizePrice.size = e.target.value;
+                handleInputChange();
+              }}
+            />
+          ) : (
+            <select
+              className='input-field'
+              value={sizePrice.size}
+              onChange={(e) => {
+                sizePrice.size = e.target.value;
+                handleInputChange();
+              }}
+            >
+              <option value='Select size' selected>
+                Select size
               </option>
-            ))}
-          </select>
+              {sizeOptions?.map((option) => (
+                <option key={option?.name} value={option?.name}>
+                  {option?.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
         <div className='input-component'>
           <label>Quantity</label>

@@ -191,9 +191,9 @@ const RemitAllowance = ({ modalIsOpen, closeModal, id }: any) => {
       onSuccess: (res) => {
         close();
         toast.success('Allowance remitted successfully');
-        navigate('/payroll');
+
         queryClient.invalidateQueries({
-          queryKey: `payroll`,
+          queryKey: `allowance-and-deductions-${id}-ALLOWANCE`,
         });
       },
 
@@ -247,9 +247,10 @@ const RemitAllowance = ({ modalIsOpen, closeModal, id }: any) => {
             toggleOption={toggleOption}
             selectedValues={selected}
             options={[
-              { id: 1, name: 'Adegbenga Johnson' },
-              { id: 2, name: 'Tunde Ahmed' },
-              { id: 3, name: 'Somtochukwu James' },
+              { id: 1, name: 'Ronke Famuyiwa' },
+              { id: 2, name: 'Bola Bola' },
+              { id: 3, name: 'Prince Adeleke' },
+              { id: 4, name: 'Jamal Toheeb Jnr' },
             ]}
           />
 

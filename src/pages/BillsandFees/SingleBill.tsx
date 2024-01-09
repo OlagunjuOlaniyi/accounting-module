@@ -13,12 +13,20 @@ import Unsend from '../../icons/Unsend';
 import ViewPayment from '../../icons/ViewPayment';
 import Dots from '../../icons/Dots';
 import { Fee } from '../../types/types';
+import {
+  useSendBill,
+  useUnsendBill,
+} from '../../hooks/mutations/billsAndFeesMgt';
+import { useQueryClient } from 'react-query';
+import toast from 'react-hot-toast';
+import Header from '../../components/Header/Header';
 
 const SingleBill = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const navigate = useNavigate();
 
   const { id } = useParams();
+  const queryClient = useQueryClient();
 
   const { data } = useGetSingleBill(id);
   const { data: schoolData } = useGetSchoolDetails();
@@ -33,14 +41,59 @@ const SingleBill = () => {
     setTotalAmount(totalAmount);
   }, [fees]);
 
-  let storedClasses = JSON.parse(localStorage.getItem('classes') || '');
-  let formattedStoredClasses = storedClasses.map((c: any) => ({
-    id: c.id,
-    name: c.class_name,
-  }));
-  const [selectedClasses] = useState<any>(formattedStoredClasses);
+  // let storedClasses = JSON.parse(localStorage.getItem('classes') || '');
+  // let formattedStoredClasses = storedClasses.map((c: any) => ({
+  //   id: c.id,
+  //   name: c.class_name,
+  // }));
+  //  const [selectedClasses] = useState<any>(formattedStoredClasses);
+
+  const { mutate: sendBill, isLoading: sendLoading } = useSendBill();
+  const { mutate: unsendBill, isLoading: unsendLoading } = useUnsendBill();
+
+  const send = () => {
+    sendBill(id, {
+      onSuccess: (res) => {
+        close();
+        toast.success(res?.detail);
+        queryClient.invalidateQueries({
+          queryKey: `bill-single-${id}`,
+        });
+      },
+
+      onError: (e) => {
+        toast.error('Error sending bill');
+      },
+    });
+  };
+
+  const unsend = () => {
+    unsendBill(id, {
+      onSuccess: (res) => {
+        close();
+        toast.success(res?.detail);
+        queryClient.invalidateQueries({
+          queryKey: `bill-single-${id}`,
+        });
+      },
+
+      onError: (e) => {
+        toast.error('Error unsending bill');
+      },
+    });
+  };
+
   return (
     <div>
+      <Header />
+      <p
+        className='sm-test'
+        onClick={() => navigate(-1)}
+        style={{ marginBottom: '16px' }}
+      >
+        Bills and Fees Management /
+        <b style={{ color: '#010c15' }}>{data?.bill_name}</b>
+      </p>
       <div
         className='bills_overview'
         style={{
@@ -57,7 +110,7 @@ const SingleBill = () => {
             gap: '10px',
           }}
         >
-          <h2 className='bills_overview__title'>First term 2021/2022 Bill</h2>
+          <h2 className='bills_overview__title'>{data?.bill_name}</h2>
           <h1 className='bills_overview__approval'>APPROVAL STATUS: Pending</h1>
           <h1
             className={`bills_overview__status ${data?.status}`}
@@ -66,6 +119,8 @@ const SingleBill = () => {
 
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <button
+            disabled={sendLoading || unsendLoading}
+            onClick={() => (data?.status === 'sent' ? unsend() : send())}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -78,7 +133,11 @@ const SingleBill = () => {
             <span>
               <Unsend />
             </span>
-            Unsend Bill
+            {sendLoading || unsendLoading
+              ? 'Please wait'
+              : data?.status === 'sent'
+              ? 'Unsend Bill'
+              : 'Send Bill'}
           </button>
 
           <button
@@ -93,7 +152,16 @@ const SingleBill = () => {
               color: 'white',
               width: '185px',
             }}
-            onClick={() => navigate(`/payment-status/${id}`)}
+            onClick={() => {
+              navigate(`/payment-status/${id}?bill_name=${data?.bill_name}`);
+              localStorage.setItem(
+                'bills_and_fees',
+                JSON.stringify({
+                  owner: data?.owner,
+                  bill_id: data?.id,
+                })
+              );
+            }}
           >
             <span>
               <ViewPayment />
@@ -107,13 +175,13 @@ const SingleBill = () => {
 
       <div className='bills_schoolInfo'>
         <div className='bills_schoolInfo__logo'>
-          <img src={schoolData && schoolData.data[0].arm.logo} alt='' />
+          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt='' />
         </div>
         <div className='bills_schoolInfo__details'>
-          {schoolData && schoolData?.data[0].arm.name}
+          {schoolData && schoolData?.data[0]?.arm?.name}
           <br /> {data?.bill_name}
           <p className='bills_schoolInfo__details__email'>
-            Email: {schoolData && schoolData?.data[0].arm.email}
+            Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
         </div>
       </div>
@@ -197,7 +265,7 @@ const SingleBill = () => {
             handleBlur={''}
             multi={true}
             toggleOption={function (a: any): void {}}
-            selectedValues={selectedClasses}
+            selectedValues={[]}
             // options={[]}
           />
 

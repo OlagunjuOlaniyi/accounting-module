@@ -15,11 +15,14 @@ import { useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 import ImageIcon from '../../icons/ImageIcon';
 import Attachment from '../../components/Modals/AttachmentModal/Attachment';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 const SingleExpense = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
 
   //get expenses
   const { isLoading, data } = useGetSingleExpenses(id);
@@ -75,6 +78,7 @@ const SingleExpense = () => {
 
   return (
     <>
+      <Header />
       {isLoading ? (
         <p>Loading...</p>
       ) : Array.isArray(data?.data) ? (
@@ -130,7 +134,9 @@ const SingleExpense = () => {
             </div>
 
             <div className='single-expense-wrapper__title__right'>
-              <h2>NGN {Number(data?.data[0]?.amount).toLocaleString()}</h2>
+              <h2>
+                {currency} {Number(data?.data[0]?.amount).toLocaleString()}
+              </h2>
             </div>
           </div>
 
@@ -307,7 +313,9 @@ const SingleExpense = () => {
             </div>
 
             <div className='single-expense-wrapper__title__right'>
-              <h2>NGN {Number(data?.data?.amount).toLocaleString()}</h2>
+              <h2>
+                {currency} {Number(data?.data?.amount).toLocaleString()}
+              </h2>
             </div>
           </div>
 

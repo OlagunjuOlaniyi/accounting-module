@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import BarChart from '../../components/Charts/BarChart';
 import CustomLegend from '../../components/CustomLegend/CustomLegend';
 import OverviewCard, {
@@ -8,19 +8,34 @@ import Expense from '../../icons/Expense';
 import Income from '../../icons/Income';
 import Net from '../../icons/Net';
 import { useGetIncomeAndExpenseOverview } from '../../hooks/queries/overview';
-import Spinner from '../../components/Spinner/Spinner';
+
 import { Ioverview } from '../../types/types';
 import { mergeMonths } from '../../utilities';
-import Export from '../../icons/Export';
+import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../../components/Button/Button';
-import Addcircle from '../../icons/Addcircle';
+import {
+  useGetPayroll,
+  useGetPayrollOverview,
+} from '../../hooks/queries/payroll';
 
 interface Iprops {
   filteredData?: Ioverview;
   filteredLoading: Boolean;
 }
 const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
-  const { isLoading, data } = useGetIncomeAndExpenseOverview();
+  const { data: payroll } = useGetPayroll();
+  const { data, refetch, isLoading } = useGetPayrollOverview(
+    payroll ? payroll[0]?.id : ''
+  );
+
+  useEffect(() => {
+    if (payroll && payroll.length > 0) {
+      refetch();
+    }
+  }, [payroll]);
+
+  //const { isLoading, data } = useGetIncomeAndExpenseOverview();
+  const { currency } = useCurrency();
 
   interface ICardDetails extends ICardProps {
     id: number;
@@ -48,7 +63,7 @@ const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
     {
       id: 3,
       title: 'NET AMOUNT',
-      amount: `NGN 120,000`,
+      amount: `${currency} 120,000`,
       percentage: '',
       //type: apiData?.profit?.toLocaleString().includes('-') ? 'loss' : 'profit',
       type: '',
@@ -103,57 +118,63 @@ const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
   };
 
   return (
-    <div className='income-expense-overview'>
-      {/* <div className='flex justify-between'>
-        <h2 className='font-bold'>
-          September 2021 Payroll is due on Aug 25, 2021
-        </h2>
-        <div className='flex gap-4 mb-10'>
-          <button className='ie_overview__top-level__filter-download'>
-            {' '}
-            <p>View Payroll</p>
-          </button>
-          <div className='ie_overview__top-level__btn-wrap'>
-            <Button
-              btnText='Run Payroll'
-              btnClass='btn-primary'
-              width='214px'
-              icon={''}
-              disabled={false}
-              onClick={() => {}}
-            />
-          </div>
-        </div>
-      </div> */}
-      {/* <div className='income-expense-overview__cards'>
-        {cardDetails.map((el) => (
-          <div key={el.id}>
-            <OverviewCard
-              type={el.type}
-              title={el.title}
-              percentage={el.percentage}
-              amount={el.amount}
-              icon={el.icon}
-            />
-          </div>
-        ))}
-      </div> */}
+    <>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className='income-expense-overview'>
+          {/* <div className='flex justify-between'>
+            <h2 className='font-bold'>
+              September 2021 Payroll is due on Aug 25, 2021
+            </h2>
+            <div className='flex gap-4 mb-10'>
+              <button className='ie_overview__top-level__filter-download'>
+                {' '}
+                <p>View Payroll</p>
+              </button>
+              <div className='ie_overview__top-level__btn-wrap'>
+                <Button
+                  btnText='Run Payroll'
+                  btnClass='btn-primary'
+                  width='214px'
+                  icon={''}
+                  disabled={false}
+                  onClick={() => {}}
+                />
+              </div>
+            </div>
+          </div> */}
+          {/* <div className='income-expense-overview__cards'>
+            {cardDetails.map((el) => (
+              <div key={el.id}>
+                <OverviewCard
+                  type={el.type}
+                  title={el.title}
+                  percentage={el.percentage}
+                  amount={el.amount}
+                  icon={el.icon}
+                />
+              </div>
+            ))}
+          </div> */}
 
-      <div className='income-expense-overview__chart-wrapper'>
-        <div className='income-expense-overview__chart-wrapper__top'>
-          <p>Report</p>
-          <div>
-            <CustomLegend
-              data={[
-                { id: 1, label: 'Allowance', bgColor: '#7380F6' },
-                { id: 2, label: 'Deduction', bgColor: '#CD4F56' },
-              ]}
-            />
+          <div className='income-expense-overview__chart-wrapper'>
+            <div className='income-expense-overview__chart-wrapper__top'>
+              <p>Report</p>
+              <div>
+                <CustomLegend
+                  data={[
+                    { id: 1, label: 'Allowance', bgColor: '#7380F6' },
+                    { id: 2, label: 'Deduction', bgColor: '#CD4F56' },
+                  ]}
+                />
+              </div>
+            </div>
+            <BarChart data={barData} />
           </div>
         </div>
-        <BarChart data={barData} />
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

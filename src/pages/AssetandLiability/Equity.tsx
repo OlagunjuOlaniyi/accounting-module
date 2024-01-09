@@ -9,16 +9,13 @@ import { useNavigate } from 'react-router';
 import DeleteConfirmation from '../../components/Modals/DeleteConfirmation/DeleteConfirmation';
 import { useQueryClient } from 'react-query';
 import { toast } from 'react-hot-toast';
-import { useGetIncomes } from '../../hooks/queries/incomes';
+
 import { useDeleteIncome } from '../../hooks/mutations/incomes';
 import EditIncome from '../../components/Modals/IncomeAndExpense/EditIncome';
 import { IexpenseRes } from '../../types/expenseTypes';
 import { Ioverview } from '../../types/types';
-import {
-  useGetAssets,
-  useGetEquity,
-  useGetLiabilities,
-} from '../../hooks/queries/chartOfAccount';
+import { useGetEquity } from '../../hooks/queries/chartOfAccount';
+import { useCurrency } from '../../context/CurrencyContext';
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -29,6 +26,7 @@ interface Iprops {
 const EquityTable = ({ filteredData, searchRes }: Iprops) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -162,7 +160,9 @@ const EquityTable = ({ filteredData, searchRes }: Iprops) => {
       Header: 'Amount',
       accessor: 'amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
 

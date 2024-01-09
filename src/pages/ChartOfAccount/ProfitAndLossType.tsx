@@ -5,13 +5,15 @@ import { useParams } from 'react-router';
 
 import ChartofAccountWrapper from './ChartOfAccountWrapper';
 import moment from 'moment';
-import Addcircle from '../../icons/Addcircle';
 import AddCircleBlue from '../../icons/AddCircleBlue';
 import { replacePercent20WithSpaces } from '../../utilities';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const ProfitAndLossType = () => {
   const { id } = useParams();
   const location = useLocation();
+  const { currency } = useCurrency();
+
   const { from } = location.state || {};
 
   const { transaction_types, type } = JSON.parse(
@@ -53,14 +55,14 @@ const ProfitAndLossType = () => {
       Header: 'DEBIT AMOUNT',
       accessor: (d: any) => d.amount,
       Cell: ({ cell: { value } }: any) => (
-        <p>{type === 'Expense' ? `NGN ${value}` : 'Not Available'}</p>
+        <p>{type === 'Expense' ? `${currency} ${value}` : 'Not Available'}</p>
       ),
     },
     {
       Header: 'CREDIT AMOUNT',
       accessor: 'amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>{type === 'Income' ? `NGN ${value}` : 'Not Available'}</p>
+        <p>{type === 'Income' ? `${currency} ${value}` : 'Not Available'}</p>
       ),
     },
 

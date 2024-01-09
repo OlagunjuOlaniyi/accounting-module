@@ -4,10 +4,9 @@ import Dots from '../../icons/Dots';
 import Visibility from '../../icons/Visibility';
 import Delete from '../../icons/Delete';
 import Edit from '../../icons/Edit';
-import { useNavigate } from 'react-router';
-import { useQueryClient } from 'react-query';
+import { useNavigate, useParams } from 'react-router';
 
-import { useGetBills } from '../../hooks/queries/billsAndFeesMgt';
+import { useGetClassPaymentStatus } from '../../hooks/queries/billsAndFeesMgt';
 import Send from '../../icons/Send';
 import Duplicate from '../../icons/Duplicate';
 import Unsend from '../../icons/Unsend';
@@ -18,67 +17,34 @@ import Export from '../../icons/Export';
 import Addcircle from '../../icons/Addcircle';
 import Filter from '../../icons/Filter';
 import Search from '../../icons/Search';
+import Header from '../../components/Header/Header';
+import Broadsheet from '../../icons/Broadsheet';
 
 const PaymentStatus = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const queryParams = new URLSearchParams(location.search);
+  let bill_name = queryParams.get('bill_name');
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
-  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
 
-  const toggleDeleteConfirmation = () => {
-    setDeleteConfirmation(!deleteConfirmation);
-  };
-
-  //get incomes
-  const { data, isLoading } = useGetBills();
-
-  const bills_data = [
-    {
-      id: 1,
-      class_name: 'JSS 1A',
-      total_student: 20,
-      fully_paid: 5,
-      not_paid: 16,
-      over_paid: 20,
-      partly_paid: 11,
-      actions: '',
-    },
-    {
-      id: 2,
-      class_name: 'JSS 1B',
-      total_student: 30,
-      fully_paid: 7,
-      not_paid: 6,
-      over_paid: 22,
-      partly_paid: 7,
-      actions: '',
-    },
-  ];
-
-  //badge component on table
-  const Badge = ({ value }: { value: boolean }) => {
-    return <div className={`${value}-generated-badge`}>{value}</div>;
-  };
+  const { data, isLoading } = useGetClassPaymentStatus(id || '');
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
-    let splitedValue = value.split(',');
-    let id = splitedValue[0];
-    let status: string = splitedValue[1];
-
     return (
       <div className='action-wrapper'>
         <button
           onClick={() => {
-            setSelectedId(id);
+            setSelectedId(value);
             setDropdownActions(!dropdownActions);
           }}
           style={{ all: 'unset', cursor: 'pointer' }}
         >
           <Dots />
 
-          {dropdownActions && id === selectedId && status === 'draft' && (
+          {dropdownActions && value === selectedId && (
             <>
               {/* {billStatus} */}
               <div className='action'>
@@ -89,113 +55,18 @@ const PaymentStatus = () => {
                   }}
                 >
                   <Visibility />
-                  <p>View</p>
+                  <p>View Student Bill</p>
                 </div>
-
-                <div
-                  className='action__flex'
-                  onClick={() => navigate(`/update-bill/${id}`)}
-                >
-                  <Edit />
-                  <p>Edit</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Send />
-                  <p>Send Bill</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Duplicate />
-                  <p>Duplicate</p>
-                </div>
-
-                <div
-                  className='action__flex'
-                  onClick={() => toggleDeleteConfirmation()}
-                >
-                  <Delete />
-                  <p>Delete</p>
-                </div>
-              </div>
-            </>
-          )}
-
-          {dropdownActions && id === selectedId && status === 'sent' && (
-            <>
-              {/* {billStatus} */}
-              <div className='action'>
                 <div
                   className='action__flex'
                   onClick={() => {
-                    navigate(`/bill/${id}`);
+                    navigate(
+                      `/payment-broadsheet/${id}?class_name=${selectedId}&bill_name=${bill_name}`
+                    );
                   }}
                 >
-                  <Visibility />
-                  <p>View</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Duplicate />
-                  <p>Duplicate</p>
-                </div>
-
-                <div
-                  className='action__flex'
-                  onClick={() => navigate(`/payment-status/${id}`)}
-                >
-                  <ViewPayment />
-                  <p>View Payment Status</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Unsend />
-                  <p>Unsend Bill</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Delete />
-                  <p>Delete</p>
-                </div>
-              </div>
-            </>
-          )}
-
-          {dropdownActions && id === selectedId && status === 'unsent' && (
-            <>
-              {/* {billStatus} */}
-              <div className='action'>
-                <div
-                  className='action__flex'
-                  onClick={() => {
-                    navigate(`/bill/${id}`);
-                  }}
-                >
-                  <Visibility />
-                  <p>View</p>
-                </div>
-
-                <div
-                  className='action__flex'
-                  onClick={() => navigate(`/update-bill/${id}`)}
-                >
-                  <Edit />
-                  <p>Edit</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Duplicate />
-                  <p>Duplicate</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Unsend />
-                  <p>Resend Bill</p>
-                </div>
-
-                <div className='action__flex'>
-                  <Delete />
-                  <p>Delete</p>
+                  <Broadsheet />
+                  <p>Payment Broadsheet</p>
                 </div>
               </div>
             </>
@@ -210,47 +81,84 @@ const PaymentStatus = () => {
     {
       Header: 'CLASS NAME',
       accessor: 'class_name',
-      Cell: ({ cell: { value } }: any) => <p>{value}</p>,
+      Cell: ({ cell: { value } }: any) => <p>{value ? value : 'N/A'}</p>,
     },
     {
       Header: 'TOTAL STUDENT',
-      accessor: 'total_student',
+      accessor: 'total_students',
     },
 
     {
       Header: 'Fully Paid',
       accessor: 'fully_paid',
-      Cell: ({ cell: { value } }: any) => <p>{value}</p>,
+      Cell: ({ cell: { value } }: any) => (
+        <button
+          className='table-btn'
+          onClick={() =>
+            navigate(
+              `/class-payment-status/${id}?status=fully_paid&bill_name=${bill_name}`
+            )
+          }
+        >
+          {value}
+        </button>
+      ),
     },
 
     {
       Header: 'NOT PAID',
       accessor: 'not_paid',
+      Cell: ({ cell: { value } }: any) => (
+        <button
+          className='table-btn'
+          onClick={() =>
+            navigate(
+              `/class-payment-status/${id}?status=not_paid&bill_name=${bill_name}`
+            )
+          }
+        >
+          {value}
+        </button>
+      ),
     },
     {
       Header: 'OVER PAID',
-      accessor: 'over_paid',
+      accessor: 'overpaid',
+      Cell: ({ cell: { value } }: any) => (
+        <button
+          className='table-btn'
+          onClick={() =>
+            navigate(
+              `/class-payment-status/${id}?status=overpaid&bill_name=${bill_name}`
+            )
+          }
+        >
+          {value}
+        </button>
+      ),
     },
     {
       Header: 'PARTLY PAID',
       accessor: 'partly_paid',
+      Cell: ({ cell: { value } }: any) => (
+        <button
+          className='table-btn'
+          onClick={() =>
+            navigate(
+              `/class-payment-status/${id}?status=partly_paid&bill_name=${bill_name}`
+            )
+          }
+        >
+          {value}
+        </button>
+      ),
     },
     {
       Header: 'Actions',
-      accessor: (d: any) => `${d.id},${d.status}`,
+      accessor: (d: any) => `${d.class_name}`,
       Cell: ({ cell: { value } }: { cell: { value: string } }) => (
         <>
           <div style={{ display: 'flex', gap: '16px' }}>
-            {['draft', 'unsent'].includes(value.split(',')[1].toLowerCase()) ? (
-              <button
-                style={{ all: 'unset' }}
-                onClick={() => navigate(`/update-bill/${value.split(',')[0]}`)}
-              >
-                <Edit />
-              </button>
-            ) : (
-              ''
-            )}
             <DotsBtn value={value} />
           </div>
         </>
@@ -259,9 +167,14 @@ const PaymentStatus = () => {
   ];
   return (
     <div>
+      <Header />
+      <p className='sm-test' onClick={() => navigate(-1)}>
+        Bills and Fees Management /
+        <b style={{ color: '#010c15' }}>{bill_name}</b>
+      </p>
       <div style={{ margin: '32px 0' }}>
         <h3 style={{ fontSize: '36px', color: '#010C15' }}>
-          First term 2020/2021 Bill Payment Status
+          {bill_name} Payment Status
         </h3>
       </div>
 
@@ -304,10 +217,8 @@ const PaymentStatus = () => {
         {isLoading ? (
           <p>Loading...</p>
         ) : (
-          <Table data={bills_data} columns={columns} />
+          <Table data={data?.results} columns={columns} />
         )}
-
-        {/* <Draft data={data} columns={columns} isLoading={isLoading}/> */}
       </div>
     </div>
   );

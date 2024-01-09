@@ -11,10 +11,13 @@ import Duplicate from '../../icons/Duplicate';
 import ViewPayment from '../../icons/ViewPayment';
 import Unsend from '../../icons/Unsend';
 import { useNavigate } from 'react-router';
+import { useCurrency } from '../../context/CurrencyContext';
+import Header from '../../components/Header/Header';
 
 const Sent = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const { data, isLoading } = useGetBills();
   let billStatus: string = 'sent';
@@ -95,7 +98,7 @@ const Sent = () => {
       accessor: 'classes',
       Cell: ({ cell: { value } }: any) => (
         <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-          {value.map((item: any) => (
+          {value?.map((item: any) => (
             <div
               style={{
                 background: '#E4EFF9',
@@ -120,7 +123,9 @@ const Sent = () => {
       Header: 'Total Amount',
       accessor: 'total_amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+        <p>
+          {currency} {Number(value)?.toLocaleString()}
+        </p>
       ),
     },
     {

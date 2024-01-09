@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import './payroll.scss';
 import TextInput from '../../components/Input/TextInput';
@@ -29,13 +29,13 @@ const CreatePayroll = () => {
 
   const [payrollGroups, setPayrollGroups] = useState<PayrollData[]>([
     {
-      staffs: [{ name: 'Jibola test' }, { name: 'Pelumi Test' }],
+      staffs: [],
       net_amount: 0, //this should be automatically calculated
       gross_amount: 0,
       payroll_group_modifiers: [
         {
           modifier_name: '',
-          modifier_type: '',
+          modifier_type: 'ALLOWANCE',
           is_percentage: false,
           amount: 0,
           linking_percentage: '', //this is what that want to get the poercentage of
@@ -45,12 +45,54 @@ const CreatePayroll = () => {
     },
   ]);
 
-  const addModifier = (groupIndex: number) => {
+  const calculateGrossSum = () => {
+    let allowanceSum = 0;
+
+    payrollGroups.forEach((group) => {
+      group.payroll_group_modifiers.forEach((modifier) => {
+        if (modifier.modifier_type === 'ALLOWANCE') {
+          allowanceSum += modifier?.amount || 0;
+        }
+      });
+    });
+
+    return allowanceSum;
+  };
+
+  const grossSum = calculateGrossSum();
+
+  // Function to calculate the net amount
+  const calculateNetAmount = () => {
+    let totalAllowance = 0;
+    let totalDeductions = 0;
+
+    payrollGroups.forEach((group) => {
+      group.payroll_group_modifiers.forEach((modifier) => {
+        // Check if amount is defined before adding it to the sum
+        if (
+          modifier.modifier_type === 'ALLOWANCE' &&
+          modifier.amount !== undefined
+        ) {
+          totalAllowance += modifier.amount;
+        } else if (
+          modifier.modifier_type === 'DEDUCTION' &&
+          modifier.amount !== undefined
+        ) {
+          totalDeductions += modifier.amount;
+        }
+      });
+    });
+
+    return totalAllowance - totalDeductions || 0;
+  };
+  const netAmount = calculateNetAmount();
+
+  const addModifier = (groupIndex: number, type: string) => {
     setPayrollGroups((prevGroups) => {
       const newGroups = [...payrollGroups];
       const newModifier: PayrollGroupModifier = {
         modifier_name: '',
-        modifier_type: '',
+        modifier_type: type ? type : 'ALLOWANCE',
         is_percentage: false,
         amount: 0,
         linking_percentage: '',
@@ -85,19 +127,19 @@ const CreatePayroll = () => {
     });
   };
 
-  const handleModifierTypeChange = (
-    groupIndex: number,
-    modifierIndex: number,
-    value: string
-  ) => {
-    setPayrollGroups((prevGroups) => {
-      const newGroups = [...prevGroups];
-      newGroups[groupIndex].payroll_group_modifiers[
-        modifierIndex
-      ].modifier_type = value as 'ALLOWANCE' | 'DEDUCTION';
-      return newGroups;
-    });
-  };
+  // const handleModifierTypeChange = (
+  //   groupIndex: number,
+  //   modifierIndex: number,
+  //   value: string
+  // ) => {
+  //   setPayrollGroups((prevGroups) => {
+  //     const newGroups = [...prevGroups];
+  //     newGroups[groupIndex].payroll_group_modifiers[
+  //       modifierIndex
+  //     ].modifier_type = value as 'ALLOWANCE' | 'DEDUCTION';
+  //     return newGroups;
+  //   });
+  // };
 
   const handleNetAmountChange = (groupIndex: number, value: string) => {
     setPayrollGroups((prevGroups) => {
@@ -195,11 +237,27 @@ const CreatePayroll = () => {
       let amount = linkedModifier?.amount || 0;
 
       if (linkedModifier && linkedModifier.amount) {
+        const newGroups = [...payrollGroups];
+        newGroups[groupIndex].payroll_group_modifiers[modifierIndex].amount =
+          (amount / 100) * percentage;
+
         return (amount / 100) * percentage;
       }
     }
 
     return 0;
+  };
+
+  const isAnyFieldEmpty = (): boolean => {
+    return payrollGroups.some((group) => {
+      // Check if any modifier_name, modifier_type, or staffs array is empty
+      return (
+        group.payroll_group_modifiers.some(
+          (modifier) =>
+            modifier.modifier_name === '' || modifier.modifier_type === ''
+        ) || group.staffs.length === 0
+      );
+    });
   };
 
   const renderModifiers = (groupIndex: number) => {
@@ -213,28 +271,7 @@ const CreatePayroll = () => {
             className='px-7 flex mb-6 gap-7 w-full items-center'
           >
             <div className='w-full flex flex-col gap-2'>
-              <label>Type</label>
-              <select
-                className='input-field'
-                value={modifier.modifier_type}
-                onChange={(e) =>
-                  handleModifierTypeChange(
-                    groupIndex,
-                    modifierIndex,
-                    e.target.value
-                  )
-                }
-              >
-                <option value='' disabled>
-                  Select Type
-                </option>
-                <option value='ALLOWANCE'>Allowance</option>
-                <option value='DEDUCTION'>Deduction</option>
-              </select>
-            </div>
-
-            <div className='w-full flex flex-col gap-2'>
-              <label>Name</label>
+              <label>{modifier.modifier_type}</label>
               <input
                 type='text'
                 className='input-field'
@@ -297,6 +334,17 @@ const CreatePayroll = () => {
                     type='number'
                     value={calculatePercentage(groupIndex, modifierIndex)}
                     disabled
+                    onChange={(e) =>
+                      handleAmountChange(
+                        groupIndex,
+                        modifierIndex,
+                        calculatePercentage(groupIndex, modifierIndex)
+                      )
+                    }
+                    onBlur={() => {
+                      handleNetAmountChange(groupIndex, netAmount);
+                      handleGrossAmountChange(groupIndex, grossSum);
+                    }}
                   />
                 </div>
               </>
@@ -339,6 +387,8 @@ const CreatePayroll = () => {
   const [fields, setFields] = useState({
     name: '',
     due_date: '',
+    netAmount: '',
+    grossAmount: '',
   });
 
   const { data: schoolData } = useGetSchoolDetails();
@@ -401,12 +451,34 @@ const CreatePayroll = () => {
 
   const { mutate, isLoading } = useCreatePayroll();
 
+  useEffect(() => {
+    setFields({
+      ...fields,
+      netAmount: netAmount,
+      grossAmount: grossSum,
+    });
+  }, [payrollGroups]);
+
   //submit form
   const submit = () => {
+    let updatedPayrollGroups = payrollGroups.map((payrollGroup, index) => {
+      if (index === 0) {
+        // Update net_amount and gross_amount
+        payrollGroup.net_amount = Number(fields.netAmount);
+        payrollGroup.gross_amount = Number(fields.grossAmount);
+
+        // Update staffs array
+        payrollGroup.staffs = selectedClasses.map(
+          ({ name }: { name: string }) => ({ name })
+        );
+      }
+
+      return payrollGroup;
+    });
     let dataToSend = {
       name: fields.name,
       due_date: fields.due_date,
-      payroll_groups: payrollGroups,
+      payroll_groups: updatedPayrollGroups,
     };
 
     mutate(dataToSend, {
@@ -451,7 +523,7 @@ const CreatePayroll = () => {
         <div className='bills_form__top'>
           <TextInput
             label='Payroll Name'
-            placeholder='Bill Name'
+            placeholder='Payroll Name'
             className='bills_form__top__input'
             name='name'
             type='text'
@@ -460,7 +532,7 @@ const CreatePayroll = () => {
             value={fields.name}
             fieldClass={'input-field'}
             errorMessage={''}
-            id={'billName'}
+            id={'payrollName'}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
@@ -476,7 +548,7 @@ const CreatePayroll = () => {
 
           <TextInput
             label='Payroll Due Date'
-            placeholder='Bill Name'
+            placeholder='Due Date'
             name='due_date'
             type='date'
             errorClass={'error-msg'}
@@ -539,6 +611,8 @@ const CreatePayroll = () => {
                 options={[
                   { id: 1, name: 'Ronke Famuyiwa' },
                   { id: 2, name: 'Bola Bola' },
+                  { id: 3, name: 'Prince Adeleke' },
+                  { id: 4, name: 'Jamal Toheeb Jnr' },
                 ]}
               />
 
@@ -547,28 +621,35 @@ const CreatePayroll = () => {
                   onChange={(e) =>
                     handleGrossAmountChange(groupIndex, e.target.value)
                   }
+                  //value={Number(grossSum).toLocaleString()}
+                  value={fields.grossAmount}
                   className='input-field'
-                  placeholder={'Set gross amount'}
+                  placeholder={'Gross amount'}
                   name={'grossAmount'}
+                  disabled
                 />
               </div>
               <div className='input-component'>
                 <input
-                  onChange={(e) =>
-                    handleNetAmountChange(groupIndex, e.target.value)
-                  }
+                  //value={Number(netAmount).toLocaleString()}
+                  value={fields.netAmount}
                   className='input-field'
-                  placeholder={'Set net amount'}
+                  placeholder={'Net amount'}
                   name={'netAmount'}
+                  disabled
                 />
               </div>
             </div>
 
             {renderModifiers(groupIndex)}
             <div className='bills_form__other_form__addons'>
-              <p onClick={() => addModifier(groupIndex)}>
+              <p onClick={() => addModifier(groupIndex, 'ALLOWANCE')}>
                 <AddCircleBlue />
-                Add Modifier(Allowance/ Deduction)
+                Add Allowance
+              </p>
+              <p onClick={() => addModifier(groupIndex, 'DEDUCTION')}>
+                <AddCircleBlue />
+                Add Deduction
               </p>
             </div>
             <button></button>
@@ -596,7 +677,7 @@ const CreatePayroll = () => {
 
         <div style={{ display: 'flex', flexDirection: 'row', gap: '25px' }}>
           <button
-            disabled={isLoading}
+            disabled={isLoading || fields.name === '' || fields.due_date === ''}
             style={{
               background: '#439ADE',
               color: 'white',
@@ -607,14 +688,6 @@ const CreatePayroll = () => {
           >
             {isLoading ? 'Saving...' : 'Save Payroll'}
           </button>
-
-          {/* <Button
-              disabled={false}
-              btnText="Send Bill"
-              btnClass="btn-primary"
-              width="100%"
-              onClick={() => {}}
-            /> */}
         </div>
       </div>
     </div>

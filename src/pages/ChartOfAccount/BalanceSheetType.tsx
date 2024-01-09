@@ -6,9 +6,11 @@ import ChartofAccountWrapper from './ChartOfAccountWrapper';
 import moment from 'moment';
 import AddCircleBlue from '../../icons/AddCircleBlue';
 import { replacePercent20WithSpaces } from '../../utilities';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const BalanceSheetType = () => {
   const { id } = useParams();
+  const { currency } = useCurrency();
 
   const { transaction_types, type } = JSON.parse(
     localStorage.getItem('balanceSheet')!
@@ -51,7 +53,7 @@ const BalanceSheetType = () => {
       Cell: ({ cell: { value } }: { cell: { value: number } }) => (
         <p>
           {type === 'bl'
-            ? `NGN ${Number(value).toLocaleString()}`
+            ? `${currency} ${Number(value).toLocaleString()}`
             : 'Not Available'}
         </p>
       ),
@@ -62,7 +64,7 @@ const BalanceSheetType = () => {
       Cell: ({ cell: { value } }: any) => (
         <p>
           {type === 'Income'
-            ? `NGN ${Number(value).toLocaleString()}`
+            ? `${currency} ${Number(value).toLocaleString()}`
             : 'Not Available'}
         </p>
       ),

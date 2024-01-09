@@ -279,6 +279,10 @@
 
   &__logo {
     mix-blend-mode: multiply;
+
+    & img {
+      width: 150px;
+    }
   }
 
   &__details {
@@ -442,6 +446,7 @@
   box-shadow: -4px 4px 13px 4px rgba(118, 128, 135, 0.08);
   width: 100%;
   border-radius: 4px;
+  overflow: scroll;
 
   &__item {
     display: flex;
@@ -475,5 +480,116 @@
     &:focus {
       outline: none !important;
     }
+  }
+}
+
+.table-btn {
+  all: unset;
+  width: 20px;
+  height: 20px;
+
+  &:hover {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e4eff9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+}
+
+.payment-status {
+  width: 90px;
+  height: 25px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.not_paid {
+  background: #ff7168;
+}
+.partly_paid {
+  background: #e48752;
+}
+
+.fully_paid {
+  background: #95eb6d;
+}
+
+.overpaid {
+  background: #4fc0ff;
+}
+
+//record payment
+.record-payment-header {
+  border: 1px solid #e4eff9;
+  background: #fbfdfe;
+  padding: 16px 24px;
+  height: 18px;
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & h3 {
+    color: rgba(1, 12, 21, 0.7);
+    font-weight: 700;
+    font-size: 12px;
+  }
+}
+
+.record-payment-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 53px;
+  border-top: 2px solid rgba(67, 154, 222, 1);
+  border-bottom: 2px solid rgba(67, 154, 222, 1);
+  padding: 16px;
+
+  & h3 {
+    color: rgba(1, 12, 21, 1);
+    font-weight: 700;
+    font-size: 14px;
+  }
+}
+
+.record-payment-amount-paid {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(246, 246, 246, 1);
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid rgba(1, 12, 21, 0.1);
+
+  & h3 {
+    color: #010c15;
+    font-weight: 600;
+    width: 50%;
+  }
+
+  & .input-component {
+    width: 10%;
+
+    & input {
+      border-radius: 4px;
+    }
+  }
+}
+
+.student-transactions-overview {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+  margin-bottom: 32px;
+
+  & H3 {
+    font-weight: 600;
+    color: #010c15;
+    font-size: 16px;
   }
 }

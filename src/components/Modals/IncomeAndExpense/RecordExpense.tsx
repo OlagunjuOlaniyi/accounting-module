@@ -209,6 +209,9 @@ const RecordExpense = ({ modalIsOpen, closeModal }: Imodal) => {
         queryClient.invalidateQueries({
           queryKey: `overview`,
         });
+        queryClient.invalidateQueries({
+          queryKey: `expenses-group`,
+        });
         setFields({
           expenseType: '',
           expenseGroup: '',

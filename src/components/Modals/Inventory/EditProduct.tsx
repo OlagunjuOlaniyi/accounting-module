@@ -26,6 +26,7 @@ import SizePriceComponent, {
   SizePrice,
 } from '../../SizePriceComponent/SizePriceComponent';
 import AddCircleBlue from '../../../icons/AddCircleBlue';
+import { useCurrency } from '../../../context/CurrencyContext';
 
 interface SizeQuantiyData {
   size: string;
@@ -45,6 +46,8 @@ const EditProduct = ({
 }: EditProps) => {
   const queryClient = useQueryClient();
   const { id } = useParams();
+  const { currency } = useCurrency();
+
   const customStyles = {
     content: {
       top: '50%',
@@ -677,7 +680,7 @@ const EditProduct = ({
                   >
                     <TextInput
                       label={'Purchasing Price per unit'}
-                      placeholder={'Product purchasing amount (NGN)'}
+                      placeholder={`Product purchasing amount (${currency})`}
                       name='ppu'
                       type='text'
                       errorClass={'error-msg'}
@@ -697,7 +700,7 @@ const EditProduct = ({
                     />
                     <TextInput
                       label={'Selling Price per unit'}
-                      placeholder={'Product selling amount (NGN)'}
+                      placeholder={`Product selling amount (${currency})`}
                       name='spu'
                       type='text'
                       errorClass={'error-msg'}
@@ -718,7 +721,7 @@ const EditProduct = ({
                   </div>
                   <TextInput
                     label={'Total Purchasing price per unit'}
-                    placeholder={'Total product purchasing amount (NGN)'}
+                    placeholder={`Total product purchasing amount (${currency})`}
                     name='total'
                     type='text'
                     errorClass={'error-msg'}

@@ -14,7 +14,7 @@ import { useQueryClient } from 'react-query';
 import { useRecordBankDeposit } from '../../../hooks/mutations/chartofAccounts';
 import { useGetBankList } from '../../../hooks/queries/banks';
 
-const RecordBankDeposit = ({ close }: any) => {
+const RecordBankDeposit = ({ close, bankId }: any) => {
   const queryClient = useQueryClient();
 
   type StateProps = {
@@ -61,8 +61,6 @@ const RecordBankDeposit = ({ close }: any) => {
   //component states
   const [file, setFile] = useState<any>(null);
   const [fileUrl, setFileUrl] = useState<any>(null);
-
-  const [bankId, setBankId] = useState<string>('');
 
   //handle dropdown after seconds wth deounced
   const handleDropdown = (target: string, value: string) => {};
@@ -137,9 +135,7 @@ const RecordBankDeposit = ({ close }: any) => {
       },
 
       onError: (e) => {
-        toast.error(
-          'Error recording transaction \nPlease make sure all fields are filled correctly'
-        );
+        toast.error(e?.response?.data?.error);
       },
     });
   };
@@ -164,14 +160,14 @@ const RecordBankDeposit = ({ close }: any) => {
         <div className='record-income__heading'>
           <h4>Record bank deposits</h4>
           <p>
-            Select the asset amount, and date of the cash deposit you want to
+            Select the asset amount, and date of the bank deposit you want to
             record
           </p>
         </div>
       </div>
       <div className='record-income__body'>
         <div className='record-income__body__title'>
-          <h2>Cash</h2>
+          <h2>Bank Deposit</h2>
           <div className='record-income__body__title__badge'>
             APPROVAL STATUS: Approved
           </div>

@@ -12,6 +12,11 @@ export const getPayroll = async () => {
   return response.data;
 };
 
+export const getPayrollOverview = async (id: string) => {
+  const response = await axiosInstance.get(`/payroll/overview/${id}`);
+  return response.data;
+};
+
 export const runPayroll = async (id: string, data: RunPayrollData) => {
   const response = await axiosInstance.post(`/payroll/run_payroll/${id}`, data);
   return response.data;
@@ -43,6 +48,14 @@ export const getStaffPayslip = async (
   data: { staff: { name: string } }
 ) => {
   const response = await axiosInstance.post(
+    `/payroll/staff_payslip/${id}`,
+    data
+  );
+  return response.data;
+};
+
+export const updateStaffPayslip = async (id: string, data: any) => {
+  const response = await axiosInstance.put(
     `/payroll/staff_payslip/${id}`,
     data
   );

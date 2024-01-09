@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import Table from '../../components/Table/Table';
 import Dots from '../../icons/Dots';
-import Dot from '../../icons/Dot';
+
 import Visibility from '../../icons/Visibility';
 import Delete from '../../icons/Delete';
 import Edit from '../../icons/Edit';
 import { useNavigate } from 'react-router';
-
-import Dispense from '../../icons/Dispense';
-import Restock from '../../icons/Restock';
-import HistoryIcon from '../../icons/HistoryIcon';
 import { PayrollResponse } from '../../types/payrollTypes';
 import RunPayroll from '../../components/Modals/Payroll/RunPayroll';
+import { useCurrency } from '../../context/CurrencyContext';
 
 interface Iprops {
   filteredData?: PayrollResponse;
@@ -21,6 +18,7 @@ interface Iprops {
 
 const DeductionTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>('');
@@ -65,7 +63,7 @@ const DeductionTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
                   onClick={() => navigate(`/payroll/${value}?type=deduction`)}
                 >
                   <Visibility />
-                  <p>View Payroll</p>
+                  <p>View Deduction</p>
                 </div>
 
                 <div
@@ -145,7 +143,9 @@ const DeductionTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
       Header: 'TOTAL DEDUCTION',
       accessor: (d: any) => d?.total_deduction?.total,
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value).toLocaleString()}</p>
+        <p>
+          {currency} {Number(value).toLocaleString()}
+        </p>
       ),
     },
 
@@ -153,7 +153,9 @@ const DeductionTable = ({ filteredData, searchRes, isLoading }: Iprops) => {
       Header: 'TOTAL GROSS AMOUNT',
       accessor: 'total_gross_amount',
       Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value).toLocaleString()}</p>
+        <p>
+          {currency} {Number(value).toLocaleString()}
+        </p>
       ),
     },
 

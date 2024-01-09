@@ -58,7 +58,6 @@ export interface FeeType {
   default_amount: number;
   classes: number[];
   students: number[];
-  student: number[];
   discounts: Discount[];
 }
 
@@ -84,8 +83,9 @@ export interface PayrollData {
 }
 
 export interface PayrollGroupModifier {
+  id?: number;
   modifier_name: string;
-  modifier_type: 'ALLOWANCE' | 'DEDUCTION' | '';
+  modifier_type: string;
   is_percentage: boolean;
   amount?: number; // Present if is_percentage is false
   linking_percentage?: 'BASIC' | 'NET_AMOUNT' | ''; // Customize based on your requirements

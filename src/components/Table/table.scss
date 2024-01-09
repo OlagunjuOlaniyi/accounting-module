@@ -36,7 +36,8 @@ tbody > tr {
   // border-bottom: 1px solid rgba(1, 12, 21, 0.1);
   // background-color: red;
 }
-.generated-badge {
+.generated-badge,
+.fully {
   width: 80px;
   height: 26px;
   background: #c6ffab;
@@ -51,6 +52,16 @@ tbody > tr {
   width: 80px;
   height: 26px;
   background: #ffddab;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.partly {
+  width: 80px;
+  height: 26px;
+  background: #e48752;
   border-radius: 12px;
   display: flex;
   align-items: center;

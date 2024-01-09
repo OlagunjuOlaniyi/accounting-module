@@ -19,7 +19,7 @@ import { useDispenseProduct } from '../../../hooks/mutations/inventory';
 import { useParams, useNavigate } from 'react-router';
 import { deriveStudentArray } from '../../../utilities';
 import { useGetStudents } from '../../../hooks/queries/students';
-import { studentData } from '../../../data';
+import { useCurrency } from '../../../context/CurrencyContext';
 
 interface SizeQuantiyData {
   size: string;
@@ -28,6 +28,7 @@ interface SizeQuantiyData {
 
 const DispenseModal = ({ modalIsOpen, closeModal, name, sizes }: Imodal) => {
   const { id } = useParams();
+  const { currency } = useCurrency();
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
@@ -384,13 +385,13 @@ const DispenseModal = ({ modalIsOpen, closeModal, name, sizes }: Imodal) => {
                     />
                   </div>
                 </div>
-                <p style={{ fontSize: '12px', color: '#FFA800' }}>
-                  Current selling amount is NGN 8000/{s.name}
-                </p>
+                {/* <p style={{ fontSize: '12px', color: '#FFA800' }}>
+                  Current selling amount is {currency} 8000/{s.name}
+                </p> */}
               </div>
 
               <TextInput
-                label={'Total Selling Price per unit (NGN)'}
+                label={`Total Selling Price per unit (${currency})`}
                 placeholder={''}
                 name=''
                 type='text'

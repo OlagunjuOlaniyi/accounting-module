@@ -8,5 +8,6 @@ export const useGetStudents = () => {
   return useQuery<SchoolData>({
     queryKey: 'students',
     queryFn: () => getStudents(),
+    cacheTime: 0, // Disable caching
   });
 };

@@ -21,6 +21,7 @@ import '../ChartOfAccount/BalanceSheet.scss';
 
 import BankList from './BankList';
 import BankModal from '../../components/Modals/BankModal/BankModal';
+import Header from '../../components/Header/Header';
 
 const BankLayout = () => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ const BankLayout = () => {
   }, [searchres]);
   return (
     <div>
+      <Header />
       <div>
         <div className='ie_overview'>
           <h2 className='ie_overview__title'>Bank List</h2>

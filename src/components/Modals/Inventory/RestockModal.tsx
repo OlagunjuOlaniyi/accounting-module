@@ -21,6 +21,7 @@ import ThumbsIcon from '../../../icons/ThumbsIcon';
 import RadioChecked from '../../../icons/RadioChecked';
 import RadioUnchecked from '../../../icons/RadioUnchecked';
 import { sizeOptions } from '../../../data';
+import { useCurrency } from '../../../context/CurrencyContext';
 
 interface SizeQuantiyData {
   size: string;
@@ -44,6 +45,7 @@ const RestockModal = ({
 }: RestockModalProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currency } = useCurrency();
 
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<any>([]);
@@ -321,7 +323,7 @@ const RestockModal = ({
           <p
             style={{ color: '#FFA800', fontSize: '12px', marginBottom: '12px' }}
           >
-            Current Purchasing Amount is NGN{' '}
+            Current Purchasing Amount is {currency}{' '}
             {purchasing_price?.toLocaleString()}/{name}
           </p>
           {/* <TextInput
@@ -452,7 +454,7 @@ const RestockModal = ({
 
           <TextInput
             label={'Total purchasing price per unit'}
-            placeholder={'Total product purchasing amount (NGN)'}
+            placeholder={`Total product purchasing amount (${currency})`}
             name='total'
             type='text'
             errorClass={'error-msg'}

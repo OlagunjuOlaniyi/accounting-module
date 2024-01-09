@@ -3,26 +3,79 @@ import './classandstudnts.scss';
 import Unchecked from '../../icons/Unchecked';
 import Checked from '../../icons/Checked';
 
+type OriginalData = {
+  [className: string]: {
+    students: {
+      idx: number;
+      admissionnumber: string;
+      firstname: string;
+      lastname: string;
+      phonenumber: string;
+      parentemail: string;
+      parentorguardian: string;
+      fathersemail: string;
+    }[];
+    pagination_info: {
+      total_students: number;
+      page: number;
+      total_pages: number;
+      next_page: null | number;
+      prev_page: null | number;
+    };
+  };
+};
+
+type ConvertedDataItem = {
+  class_name: string;
+  id: string;
+  total_students: number;
+  students_details: { id: number; name: string }[];
+};
+
 const ClassAndStudentSelection = ({
   classes,
   cancel,
   onClassChange,
   onStudentsChange,
-}: any) => {
+  selectedClassesInParent,
+  selectedStudentsInParent,
+}: {
+  classes: OriginalData;
+  cancel: any;
+  onClassChange: any;
+  onStudentsChange: any;
+  selectedClassesInParent: any;
+  selectedStudentsInParent: any;
+}) => {
+  const convertedClasses: ConvertedDataItem[] = Object.entries(classes).map(
+    ([className, classData]) => ({
+      class_name: className,
+      id: className,
+      total_students: classData?.pagination_info?.total_students,
+      students_details: classData?.students?.map((student: any) => ({
+        id: student.idx,
+        name: `${student.firstname} ${student.lastname}`,
+        ...student,
+      })),
+    })
+  );
+
   const [showStudents, setShowStudents] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
     null
   );
-  const [selectedClasses, setSelectedClasses] = useState<number[]>([]);
-  const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+  const [selectedClasses, setSelectedClasses] = useState<{ name: string }[]>(
+    []
+  );
+  const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
 
-  const toggleClasses = (id: number) => {
-    const index = selectedClasses.indexOf(id);
+  const toggleClasses = (name: string) => {
+    const index = selectedClasses.findIndex((obj) => obj.name === name);
 
     if (index === -1) {
       // If the ID doesn't exist in the array, add it
-      setSelectedClasses([...selectedClasses, id]);
+      setSelectedClasses([...selectedClasses, { name: name }]);
     } else {
       // If the ID exists in the array, remove it
       setSelectedClasses([
@@ -32,12 +85,14 @@ const ClassAndStudentSelection = ({
     }
   };
 
-  const toggleStudents = (id: number) => {
-    const index = selectedStudents.indexOf(id);
+  const toggleStudents = (details: any) => {
+    const index = selectedStudents.findIndex(
+      (obj) => obj?.name === details?.name
+    );
 
     if (index === -1) {
       // If the ID doesn't exist in the array, add it
-      setSelectedStudents([...selectedStudents, id]);
+      setSelectedStudents([...selectedStudents, details]);
     } else {
       // If the ID exists in the array, remove it
       setSelectedStudents([
@@ -47,12 +102,22 @@ const ClassAndStudentSelection = ({
     }
   };
 
-  const isSelected = (id: number) => {
-    return selectedClasses.includes(id);
+  const isSelected = (name: string) => {
+    return (
+      selectedClasses.some((obj) => obj?.name === name) ||
+      selectedClassesInParent.some(
+        (obj: { name: string }) => obj?.name === name
+      )
+    );
   };
 
-  const isStudentSelected = (id: number) => {
-    return selectedStudents.includes(id);
+  const isStudentSelected = (name: string) => {
+    return (
+      selectedStudents.some((obj) => obj?.name === name) ||
+      selectedStudentsInParent.some(
+        (obj: { name: string }) => obj?.name === name
+      )
+    );
   };
   const Icon = () => {
     return (
@@ -89,19 +154,24 @@ const ClassAndStudentSelection = ({
           <Unchecked />
           <p>All Classes</p>
         </div>
-        <div className='class-and-students__list__right'>
-          <p>36</p>
-        </div>
+        <div className='class-and-students__list__right'></div>
       </div>
-      {classes?.map((c: any) => (
+      {convertedClasses?.map((c: any) => (
         <div key={c.id}>
           <div className='class-and-students__list'>
             <div className='class-and-students__list__left'>
-              <div onClick={() => toggleClasses(c?.id)}>
-                {isSelected(c?.id) ? <Checked /> : <Unchecked />}
+              <div onClick={() => toggleClasses(c?.class_name)}>
+                {isSelected(c?.class_name) ? <Checked /> : <Unchecked />}
               </div>
 
-              <p>{c?.class_name}</p>
+              <p
+                onClick={() => {
+                  setShowStudents(!showStudents);
+                  setSelectedId(c.id);
+                }}
+              >
+                {c?.class_name}
+              </p>
               <div
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
@@ -124,11 +194,11 @@ const ClassAndStudentSelection = ({
                 className='class-and-students__list'
                 style={{ marginLeft: '32px' }}
                 onClick={() => {
-                  toggleStudents(s?.id);
+                  toggleStudents(s);
                 }}
               >
                 <div className='class-and-students__list__left'>
-                  {isStudentSelected(s?.id) ? <Checked /> : <Unchecked />}
+                  {isStudentSelected(s?.name) ? <Checked /> : <Unchecked />}
                   <p>{s?.name}</p>
                 </div>
               </div>
@@ -138,13 +208,19 @@ const ClassAndStudentSelection = ({
       <div className='class-and-students__footer'>
         <p>Reset Filters</p>
         <button
+          style={{
+            background: '#439ADE',
+            color: 'white',
+            padding: '16px 20px',
+            borderRadius: '5px',
+          }}
           onClick={() => {
             onStudentsChange(selectedStudents);
-            onClassChange(selectedClasses);
+            onClassChange(selectedClasses, selectedStudents);
             cancel();
           }}
         >
-          Add Student
+          Save
         </button>
       </div>
     </div>

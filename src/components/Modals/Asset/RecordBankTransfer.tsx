@@ -14,7 +14,7 @@ import { useQueryClient } from 'react-query';
 import { useRecordBankTransfer } from '../../../hooks/mutations/chartofAccounts';
 import { useGetBankList } from '../../../hooks/queries/banks';
 
-const RecordBankTransfer = ({ close }: any) => {
+const RecordBankTransfer = ({ close, bankId }: any) => {
   const queryClient = useQueryClient();
 
   type StateProps = {
@@ -133,7 +133,7 @@ const RecordBankTransfer = ({ close }: any) => {
       amount: fields.amount,
       description: fields.description,
       transaction_method: 2,
-      source_bank: bankIds.source_bank,
+      source_bank: bankId,
       destination_bank: bankIds.destination_bank,
       date: fields.dateOfTransaction,
       bank_charges: fields.charges,
@@ -165,21 +165,19 @@ const RecordBankTransfer = ({ close }: any) => {
       },
 
       onError: (e) => {
-        toast.error(
-          'Error recording transaction \nPlease make sure all fields are filled correctly'
-        );
+        toast.error(e?.response?.data?.error);
       },
     });
   };
 
   const { data: bank_accounts } = useGetBankList();
 
-  const formattedBankAccounts = bank_accounts?.data?.map(
-    (b: { id: any; account_name: any }) => ({
+  const formattedBankAccounts = bank_accounts?.data
+    ?.filter((d: { id: string }) => d?.id !== bankId)
+    ?.map((b: { id: any; account_name: any }) => ({
       id: b.id,
       name: b.account_name,
-    })
-  );
+    }));
 
   return (
     <div className='record-income'>
@@ -225,30 +223,6 @@ const RecordBankTransfer = ({ close }: any) => {
           toggleOption={function (a: any): void {
             throw new Error('');
           }}
-          selectedValues={undefined}
-        />
-
-        <TextInput
-          label='Source Bank Account'
-          placeholder='Select bank'
-          name='source_bank'
-          type='dropdown'
-          errorClass={'error-msg'}
-          handleChange={handleChange}
-          value={fields.source_bank}
-          fieldClass={errors['source_bank'] ? 'error-field' : 'input-field'}
-          errorMessage={errors['source_bank']}
-          id={'source_bank'}
-          onSelectValue={selectValue}
-          isSearchable={false}
-          handleSearchValue={function (): void {}}
-          searchValue={''}
-          handleBlur={undefined}
-          multi={false}
-          toggleOption={function (a: any): void {
-            throw new Error('');
-          }}
-          options={formattedBankAccounts}
           selectedValues={undefined}
         />
 
@@ -299,7 +273,7 @@ const RecordBankTransfer = ({ close }: any) => {
 
         <TextInput
           label='Description'
-          placeholder='Write anything about the income'
+          placeholder='Write anything about the transfer'
           name='description'
           type='textarea'
           errorClass={'error-msg'}

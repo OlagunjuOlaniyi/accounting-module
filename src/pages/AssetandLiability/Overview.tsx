@@ -15,14 +15,13 @@ import OverviewCard, {
 import Asset from '../../icons/Asset';
 import Liability from '../../icons/Liability';
 import Equity from '../../icons/Equity';
-import { Ioverview } from '../../types/types';
+
 import {
   useGetAssets,
   useGetBalanceSheet,
-  useGetEquity,
-  useGetLiabilities,
 } from '../../hooks/queries/chartOfAccount';
 import { useNavigate } from 'react-router';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const Overview = () => {
   const { data } = useGetAssets();
@@ -39,21 +38,19 @@ const Overview = () => {
     },
   ]);
 
-  const [modalOpen, setModalOpen] = useState<any>({
-    income: false,
-    expense: false,
-  });
-
   interface ICardDetails extends ICardProps {
     id: number;
   }
   const { data: balance_sheet } = useGetBalanceSheet();
+  const { currency } = useCurrency();
 
   const cardDetails: ICardDetails[] = [
     {
       id: 1,
       title: 'ASSET',
-      amount: `NGN ${balance_sheet?.total_asset?.toLocaleString() ?? 0}`,
+      amount: `${currency} ${
+        balance_sheet?.total_asset?.toLocaleString() ?? 0
+      }`,
       percentage: '2.4%',
       type: 'profit',
       icon: <Asset />,
@@ -61,7 +58,9 @@ const Overview = () => {
     {
       id: 2,
       title: 'LIABILITY',
-      amount: `NGN ${balance_sheet?.total_liability?.toLocaleString() ?? 0}`,
+      amount: `${currency} ${
+        balance_sheet?.total_liability?.toLocaleString() ?? 0
+      }`,
       percentage: '1.2%',
       type: 'loss',
       icon: <Liability />,
@@ -69,7 +68,9 @@ const Overview = () => {
     {
       id: 3,
       title: 'EQUITY',
-      amount: `NGN ${balance_sheet?.total_equity?.toLocaleString() ?? 0}`,
+      amount: `${currency} ${
+        balance_sheet?.total_equity?.toLocaleString() ?? 0
+      }`,
       percentage: '2.2%',
       type: 'profit',
       icon: <Equity />,
@@ -142,7 +143,7 @@ const Overview = () => {
                     key={group}
                     onClick={() => {
                       navigate(
-                        `/chart-of-account/view-balance-sheet/${group}?from=asset_by_group`
+                        `/asset-and-liability/view-asset/${group}?from=asset_by_group`
                       );
                       localStorage.setItem(
                         'balanceSheet',
@@ -196,7 +197,7 @@ const Overview = () => {
                       key={group}
                       onClick={() => {
                         navigate(
-                          `/chart-of-account/view-balance-sheet/${group}?from=asset_by_group`
+                          `/asset-and-liability/view-asset/${group}?from=asset_by_group`
                         );
                         localStorage.setItem(
                           'balanceSheet',
@@ -226,7 +227,8 @@ const Overview = () => {
                 </div>
                 <div className=''>
                   <h3>
-                    NGN {balance_sheet?.total_liability?.toLocaleString() ?? 0}
+                    {currency}{' '}
+                    {balance_sheet?.total_liability?.toLocaleString() ?? 0}
                   </h3>
                 </div>
               </div>
@@ -252,7 +254,7 @@ const Overview = () => {
                       key={group}
                       onClick={() => {
                         navigate(
-                          `/chart-of-account/view-balance-sheet/${group}?from=asset_by_group`
+                          `/asset-and-liability/view-asset/${group}?from=asset_by_group`
                         );
                         localStorage.setItem(
                           'balanceSheet',
@@ -282,7 +284,8 @@ const Overview = () => {
                 </div>
                 <div className=''>
                   <h3>
-                    NGN {balance_sheet?.total_equity?.toLocaleString() ?? 0}
+                    {currency}{' '}
+                    {balance_sheet?.total_equity?.toLocaleString() ?? 0}
                   </h3>
                 </div>
               </div>
@@ -308,7 +311,9 @@ const Overview = () => {
                 <h3>Total Asset</h3>
               </div>
               <div className=''>
-                <h3>NGN {balance_sheet?.total_asset?.toLocaleString()}</h3>
+                <h3>
+                  {currency} {balance_sheet?.total_asset?.toLocaleString()}
+                </h3>
               </div>
             </div>
             <div
@@ -325,7 +330,9 @@ const Overview = () => {
                 <h3>Total Liabilities & Shareholder's Equity</h3>
               </div>
               <div className=''>
-                <h3>NGN {totalLiabilityAndEquity.toLocaleString() ?? 0}</h3>
+                <h3>
+                  {currency} {totalLiabilityAndEquity.toLocaleString() ?? 0}
+                </h3>
               </div>
             </div>
           </div>

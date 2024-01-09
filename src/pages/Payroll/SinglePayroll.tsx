@@ -38,7 +38,7 @@ const SinglePayroll = () => {
   ]);
 
   const queryParams = new URLSearchParams(location.search);
-  let type = queryParams.get('type');
+  let type = queryParams.get('type') || '';
 
   const { isLoading, data } = useListStaffAllowanceAndDeductions(
     id || '',

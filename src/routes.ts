@@ -23,6 +23,12 @@ import PayrollLayout from './pages/Payroll/PayrollLayout';
 import CreatePayroll from './pages/Payroll/CreatePayroll';
 import SinglePayroll from './pages/Payroll/SinglePayroll';
 import ViewStaffPayslip from './pages/Payroll/ViewStaffPayslip';
+import ViewAsset from './pages/AssetandLiability/ViewAsset';
+import AssetType from './pages/AssetandLiability/Assettype';
+import ClassPaymentStatus from './pages/BillsandFees/ClassPaymentStatus';
+import PaymentBroadsheet from './pages/BillsandFees/PaymentBroadsheet';
+import RecordPayment from './pages/BillsandFees/RecordPayment';
+import StudentTransactions from './pages/BillsandFees/StudentTransactions';
 
 export const routes: RouteTypes[] = [
   {
@@ -142,8 +148,39 @@ export const routes: RouteTypes[] = [
     component: SinglePayroll,
   },
   {
-    id: 20,
+    id: 21,
     path: '/payroll/payslip/:id',
     component: ViewStaffPayslip,
+  },
+
+  {
+    id: 22,
+    path: '/asset-and-liability/view-asset/:id',
+    component: ViewAsset,
+  },
+  {
+    id: 23,
+    path: '/asset-and-liability/type-asset/:id',
+    component: AssetType,
+  },
+  {
+    id: 24,
+    path: '/class-payment-status/:id',
+    component: ClassPaymentStatus,
+  },
+  {
+    id: 25,
+    path: '/payment-broadsheet/:id',
+    component: PaymentBroadsheet,
+  },
+  {
+    id: 26,
+    path: '/record-payment/:id',
+    component: RecordPayment,
+  },
+  {
+    id: 27,
+    path: '/student-transactions/:id',
+    component: StudentTransactions,
   },
 ];
