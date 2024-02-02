@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
-import Cancel from '../../../icons/Cancel';
-import { Imodal } from '../../../types/types';
-import TextInput from '../../Input/TextInput';
-import './inventory.scss';
+import React, { useState, useEffect } from "react";
+import Modal from "react-modal";
+import Cancel from "../../../icons/Cancel";
+import { Imodal } from "../../../types/types";
+import TextInput from "../../Input/TextInput";
+import "./inventory.scss";
 
-import Cash from '../../../icons/Cash';
-import Bank from '../../../icons/Bank';
+import Cash from "../../../icons/Cash";
+import Bank from "../../../icons/Bank";
 
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from "react-query";
 
-import { useGetBankList } from '../../../hooks/queries/banks';
-import Credit from '../../../icons/Credit';
+import { useGetBankList } from "../../../hooks/queries/banks";
+import Credit from "../../../icons/Credit";
 
-import { useRestockProduct } from '../../../hooks/mutations/inventory';
-import { useParams, useNavigate } from 'react-router';
-import ThumbsIcon from '../../../icons/ThumbsIcon';
-import RadioChecked from '../../../icons/RadioChecked';
-import RadioUnchecked from '../../../icons/RadioUnchecked';
-import { sizeOptions } from '../../../data';
-import { useCurrency } from '../../../context/CurrencyContext';
+import { useRestockProduct } from "../../../hooks/mutations/inventory";
+import { useParams, useNavigate } from "react-router";
+import ThumbsIcon from "../../../icons/ThumbsIcon";
+import RadioChecked from "../../../icons/RadioChecked";
+import RadioUnchecked from "../../../icons/RadioUnchecked";
+import { sizeOptions } from "../../../data";
+import { useCurrency } from "../../../context/CurrencyContext";
 
 interface SizeQuantiyData {
   size: string;
@@ -56,13 +56,13 @@ const RestockModal = ({
   const [sameUnitPrice, setSameUnitPrice] = useState(false);
   const customStyles = {
     content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      padding: '0px',
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      marginRight: "-50%",
+      transform: "translate(-50%, -50%)",
+      padding: "0px",
     },
   };
 
@@ -103,7 +103,7 @@ const RestockModal = ({
   };
 
   const close = () => {
-    closeModal('income');
+    closeModal("income");
   };
 
   type StateProps = {
@@ -126,43 +126,43 @@ const RestockModal = ({
   let todaysDate = new Date().toISOString().substring(0, 10);
 
   const [fields, setFields] = useState<StateProps>({
-    paymentMethod: '',
-    amount: '',
-    description: '',
+    paymentMethod: "",
+    amount: "",
+    description: "",
     dateOfTransaction: todaysDate,
-    bank: '',
-    quantity: '',
-    name: '',
-    product_group_name: '',
-    product_category_name: '',
-    reOrderLevel: '',
-    size: '',
-    ppu: '',
-    spu: '',
-    total: '',
+    bank: "",
+    quantity: "",
+    name: "",
+    product_group_name: "",
+    product_category_name: "",
+    reOrderLevel: "",
+    size: "",
+    ppu: "",
+    spu: "",
+    total: "",
   });
 
   const [errors, setErrors] = useState({
-    quantity: '',
-    paymentMethod: '',
-    amount: '',
-    description: '',
-    dateOfTransaction: '',
-    bank: '',
-    name: '',
-    product_group_name: '',
-    product_category_name: '',
-    reOrderLevel: '',
-    size: '',
-    ppu: '',
-    spu: '',
-    total: '',
+    quantity: "",
+    paymentMethod: "",
+    amount: "",
+    description: "",
+    dateOfTransaction: "",
+    bank: "",
+    name: "",
+    product_group_name: "",
+    product_category_name: "",
+    reOrderLevel: "",
+    size: "",
+    ppu: "",
+    spu: "",
+    total: "",
   });
 
   const initialSizeQuantityData: SizeQuantiyData[] = selected.map((s: any) => ({
     size: s.name,
-    quantity: '',
-    ppu: '',
+    quantity: "",
+    ppu: "",
   }));
   useEffect(() => {
     setSizeQuantityData(initialSizeQuantityData);
@@ -170,8 +170,8 @@ const RestockModal = ({
 
   //component states
 
-  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
-  const [bankId, setBankId] = useState('');
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
+  const [bankId, setBankId] = useState("");
 
   //handle field change
   const handleChange = (evt: any) => {
@@ -200,7 +200,7 @@ const RestockModal = ({
     }
   };
 
-  const { mutate, isLoading } = useRestockProduct(id || '');
+  const { mutate, isLoading } = useRestockProduct(id || "");
 
   const { data: bank_accounts } = useGetBankList();
 
@@ -215,7 +215,7 @@ const RestockModal = ({
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
     setSelectedGroupId(id);
-    if (name === 'bank') {
+    if (name === "bank") {
       setBankId(id);
     }
   };
@@ -224,49 +224,53 @@ const RestockModal = ({
   const submit = () => {
     const isEmptyQuantity = sizeQuantityData.some((item) => !item.quantity);
     if (isEmptyQuantity) {
-      toast.error('Quantity cannot be empty');
+      toast.error("Quantity cannot be empty");
       return;
     }
+// console.log({sizeQuantityData});
+
 
     let dataToSend = {
+      // sizes: {size: 'S', quantity: 20, ppu: 1200, spu: 1200},
       sizes: sizeQuantityData,
       payment_method:
-        fields.paymentMethod.props.children[1] === 'Bank'
+        fields.paymentMethod.props.children[1] === "Bank"
           ? bankId
           : fields.paymentMethod.props.children[1],
       restocking_same_unit_price: sameUnitPrice,
       date: todaysDate,
     };
+    // console.log({ dataToSend });
 
     mutate(dataToSend, {
       onSuccess: (res) => {
         close();
-        toast.success('Product restocked successfully');
-        navigate('/inventory');
+        toast.success("Product restocked successfully");
+        navigate("/inventory");
         queryClient.invalidateQueries({
           queryKey: `products`,
         });
 
         setFields({
-          paymentMethod: '',
-          amount: '',
-          description: '',
+          paymentMethod: "",
+          amount: "",
+          description: "",
           dateOfTransaction: todaysDate,
-          bank: '',
-          quantity: '',
-          name: '',
-          product_group_name: '',
-          product_category_name: '',
-          reOrderLevel: '',
-          size: '',
-          ppu: '',
-          spu: '',
-          total: '',
+          bank: "",
+          quantity: "",
+          name: "",
+          product_group_name: "",
+          product_category_name: "",
+          reOrderLevel: "",
+          size: "",
+          ppu: "",
+          spu: "",
+          total: "",
         });
       },
 
       onError: (e) => {
-        toast.error('Error recording transaction');
+        toast.error("Error recording transaction");
       },
     });
   };
@@ -278,52 +282,49 @@ const RestockModal = ({
       style={customStyles}
       ariaHideApp={false}
     >
-      <div className='record-income'>
-        <div style={{ background: '#FBFDFE' }}>
-          <div className='record-income__cancel'>
-            <button className='record-income__cancel__btn' onClick={close}>
+      <div className="record-income">
+        <div style={{ background: "#FBFDFE" }}>
+          <div className="record-income__cancel">
+            <button className="record-income__cancel__btn" onClick={close}>
               <Cancel />
             </button>
           </div>
-          <div className='record-income__heading'>
+          <div className="record-income__heading">
             <h4>Restock {name} </h4>
-            <p>
-              Select the student/ buyer name, size, and quantity of the product
-              item you want to restock
-            </p>
+            <p>of the product item you want to restock</p>
           </div>
         </div>
 
-        <div className='record-income__body'>
-          <div className='input-component' style={{ marginTop: '32px' }}>
+        <div className="record-income__body">
+          <div className="input-component" style={{ marginTop: "32px" }}>
             <label>Are you restocking with the same unit price?</label>
           </div>
-          <div className='record-income__body__selection'>
+          <div className="record-income__body__selection">
             <button
               className={`record-income__body__selection__btn ${
-                sameUnitPrice ? 'selected-btn' : 'unselected-btn'
+                sameUnitPrice ? "selected-btn" : "unselected-btn"
               }`}
               onClick={() => setSameUnitPrice(true)}
             >
-              <ThumbsIcon type={sameUnitPrice ? 'yes' : 'no'} /> <p>Yes</p>
+              <ThumbsIcon type={sameUnitPrice ? "yes" : "no"} /> <p>Yes</p>
               {sameUnitPrice ? <RadioChecked /> : <RadioUnchecked />}
             </button>
 
             <button
               className={`record-income__body__selection__btn ${
-                !sameUnitPrice ? 'selected-btn' : 'unselected-btn'
+                !sameUnitPrice ? "selected-btn" : "unselected-btn"
               }`}
               onClick={() => setSameUnitPrice(!sameUnitPrice)}
             >
-              <ThumbsIcon type={!sameUnitPrice ? 'yes' : 'no'} />
+              <ThumbsIcon type={!sameUnitPrice ? "yes" : "no"} />
               <p>No</p>
               {!sameUnitPrice ? <RadioChecked /> : <RadioUnchecked />}
             </button>
           </div>
           <p
-            style={{ color: '#FFA800', fontSize: '12px', marginBottom: '12px' }}
+            style={{ color: "#FFA800", fontSize: "12px", marginBottom: "12px" }}
           >
-            Current Purchasing Amount is {currency}{' '}
+            Current Purchasing Amount is {currency}{" "}
             {purchasing_price?.toLocaleString()}/{name}
           </p>
           {/* <TextInput
@@ -353,33 +354,33 @@ const RestockModal = ({
           /> */}
 
           <TextInput
-            label='Size'
-            placeholder='Select size'
-            name='size'
-            type='dropdown'
-            errorClass={'error-msg'}
+            label="Size"
+            placeholder="Select size"
+            name="size"
+            type="dropdown"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.size}
-            fieldClass={errors['size'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['size']}
-            id={'size'}
+            fieldClass={errors["size"] ? "error-field" : "input-field"}
+            errorMessage={errors["size"]}
+            id={"size"}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={() => {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={undefined}
             multi={true}
             toggleOption={toggleOption}
             options={
-              sizeOptions[category_name?.toLowerCase().split(' ').join('')]
+              sizeOptions[category_name?.toLowerCase().split(" ").join("")]
             }
             selectedValues={selected}
           />
-          <div className='flex-wrap' style={{ marginBottom: '16px' }}>
+          <div className="flex-wrap" style={{ marginBottom: "16px" }}>
             {sizes?.map((s: any) => (
-              <div className='flex-wrap__item'>
+              <div className="flex-wrap__item">
                 <p>{s.size}</p>
-                <div className='flex-wrap__badge'>
+                <div className="flex-wrap__badge">
                   <p>{s.quantity} left</p>
                 </div>
               </div>
@@ -387,19 +388,19 @@ const RestockModal = ({
           </div>
 
           {selected.map((s: any, index: number) => (
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div className='input-component'>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <div className="input-component">
                 <label>Quantity ( {s.name} )</label>
-                <div className='dropdown-container'>
+                <div className="dropdown-container">
                   <div
                     className={`dropdown-input ${
-                      errors['product_category_name']
-                        ? 'error-field'
-                        : 'input-field'
+                      errors["product_category_name"]
+                        ? "error-field"
+                        : "input-field"
                     }`}
                   >
                     <input
-                      name='product_category_name'
+                      name="product_category_name"
                       value={sizeQuantityData[index]?.quantity}
                       onChange={(e) =>
                         handleQuantityChange(index, e.target.value)
@@ -408,43 +409,46 @@ const RestockModal = ({
                   </div>
                 </div>
               </div>
-
-              <div className='input-component'>
-                <label>Total Selling Price per unit</label>
-                <div className='dropdown-container'>
-                  <div
-                    className={`dropdown-input ${
-                      errors['product_category_name']
-                        ? 'error-field'
-                        : 'input-field'
-                    }`}
-                  >
-                    <input
-                      name='product_category_name'
-                      value={sizeQuantityData[index]?.ppu}
-                      onChange={(e) => handlePriceChange(index, e.target.value)}
-                    />
+              {!sameUnitPrice && (
+                <div className="input-component">
+                  <label>Total Selling Price per unit</label>
+                  <div className="dropdown-container">
+                    <div
+                      className={`dropdown-input ${
+                        errors["product_category_name"]
+                          ? "error-field"
+                          : "input-field"
+                      }`}
+                    >
+                      <input
+                        name="product_category_name"
+                        value={sizeQuantityData[index]?.ppu}
+                        onChange={(e) =>
+                          handlePriceChange(index, e.target.value)
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           ))}
 
           <TextInput
-            label={'Total Product Quantity'}
-            placeholder={'Type product quantity'}
-            name='quantity'
-            type='text'
-            errorClass={'error-msg'}
+            label={"Total Product Quantity"}
+            placeholder={"Type product quantity"}
+            name="quantity"
+            type="text"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={totalQuantity}
-            fieldClass={errors['quantity'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['quantity']}
-            id={'quantity'}
+            fieldClass={errors["quantity"] ? "error-field" : "input-field"}
+            errorMessage={errors["quantity"]}
+            id={"quantity"}
             onSelectValue={() => {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={handleBlur}
             multi={false}
             toggleOption={() => {}}
@@ -453,20 +457,20 @@ const RestockModal = ({
           />
 
           <TextInput
-            label={'Total purchasing price per unit'}
+            label={"Total purchasing price per unit"}
             placeholder={`Total product purchasing amount (${currency})`}
-            name='total'
-            type='text'
-            errorClass={'error-msg'}
+            name="total"
+            type="text"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={totalPrice?.toLocaleString()}
-            fieldClass={errors['total'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['total']}
-            id={'total'}
+            fieldClass={errors["total"] ? "error-field" : "input-field"}
+            errorMessage={errors["total"]}
+            id={"total"}
             onSelectValue={() => {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={handleBlur}
             multi={false}
             toggleOption={() => {}}
@@ -474,33 +478,33 @@ const RestockModal = ({
             disabled={true}
           />
 
-          <div style={{ marginTop: '16px' }}></div>
+          <div style={{ marginTop: "16px" }}></div>
 
           <TextInput
-            label='Payment Method'
-            placeholder='Select payment method'
-            name='paymentMethod'
-            type='dropdown'
-            errorClass={'error-msg'}
+            label="Payment Method"
+            placeholder="Select payment method"
+            name="paymentMethod"
+            type="dropdown"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.paymentMethod}
-            fieldClass={errors['paymentMethod'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['paymentMethod']}
-            id={'paymentMethod'}
+            fieldClass={errors["paymentMethod"] ? "error-field" : "input-field"}
+            errorMessage={errors["paymentMethod"]}
+            id={"paymentMethod"}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={undefined}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             options={[
               {
                 id: 1,
                 name: (
-                  <div className='payment-method-dropdown'>
+                  <div className="payment-method-dropdown">
                     <Cash />
                     CASH
                   </div>
@@ -509,7 +513,7 @@ const RestockModal = ({
               {
                 id: 2,
                 name: (
-                  <div className='payment-method-dropdown'>
+                  <div className="payment-method-dropdown">
                     <Bank />
                     Bank
                   </div>
@@ -519,7 +523,7 @@ const RestockModal = ({
               {
                 id: 3,
                 name: (
-                  <div className='payment-method-dropdown'>
+                  <div className="payment-method-dropdown">
                     <Credit />
                     Credit
                   </div>
@@ -530,26 +534,26 @@ const RestockModal = ({
           />
 
           {fields.paymentMethod?.props?.children[1]?.toLowerCase() ===
-            'bank' && (
+            "bank" && (
             <TextInput
-              label='Bank Accounts'
-              placeholder='Select bank account'
-              name='bank'
-              type='dropdown'
-              errorClass={'error-msg'}
+              label="Bank Accounts"
+              placeholder="Select bank account"
+              name="bank"
+              type="dropdown"
+              errorClass={"error-msg"}
               handleChange={handleChange}
               value={fields.bank}
-              fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
-              errorMessage={errors['bank']}
-              id={'bank'}
+              fieldClass={errors["bank"] ? "error-field" : "input-field"}
+              errorMessage={errors["bank"]}
+              id={"bank"}
               onSelectValue={selectValue}
               isSearchable={false}
               handleSearchValue={function (): void {}}
-              searchValue={''}
+              searchValue={""}
               handleBlur={undefined}
               multi={false}
               toggleOption={function (a: any): void {
-                throw new Error('');
+                throw new Error("");
               }}
               options={formattedBankAccounts}
               selectedValues={undefined}
@@ -557,11 +561,11 @@ const RestockModal = ({
           )}
         </div>
         <button
-          className='record-income__footer-btn'
+          className="record-income__footer-btn"
           onClick={() => submit()}
-          disabled={fields.paymentMethod === '' || selected.length === 0}
+          disabled={fields.paymentMethod === "" || selected.length === 0}
         >
-          {isLoading ? 'Please wait...' : 'Restock'}
+          {isLoading ? "Please wait..." : "Restock"}
         </button>
       </div>
     </Modal>

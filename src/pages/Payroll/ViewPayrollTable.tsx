@@ -110,8 +110,8 @@ const ViewPayrollTable = ({
 
   const uniqueDetailNames = Array.from(
     new Set(
-      filteredData
-        ?.filter((el) => el.name !== '')
+      (filteredData as any)
+        ?.filter((el:any) => el.name !== '')
         ?.flatMap((item: any) =>
           item?.details.map((detail: { name: string }) => detail?.name)
         )
@@ -124,7 +124,7 @@ const ViewPayrollTable = ({
       { Header: 'Name', accessor: 'name' },
       ...uniqueDetailNames.map((detailName) => ({
         Header: detailName,
-        accessor: (row) => {
+        accessor: (row: { details: any[]; }) => {
           const amount = row.details.find(
             (detail: { name: string }) => detail.name === detailName
           )?.amount;
@@ -143,7 +143,7 @@ const ViewPayrollTable = ({
       },
       {
         Header: 'Actions',
-        accessor: (d: any) => `${d.name}`,
+        accessor: (d: { name: any; }) => `${d.name}`,
         Cell: ({ cell: { value } }: { cell: { value: string } }) => (
           <>
             <div style={{ display: 'flex', gap: '16px' }}>

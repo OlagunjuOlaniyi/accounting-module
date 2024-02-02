@@ -29,7 +29,7 @@ interface Iprops {
   searchRes: any;
 }
 
-const Overview = () => {
+const Overview = ({filteredLoading, filteredData, searchRes }: Iprops) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { currency } = useCurrency();

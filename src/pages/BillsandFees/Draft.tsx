@@ -11,8 +11,12 @@ import Send from '../../icons/Send';
 import Duplicate from '../../icons/Duplicate';
 import { useCurrency } from '../../context/CurrencyContext';
 import Header from '../../components/Header/Header';
-
-const Draft = () => {
+interface Iprops {
+  filteredData?: any;
+  filteredLoading: Boolean;
+  searchRes: any;
+}
+const Draft = ({filteredLoading, filteredData, searchRes }: Iprops) => {
   const queryClient = useQueryClient();
   const { currency } = useCurrency();
 

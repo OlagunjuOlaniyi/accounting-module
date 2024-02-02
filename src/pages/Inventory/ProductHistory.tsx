@@ -24,8 +24,10 @@ import { useDiscardProduct } from '../../hooks/mutations/inventory';
 import RadioChecked from '../../icons/RadioChecked';
 import RadioUnchecked from '../../icons/RadioUnchecked';
 import Calendar from '../../icons/Calendar';
+import Export from '../../icons/Export';
 import { useCurrency } from '../../context/CurrencyContext';
 import Header from '../../components/Header/Header';
+import { downloadHistoryInventory } from '../../services/inventoryService';
 
 const ProductHistory = () => {
   const { id } = useParams();
@@ -149,6 +151,16 @@ const ProductHistory = () => {
     );
   };
 
+  const download = async () => {
+    try {
+      const res = await downloadHistoryInventory();
+      window.open(res?.pdf_url, '_blank');
+      // window.open(`${baseURL}${res.pdf_url}`, '_blank');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const filteredHistory =
     historyData?.filter((history) => history.size === selectedSize)[0]
       ?.details || [];
@@ -172,6 +184,14 @@ const ProductHistory = () => {
               <span>{data?.data?.name}</span>
             </div>
             <div className='single-expense-wrapper__top__right'>
+            {/* <button
+          className='ie_overview__top-level__filter-download'
+          onClick={() => download()}
+        >
+          {' '}
+          <Export />
+          <p>Download</p>
+        </button> */}
               <button
                 className='ie_overview__top-level__filter-date'
                 style={{ width: '184px' }}

@@ -96,6 +96,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
     dateOfTransaction: '',
     expenseGroup: '',
     expenseType: '',
+    bank: '',
   });
 
   //component states
@@ -496,7 +497,7 @@ const EditExpense = ({ modalIsOpen, closeModal, selectedId }: IeditModal) => {
               errorClass={'error-msg'}
               handleChange={handleChange}
               value={fields.bank}
-              fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
+              fieldClass={errors['bank']? 'error-field' : 'input-field'}
               errorMessage={errors['bank']}
               id={'bank'}
               onSelectValue={selectValue}

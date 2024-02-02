@@ -19,7 +19,7 @@ import {
 } from '../../hooks/queries/payroll';
 
 interface Iprops {
-  filteredData?: Ioverview;
+  filteredData?: any;
   filteredLoading: Boolean;
 }
 const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {

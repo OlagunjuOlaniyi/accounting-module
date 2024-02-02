@@ -20,7 +20,7 @@ const StudentTransactions = () => {
 
   const { mutate, isLoading } = useViewStudentTransactions();
 
-  const [apiData, setApiData] = useState({
+  const [apiData, setApiData] = useState<any>({
     total_outstanding_all: 0,
     total_overpayment: 0,
     transactions: [],

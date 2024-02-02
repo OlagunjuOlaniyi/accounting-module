@@ -12,8 +12,12 @@ import Equity from '../../icons/Equity';
 import { useGetBalanceSheet } from '../../hooks/queries/chartOfAccount';
 import { useNavigate } from 'react-router';
 import { useCurrency } from '../../context/CurrencyContext';
-
-const BalanceSheet = () => {
+interface Iprops {
+  filteredData?: any;
+  filteredLoading: Boolean;
+  searchRes?: any;
+}
+const BalanceSheet = ({filteredLoading, filteredData, searchRes }: Iprops) => {
   const navigate = useNavigate();
 
   const { data: balance_sheet } = useGetBalanceSheet();
