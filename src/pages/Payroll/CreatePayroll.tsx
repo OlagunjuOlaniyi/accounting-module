@@ -141,14 +141,14 @@ const CreatePayroll = () => {
   //   });
   // };
 
-  const handleNetAmountChange = (groupIndex: number, value: string) => {
+  const handleNetAmountChange = (groupIndex: number, value: string|number) => {
     setPayrollGroups((prevGroups) => {
       const newGroups = [...prevGroups];
       newGroups[groupIndex].net_amount = Number(value);
       return newGroups;
     });
   };
-  const handleGrossAmountChange = (groupIndex: number, value: string) => {
+  const handleGrossAmountChange = (groupIndex: number, value: string|number) => {
     setPayrollGroups((prevGroups) => {
       const newGroups = [...prevGroups];
       newGroups[groupIndex].gross_amount = Number(value);
@@ -174,7 +174,7 @@ const CreatePayroll = () => {
     value: string
   ) => {
     setPayrollGroups((prevGroups) => {
-      const newGroups = [...prevGroups];
+      const newGroups:any = [...prevGroups];
       newGroups[groupIndex].payroll_group_modifiers[
         modifierIndex
       ].linking_percentage = value;
@@ -384,7 +384,7 @@ const CreatePayroll = () => {
     );
   };
 
-  const [fields, setFields] = useState({
+  const [fields, setFields] = useState<any>({
     name: '',
     due_date: '',
     netAmount: '',
@@ -493,7 +493,7 @@ const CreatePayroll = () => {
         navigate('/payroll');
       },
 
-      onError: (e) => {
+      onError: (e:any) => {
         toast.error(e?.response.data.message || 'error creating payroll');
       },
     });

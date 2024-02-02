@@ -41,7 +41,7 @@ const CreateBill = () => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [selected, setSelected] = useState<any>([]);
 
-  const [discountValue, setDiscounValue] = useState('');
+  const [discountValue, setDiscounValue] = useState(1);
   const [discountedAmount, setDiscountAmout] = useState(0);
 
   const [fees, setFees] = useState<Fee[]>([
@@ -78,7 +78,7 @@ const CreateBill = () => {
         discountValue) /
       100;
 
-    setDiscountAmout(Number(discounted).toLocaleString());
+    setDiscountAmout(Number(discounted));
   };
 
   useEffect(() => {
@@ -339,7 +339,7 @@ const CreateBill = () => {
       bill_name: fields.billName,
       due_date: fields.dueDate,
       status: 'draft',
-      classes: selectedClasses?.map(({ name }) => ({ name })),
+      classes: selectedClasses?.map(({ name }:any) => ({ name })),
       fees: fees,
       amount: fields.amount,
       mandatory: false,
@@ -604,7 +604,7 @@ const CreateBill = () => {
                           {selectedFee !== '' &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
-                                classes={classesAndStudents}
+                                classes={classesAndStudents as any}
                                 cancel={() => showClasses(fee.fee_type.name)}
                                 selectedClassesInParent={fee.fee_type.classes}
                                 selectedStudentsInParent={fee.fee_type.students}
@@ -737,7 +737,7 @@ const CreateBill = () => {
                             <ClassAndStudentSelection
                               selectedClassesInParent={d.classes}
                               selectedStudentsInParent={d.students}
-                              classes={classesAndStudents}
+                              classes={classesAndStudents as any}
                               cancel={() => showClassesForDiscount(index)}
                               onClassChange={(
                                 selectedClasses: any,

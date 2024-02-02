@@ -39,7 +39,7 @@ const TableProfitLoss = ({
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-        {rows.map((row, i) => {
+        {rows.map((row :  any, i) => {
           prepareRow(row);
           return (
             <tr
@@ -51,7 +51,7 @@ const TableProfitLoss = ({
               }
               style={{ cursor: 'pointer' }}
             >
-              {row.cells.map((cell) => {
+              {row.cells.map((cell:any) => {
                 return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
               })}
             </tr>

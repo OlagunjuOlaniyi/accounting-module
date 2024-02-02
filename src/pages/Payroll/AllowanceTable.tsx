@@ -13,7 +13,7 @@ import RunPayroll from '../../components/Modals/Payroll/RunPayroll';
 import { useCurrency } from '../../context/CurrencyContext';
 
 interface Iprops {
-  filteredData?: PayrollResponse;
+  filteredData?: any;
   isLoading: Boolean;
   searchRes: any;
 }

@@ -18,8 +18,9 @@ import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css';
 import { useDebounce } from 'use-debounce';
 import SmallSpinner from '../../assets/smallspinner.svg';
+import { downloadInventory } from '../../services/inventoryService';
 
-import { downloadIncome } from '../../services/incomeService';
+// import { downloadIncome } from '../../services/incomeService';
 import ProductTable from './ProductTable';
 import AddProduct from '../../components/Modals/Inventory/AddProduct';
 import {
@@ -89,8 +90,9 @@ const InventoryLayout = () => {
 
   const download = async () => {
     try {
-      const res = await downloadIncome();
-      window.open(`${baseURL}${res.pdf_url}`, '_blank');
+      const res = await downloadInventory();
+      window.open(res?.pdf_url, '_blank');
+      // window.open(`${baseURL}${res.pdf_url}`, '_blank');
     } catch (error) {
       console.log(error);
     }
@@ -104,7 +106,7 @@ const InventoryLayout = () => {
       </div>
       <div className='ie_overview__top-level'>
         <div className='ie_overview__top-level__search'>
-          {' '}
+          {/* {' '} */}
           <Search />
           <input
             placeholder='Search by product name'
@@ -157,7 +159,7 @@ const InventoryLayout = () => {
           >
             {' '}
             <Calendar />
-            <p>Filter</p>
+            <p>Filters</p>
           </button>
 
           {showDateRange && (

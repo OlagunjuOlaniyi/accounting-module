@@ -88,6 +88,8 @@ export const dispenseProduct = async (data: any) => {
 
 export const restockProduct = async (id: string, data: any) => {
   const formData = new FormData();
+  console.log({data});
+  
   formData.append('payment_method', data.payment_method);
   formData.append('description', data.description);
   formData.append('amount', data.amount);
@@ -101,7 +103,7 @@ export const restockProduct = async (id: string, data: any) => {
   );
   formData.append('reorder_level', data.reorder_level);
   formData.append('transaction_date', data.date);
-  formData.append('sizes', data.sizes);
+  formData.append('sizes', JSON.stringify(data.sizes));
 
   const response = await axios.put(
     `${baseURL}/inventory/restock/${id}/`,
@@ -119,11 +121,19 @@ export const restockProduct = async (id: string, data: any) => {
 export const discardProduct = async (id?: string) => {
   const response = await axiosInstance.delete(`/inventory/${id}/`, {
     action: 'DELETE',
-  });
+  }as any);
   return response.data;
 };
 
 export const getProductHistory = async (id: string) => {
   const response = await axiosInstance.get(`/inventory/product/history/${id}`);
+  return response.data;
+};
+export const downloadInventory = async () => {
+  const response = await axiosInstance.get(`/inventory/inventory/pdf/1`);
+  return response.data;
+};
+export const downloadHistoryInventory = async () => {
+  const response = await axiosInstance.get(`/inventory/history/pdf/1`);
   return response.data;
 };

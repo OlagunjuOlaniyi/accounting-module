@@ -82,7 +82,7 @@ const ViewStaffPayslip = () => {
     (item) => item?.type === 'ALLOWANCE'
   );
   const totalAllowanceAmount = allowanceArray.reduce(
-    (total, item) => total + parseFloat(item?.amount),
+    (total, item:any) => total + parseFloat(item?.amount),
     0
   );
 
@@ -91,7 +91,7 @@ const ViewStaffPayslip = () => {
   );
 
   const totalDeductionAmount = deductionArray.reduce(
-    (total, item) => total + parseFloat(item?.amount),
+    (total, item:any) => total + parseFloat(item?.amount),
     0
   );
 
@@ -146,8 +146,8 @@ const ViewStaffPayslip = () => {
   };
 
   const handleLinkingPercentageChange = (groupId: number, value: string) => {
-    setPayrollGroups((prevGroups) => {
-      const newGroups = prevGroups.map((group) =>
+    setPayrollGroups((prevGroups:any) => {
+      const newGroups = prevGroups.map((group: { id: number; }) =>
         group.id === groupId ? { ...group, linking_percentage: value } : group
       );
       return newGroups;
@@ -399,7 +399,7 @@ const ViewStaffPayslip = () => {
             </div>
             {payrollGroups
               .filter((group) => group.modifier_type === 'ALLOWANCE')
-              .map((group, groupIndex) => {
+              .map((group:any, groupIndex) => {
                 return (
                   <div
                     key={groupIndex}
@@ -477,7 +477,7 @@ const ViewStaffPayslip = () => {
             </div>
             {payrollGroups
               .filter((group) => group.modifier_type === 'DEDUCTION')
-              .map((group, groupIndex) => (
+              .map((group:any, groupIndex) => (
                 <div
                   key={groupIndex}
                   className='mt-10x'

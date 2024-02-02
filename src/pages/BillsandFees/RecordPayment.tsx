@@ -31,7 +31,7 @@ const RecordPayment = () => {
 
   let bills_and_fees = JSON.parse(localStorage.getItem('bills_and_fees') || '');
 
-  const [fields, setFields] = useState({
+  const [fields, setFields] = useState<any>({
     payment_method: '',
     amount_paid: '',
   });

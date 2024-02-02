@@ -163,8 +163,8 @@ const PaymentBroadsheet = () => {
 
   const uniqueFeeTypes = Array.from(
     new Set(
-      apiData?.students_data?.flatMap((student) =>
-        student.fee_types.map((fee) => fee.fee_type_name)
+      apiData?.students_data?.flatMap((student:any) =>
+        student.fee_types.map((fee:any) => fee.fee_type_name)
       )
     )
   );
@@ -187,7 +187,7 @@ const PaymentBroadsheet = () => {
       Header: feeType,
       accessor: (d: any) =>
         `${
-          d.fee_types.find((fee) => fee.fee_type_name === `${feeType}`)
+          d.fee_types.find((fee:any) => fee.fee_type_name === `${feeType}`)
             ?.amount_due
         }`,
       Cell: ({ cell: { value } }: any) => (

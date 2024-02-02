@@ -39,7 +39,7 @@ const CreateBill = () => {
   const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
   const [selectedFeeForDiscount, setSelectedFeeForDiscount] = useState('');
 
-  const [discountValue, setDiscounValue] = useState('');
+  const [discountValue, setDiscounValue] = useState(1);
   const [discountedAmount, setDiscountAmout] = useState(0);
 
   const [fees, setFees] = useState<Fee[]>([]);
@@ -103,7 +103,7 @@ const CreateBill = () => {
       (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
         discountValue) /
       100;
-    setDiscountAmout(Number(discounted).toLocaleString());
+    setDiscountAmout(Number(discounted));
   };
 
   useEffect(() => {
@@ -518,7 +518,7 @@ const CreateBill = () => {
                           {selectedFee !== '' &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
-                                classes={classesAndStudents}
+                                classes={classesAndStudents as any}
                                 cancel={() => showClasses(fee.fee_type.name)}
                                 selectedClassesInParent={fee.fee_type.classes}
                                 selectedStudentsInParent={fee.fee_type.students}
@@ -649,7 +649,7 @@ const CreateBill = () => {
                             <ClassAndStudentSelection
                               classes={classes?.results}
                               cancel={() => showClassesForDiscount(index)}
-                              selectedClassesInFees={d.classes}
+                              // selectedClassesInFees={d.classes}
                               onClassChange={(selectedClasses: number[]) =>
                                 handleClassDropdownChange(
                                   index,

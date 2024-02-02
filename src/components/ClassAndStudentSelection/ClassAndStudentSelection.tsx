@@ -26,10 +26,10 @@ type OriginalData = {
 };
 
 type ConvertedDataItem = {
-  class_name: string;
-  id: string;
-  total_students: number;
-  students_details: { id: number; name: string }[];
+  class_name?: string;
+  id?: string;
+  total_students?: number;
+  students_details?: { id: number; name: string }[];
 };
 
 const ClassAndStudentSelection = ({
@@ -41,11 +41,11 @@ const ClassAndStudentSelection = ({
   selectedStudentsInParent,
 }: {
   classes: OriginalData;
-  cancel: any;
-  onClassChange: any;
-  onStudentsChange: any;
-  selectedClassesInParent: any;
-  selectedStudentsInParent: any;
+  cancel?: any;
+  onClassChange?: any;
+  onStudentsChange?: any;
+  selectedClassesInParent?: any;
+  selectedStudentsInParent?: any;
 }) => {
   const convertedClasses: ConvertedDataItem[] = Object.entries(classes).map(
     ([className, classData]) => ({

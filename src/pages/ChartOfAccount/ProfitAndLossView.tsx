@@ -9,6 +9,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 type tableData = {
   id: string;
   created_at: string;
+  name: string;
   amount: number;
   transaction_type: { data: { name: string } };
 };

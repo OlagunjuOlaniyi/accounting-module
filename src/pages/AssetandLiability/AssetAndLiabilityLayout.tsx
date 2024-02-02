@@ -57,14 +57,14 @@ const AssetAndLiabilityLayout = () => {
     liability: false,
     asset: false,
   });
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLElement | null>(null);
 
   // Add a click event listener to the document body to close the dropdown when clicked outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef?.current &&
-        !dropdownRef?.current?.contains(event.target as Node)
+        !(dropdownRef?.current as Node)?.contains(event.target as Node)
       ) {
         setShowActions(false);
         // setShowDateFilters(false);
@@ -312,7 +312,7 @@ const AssetAndLiabilityLayout = () => {
           <p>Download</p>
         </button>
 
-        <div className='ie_overview__top-level__btn-wrap' ref={dropdownRef}>
+        <div className='ie_overview__top-level__btn-wrap' ref={dropdownRef as React.RefObject<HTMLDivElement>}>
           <Button
             btnText='Create Transaction'
             btnClass='btn-primary'

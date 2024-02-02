@@ -34,7 +34,7 @@ export function removeLastItem(arr: any) {
 
 export function calculateTotalAmount(data: any) {
   const keys = Object.keys(data);
-  const totalAmounts = {};
+  const totalAmounts:any = {};
 
   keys.forEach((key) => {
     const items = data[key];

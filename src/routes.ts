@@ -24,7 +24,7 @@ import CreatePayroll from './pages/Payroll/CreatePayroll';
 import SinglePayroll from './pages/Payroll/SinglePayroll';
 import ViewStaffPayslip from './pages/Payroll/ViewStaffPayslip';
 import ViewAsset from './pages/AssetandLiability/ViewAsset';
-import AssetType from './pages/AssetandLiability/Assettype';
+import AssetType from './pages/AssetandLiability/AssetType';
 import ClassPaymentStatus from './pages/BillsandFees/ClassPaymentStatus';
 import PaymentBroadsheet from './pages/BillsandFees/PaymentBroadsheet';
 import RecordPayment from './pages/BillsandFees/RecordPayment';

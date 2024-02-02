@@ -13,8 +13,12 @@ import Unsend from '../../icons/Unsend';
 import { useNavigate } from 'react-router';
 import { useCurrency } from '../../context/CurrencyContext';
 import Header from '../../components/Header/Header';
-
-const Sent = () => {
+interface Iprops {
+  filteredData?: any;
+  filteredLoading: Boolean;
+  searchRes: any;
+}
+const Sent = ({filteredLoading, filteredData, searchRes }: Iprops) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { currency } = useCurrency();
