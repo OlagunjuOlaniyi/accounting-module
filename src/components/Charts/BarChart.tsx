@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -7,8 +7,8 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -20,10 +20,10 @@ ChartJS.register(
 );
 
 export const options: any = {
-  indexAxis: 'x',
+  indexAxis: "x",
   elements: {
     bar: {
-      borderColor: 'rgba(0,0,0,0)',
+      borderColor: "rgba(0,0,0,0)",
       borderWidth: 10,
       barThickness: 20,
       maxBarThickness: 20,
@@ -35,12 +35,12 @@ export const options: any = {
   responsive: true,
   plugins: {
     legend: {
-      position: 'right',
+      position: "right",
       display: false,
     },
     title: {
       display: false,
-      text: '',
+      text: "",
     },
   },
 

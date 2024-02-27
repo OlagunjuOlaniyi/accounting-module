@@ -1,10 +1,11 @@
-import { QueryClientProvider, QueryClient } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
-import { CurrencyProvider } from './context/CurrencyContext';
+import React from "react";
+import { QueryClientProvider, QueryClient } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { CurrencyProvider } from "./context/CurrencyContext";
 
-import { routes } from './routes';
-import { AuthProvider } from './context/AuthContext';
+import { routes } from "./routes";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   const reactQueryClient = new QueryClient({

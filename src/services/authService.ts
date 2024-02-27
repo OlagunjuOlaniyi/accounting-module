@@ -23,3 +23,11 @@ export const fetchSchoolDetails = async () => {
   );
   return res.data;
 };
+
+// get staff
+export const fetchStaffDetails = async () => {
+  let res = await axiosInstance.get(
+    `https://edves.cloud/api/v1/payments/payments/staff`
+  );
+  return res.data;
+};

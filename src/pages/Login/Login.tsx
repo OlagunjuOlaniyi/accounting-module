@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import Button from '../../components/Button/Button';
-import './login.scss';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router';
-import { fetchSchoolDetails } from '../../services/authService';
+import React, { useState, useEffect } from "react";
+import Button from "../../components/Button/Button";
+import "./login.scss";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router";
+import { fetchSchoolDetails } from "../../services/authService";
 
-import TextInput from '../../components/Input/TextInput';
-import { useLogin } from '../../hooks/mutations/auth';
+import TextInput from "../../components/Input/TextInput";
+import { useLogin } from "../../hooks/mutations/auth";
 
 type schoolDetails = {
   idx: number;
@@ -29,13 +29,13 @@ const Login = () => {
 
   const { mutate, isLoading } = useLogin();
   const [state, setState] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
 
   const [errors, setErrors] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
 
   const handleChange = (evt: any) => {
@@ -67,14 +67,14 @@ const Login = () => {
 
     let dataToSend = {
       name: response?.data[0]?.arm?.name,
-      password: 'edves_account_111',
+      password: "edves_account_111",
       idx: response?.data[0]?.idx,
       school_url: response?.data[0]?.subdomain,
       address: response?.data[0]?.address
         ? response?.data[0]?.subdomain
-        : 'Nigeria',
+        : "Nigeria",
       contact: `${
-        response?.data[0]?.school_group_name?.split(' ')[0]
+        response?.data[0]?.school_group_name?.split(" ")[0]
       }@gmail.com`,
       logo: response?.data[0]?.arm?.logo,
     };
@@ -82,10 +82,10 @@ const Login = () => {
     mutate(dataToSend, {
       onSuccess: (res) => {
         //toast.success('Login successful');
-        localStorage.setItem('userDetails', JSON.stringify(res?.data));
-        localStorage.setItem('currency', response?.data[0]?.currency);
-        localStorage.setItem('token', res?.data?.tokens?.access);
-        window.location.replace('/income-and-expense');
+        localStorage.setItem("userDetails", JSON.stringify(res?.data));
+        localStorage.setItem("currency", response?.data[0]?.currency);
+        localStorage.setItem("token", res?.data?.tokens?.access);
+        window.location.replace("/income-and-expense");
       },
 
       onError: (e) => {
@@ -99,7 +99,7 @@ const Login = () => {
     submit();
   }, []);
 
-  return <div className='login'></div>;
+  return <div className="login"></div>;
 };
 
 export default Login;

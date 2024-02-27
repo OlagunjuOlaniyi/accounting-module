@@ -1,22 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import './payroll.scss';
-import TextInput from '../../components/Input/TextInput';
-import Button from '../../components/Button/Button';
-import Addcircle from '../../icons/Addcircle';
-import AddCircleBlue from '../../icons/AddCircleBlue';
-import ToggleUnchecked from '../../icons/ToggleUnchecked';
-import ToggleChecked from '../../icons/ToggleChecked';
-import { useGetSchoolDetails } from '../../hooks/queries/SchoolQuery';
-import { useNavigate } from 'react-router';
+import "./payroll.scss";
+import TextInput from "../../components/Input/TextInput";
+import Button from "../../components/Button/Button";
+import Addcircle from "../../icons/Addcircle";
+import AddCircleBlue from "../../icons/AddCircleBlue";
+import ToggleUnchecked from "../../icons/ToggleUnchecked";
+import ToggleChecked from "../../icons/ToggleChecked";
+import {
+  useGetSchoolDetails,
+  useStaffDetails,
+} from "../../hooks/queries/SchoolQuery";
+import { useNavigate } from "react-router";
 
-import { PayrollData, PayrollGroupModifier } from '../../types/types';
-import toast from 'react-hot-toast';
-import { useQueryClient } from 'react-query';
+import { PayrollData, PayrollGroupModifier } from "../../types/types";
+import toast from "react-hot-toast";
+import { useQueryClient } from "react-query";
 
-import DeleteRed from '../../icons/DeleteRed';
+import DeleteRed from "../../icons/DeleteRed";
 
-import { useCreatePayroll } from '../../hooks/mutations/payroll';
+import { useCreatePayroll } from "../../hooks/mutations/payroll";
+import { baseURL } from "../../services/utils";
 
 const CreatePayroll = () => {
   const navigate = useNavigate();
@@ -25,7 +29,7 @@ const CreatePayroll = () => {
   const [addStaff, setAddStaff] = useState<boolean>(false);
 
   const [selectedClasses, setSelectedClasses] = useState<any>([]);
-  const [classSearchValue, setClassSearchValue] = useState<string>('');
+  const [classSearchValue, setClassSearchValue] = useState<string>("");
 
   const [payrollGroups, setPayrollGroups] = useState<PayrollData[]>([
     {
@@ -34,11 +38,11 @@ const CreatePayroll = () => {
       gross_amount: 0,
       payroll_group_modifiers: [
         {
-          modifier_name: '',
-          modifier_type: 'ALLOWANCE',
+          modifier_name: "",
+          modifier_type: "ALLOWANCE",
           is_percentage: false,
           amount: 0,
-          linking_percentage: '', //this is what that want to get the poercentage of
+          linking_percentage: "", //this is what that want to get the poercentage of
           percentage: 0,
         },
       ],
@@ -50,7 +54,7 @@ const CreatePayroll = () => {
 
     payrollGroups.forEach((group) => {
       group.payroll_group_modifiers.forEach((modifier) => {
-        if (modifier.modifier_type === 'ALLOWANCE') {
+        if (modifier.modifier_type === "ALLOWANCE") {
           allowanceSum += modifier?.amount || 0;
         }
       });
@@ -70,12 +74,12 @@ const CreatePayroll = () => {
       group.payroll_group_modifiers.forEach((modifier) => {
         // Check if amount is defined before adding it to the sum
         if (
-          modifier.modifier_type === 'ALLOWANCE' &&
+          modifier.modifier_type === "ALLOWANCE" &&
           modifier.amount !== undefined
         ) {
           totalAllowance += modifier.amount;
         } else if (
-          modifier.modifier_type === 'DEDUCTION' &&
+          modifier.modifier_type === "DEDUCTION" &&
           modifier.amount !== undefined
         ) {
           totalDeductions += modifier.amount;
@@ -91,11 +95,11 @@ const CreatePayroll = () => {
     setPayrollGroups((prevGroups) => {
       const newGroups = [...payrollGroups];
       const newModifier: PayrollGroupModifier = {
-        modifier_name: '',
-        modifier_type: type ? type : 'ALLOWANCE',
+        modifier_name: "",
+        modifier_type: type ? type : "ALLOWANCE",
         is_percentage: false,
         amount: 0,
-        linking_percentage: '',
+        linking_percentage: "",
         percentage: 0,
       };
 
@@ -254,7 +258,7 @@ const CreatePayroll = () => {
       return (
         group.payroll_group_modifiers.some(
           (modifier) =>
-            modifier.modifier_name === '' || modifier.modifier_type === ''
+            modifier.modifier_name === "" || modifier.modifier_type === ""
         ) || group.staffs.length === 0
       );
     });
@@ -265,16 +269,16 @@ const CreatePayroll = () => {
 
     return payrollGroups[groupIndex].payroll_group_modifiers.map(
       (modifier, modifierIndex) => (
-        <div className='bg-[#F6F6F6] py-5 pr-7'>
+        <div className="bg-[#F6F6F6] py-5 pr-7">
           <div
             key={modifierIndex}
-            className='px-7 flex mb-6 gap-7 w-full items-center'
+            className="px-7 flex mb-6 gap-7 w-full items-center"
           >
-            <div className='w-full flex flex-col gap-2'>
+            <div className="w-full flex flex-col gap-2">
               <label>{modifier.modifier_type}</label>
               <input
-                type='text'
-                className='input-field'
+                type="text"
+                className="input-field"
                 value={modifier.modifier_name}
                 onChange={(e) =>
                   handleModifierNameChange(
@@ -288,12 +292,12 @@ const CreatePayroll = () => {
 
             {modifier.is_percentage ? (
               <>
-                <div className='w-full flex flex-col gap-2'>
+                <div className="w-full flex flex-col gap-2">
                   <label>Percentage Amount</label>
                   <input
-                    className='input-field'
-                    type='number'
-                    placeholder='percentage (%)'
+                    className="input-field"
+                    type="number"
+                    placeholder="percentage (%)"
                     value={modifier.percentage}
                     onChange={(e) =>
                       handlePercentageChange(
@@ -305,12 +309,12 @@ const CreatePayroll = () => {
                   />
                 </div>
 
-                <p className='pt-4'>of</p>
-                <div className='w-full flex flex-col gap-2'>
+                <p className="pt-4">of</p>
+                <div className="w-full flex flex-col gap-2">
                   <label>Payroll Type</label>
                   <select
-                    className='input-field'
-                    value={modifier.linking_percentage || ''}
+                    className="input-field"
+                    value={modifier.linking_percentage || ""}
                     onChange={(e) =>
                       handleLinkingPercentageChange(
                         groupIndex,
@@ -319,7 +323,7 @@ const CreatePayroll = () => {
                       )
                     }
                   >
-                    <option value=''>Select Payroll Type</option>
+                    <option value="">Select Payroll Type</option>
                     {modifierNames.map((name) => (
                       <option key={name} value={name}>
                         {name}
@@ -327,11 +331,11 @@ const CreatePayroll = () => {
                     ))}
                   </select>
                 </div>
-                <div className='w-full flex flex-col gap-2'>
+                <div className="w-full flex flex-col gap-2">
                   <label>Amount</label>
                   <input
-                    className='input-field'
-                    type='number'
+                    className="input-field"
+                    type="number"
                     value={calculatePercentage(groupIndex, modifierIndex)}
                     disabled
                     onChange={(e) =>
@@ -349,11 +353,11 @@ const CreatePayroll = () => {
                 </div>
               </>
             ) : (
-              <div className='w-full flex flex-col gap-2'>
+              <div className="w-full flex flex-col gap-2">
                 <label>Amount</label>
                 <input
-                  className='input-field'
-                  type='number'
+                  className="input-field"
+                  type="number"
                   value={modifier.amount}
                   onChange={(e) =>
                     handleAmountChange(
@@ -366,14 +370,14 @@ const CreatePayroll = () => {
               </div>
             )}
             <button
-              className='pt-4'
+              className="pt-4"
               onClick={() => deleteModifier(groupIndex, modifierIndex)}
             >
               <DeleteRed />
             </button>
           </div>
           <div
-            className='flex justify-end items-center gap-2 cursor-pointer'
+            className="flex justify-end items-center gap-2 cursor-pointer"
             onClick={() => handleIsPercentageChange(groupIndex, modifierIndex)}
           >
             {modifier.is_percentage ? <ToggleChecked /> : <ToggleUnchecked />}
@@ -385,13 +389,33 @@ const CreatePayroll = () => {
   };
 
   const [fields, setFields] = useState({
-    name: '',
-    due_date: '',
-    netAmount: '',
-    grossAmount: '',
+    name: "",
+    due_date: "",
+    netAmount: "",
+    grossAmount: "",
   });
 
   const { data: schoolData } = useGetSchoolDetails();
+
+  const { data: staffData } = useStaffDetails();
+
+  // const [staffInfo, setStaffInfo] = useState([]);
+
+  // useEffect(() => {
+  //   fetch(`https://edves.cloud/api/v1/payments/payments/staff`, {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Accept: "application/json",
+  //     },
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       console.log(data);
+  //       setStaffInfo(data);
+  //     });
+  // }, []);
+
+  console.log("staff", staffData);
 
   const toggleClasses = (option: any) => {
     setSelectedClasses((prevSelected: any) => {
@@ -428,16 +452,16 @@ const CreatePayroll = () => {
 
   const handleAddStaff = () => {
     const newStaff: PayrollData = {
-      staffs: [{ name: '' }],
+      staffs: [{ name: "" }],
       net_amount: 0, //this should be automatically calculated
       gross_amount: 0,
       payroll_group_modifiers: [
         {
-          modifier_name: '',
-          modifier_type: '',
+          modifier_name: "",
+          modifier_type: "",
           is_percentage: false,
           amount: 0,
-          linking_percentage: '', //this is what that want to get the poercentage of
+          linking_percentage: "", //this is what that want to get the poercentage of
           percentage: 0,
         },
       ],
@@ -484,87 +508,87 @@ const CreatePayroll = () => {
     mutate(dataToSend, {
       onSuccess: (res) => {
         close();
-        toast.success('Payroll created successfully');
+        toast.success("Payroll created successfully");
         queryClient.invalidateQueries({
           queryKey: `payroll`,
         });
 
         setFields({ ...fields });
-        navigate('/payroll');
+        navigate("/payroll");
       },
 
       onError: (e) => {
-        toast.error(e?.response.data.message || 'error creating payroll');
+        toast.error(e?.response.data.message || "error creating payroll");
       },
     });
   };
   return (
     <div>
-      <div className='bills_overview'>
-        <h2 className='bills_overview__title'>{fields.name || ''} Payroll</h2>
-        <h1 className='bills_overview__approval'>APPROVAL STATUS: Pending</h1>
-        <h1 className='bills_overview__status'>STATUS: Draft</h1>
+      <div className="bills_overview">
+        <h2 className="bills_overview__title">{fields.name || ""} Payroll</h2>
+        <h1 className="bills_overview__approval">APPROVAL STATUS: Pending</h1>
+        <h1 className="bills_overview__status">STATUS: Draft</h1>
       </div>
 
-      <div className='bills_schoolInfo'>
-        <div className='bills_schoolInfo__logo'>
-          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt='' />
+      <div className="bills_schoolInfo">
+        <div className="bills_schoolInfo__logo">
+          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt="" />
         </div>
-        <div className='bills_schoolInfo__details'>
+        <div className="bills_schoolInfo__details">
           {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {fields.name ? `${fields.name} PAYROLL` : ''}
-          <p className='bills_schoolInfo__details__email'>
+          <br /> {fields.name ? `${fields.name} PAYROLL` : ""}
+          <p className="bills_schoolInfo__details__email">
             Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
         </div>
       </div>
 
-      <div className='bills_form'>
-        <div className='bills_form__top'>
+      <div className="bills_form">
+        <div className="bills_form__top">
           <TextInput
-            label='Payroll Name'
-            placeholder='Payroll Name'
-            className='bills_form__top__input'
-            name='name'
-            type='text'
-            errorClass={'error-msg'}
+            label="Payroll Name"
+            placeholder="Payroll Name"
+            className="bills_form__top__input"
+            name="name"
+            type="text"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.name}
-            fieldClass={'input-field'}
-            errorMessage={''}
-            id={'payrollName'}
+            fieldClass={"input-field"}
+            errorMessage={""}
+            id={"payrollName"}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={''}
+            searchValue={""}
+            handleBlur={""}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             selectedValues={undefined}
             options={[]}
           />
 
           <TextInput
-            label='Payroll Due Date'
-            placeholder='Due Date'
-            name='due_date'
-            type='date'
-            errorClass={'error-msg'}
+            label="Payroll Due Date"
+            placeholder="Due Date"
+            name="due_date"
+            type="date"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.due_date}
-            fieldClass={'input-field'}
-            errorMessage={''}
-            id={'dueDate'}
+            fieldClass={"input-field"}
+            errorMessage={""}
+            id={"dueDate"}
             onSelectValue={function (): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={''}
+            searchValue={""}
+            handleBlur={""}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             selectedValues={undefined}
             options={[]}
@@ -573,33 +597,34 @@ const CreatePayroll = () => {
 
         <Button
           disabled={false}
-          btnText='Add Staff'
-          btnClass='btn-cancel'
-          width='100%'
+          btnText="Add Staff"
+          btnClass="btn-cancel"
+          width="100%"
           icon={<Addcircle />}
-          onClick={() => setAddStaff(!addStaff)}
+          onClick={handleAddStaff}
+          // onClick={() => setAddStaff(!addStaff)}
         />
       </div>
 
       <div>
         {payrollGroups.map((group, groupIndex) => (
-          <div key={groupIndex} className='mt-10x'>
-            <div className='flex justify-between bg-[#E4EFF9] w-full h-[50px] px-7 items-center'>
-              <p className='text-sm text-[#010C15B2] font-bold'>STAFF NAME</p>
-              <p className='text-sm text-[#010C15B2] font-bold'>GROSS AMOUNT</p>
-              <p className='text-sm text-[#010C15B2] font-bold'>NET AMOUNT</p>
+          <div key={groupIndex} className="mt-10x">
+            <div className="flex justify-between bg-[#E4EFF9] w-full h-[50px] px-7 items-center">
+              <p className="text-sm text-[#010C15B2] font-bold">STAFF NAME</p>
+              <p className="text-sm text-[#010C15B2] font-bold">GROSS AMOUNT</p>
+              <p className="text-sm text-[#010C15B2] font-bold">NET AMOUNT</p>
             </div>
-            <div className='flex justify-between w-full h-[50px] px-7 items-center bills_form__top mt-5'>
+            <div className="flex justify-between w-full h-[50px] px-7 items-center bills_form__top mt-5">
               <TextInput
-                type={'dropdown'}
-                name={'staffName'}
+                type={"dropdown"}
+                name={"staffName"}
                 handleChange={undefined}
-                fieldClass={''}
-                errorClass={''}
-                errorMessage={''}
-                label={''}
-                id={''}
-                placeholder={'Select staff name'}
+                fieldClass={""}
+                errorClass={""}
+                errorMessage={""}
+                label={""}
+                id={""}
+                placeholder={"Select staff name"}
                 onSelectValue={selectValue}
                 isSearchable={true}
                 handleSearchValue={handleClassSearch}
@@ -608,46 +633,50 @@ const CreatePayroll = () => {
                 multi={true}
                 toggleOption={toggleClasses}
                 selectedValues={selectedClasses}
-                options={[
-                  { id: 1, name: 'Ronke Famuyiwa' },
-                  { id: 2, name: 'Bola Bola' },
-                  { id: 3, name: 'Prince Adeleke' },
-                  { id: 4, name: 'Jamal Toheeb Jnr' },
-                ]}
+                options={staffData?.map((el: any, index: number) => ({
+                  name: `${el.first_name}  ${el.last_name}`,
+                  id: index,
+                }))}
+                // options={[
+                //   { id: 1, name: "Ronke Famuyiwa" },
+                //   { id: 2, name: "Bola Bola" },
+                //   { id: 3, name: "Prince Adeleke" },
+                //   { id: 4, name: "Jamal Toheeb Jnr" },
+                // ]}
               />
 
-              <div className='input-component'>
+              <div className="input-component">
                 <input
                   onChange={(e) =>
                     handleGrossAmountChange(groupIndex, e.target.value)
                   }
                   //value={Number(grossSum).toLocaleString()}
                   value={fields.grossAmount}
-                  className='input-field'
-                  placeholder={'Gross amount'}
-                  name={'grossAmount'}
+                  className="input-field"
+                  placeholder={"Gross amount"}
+                  name={"grossAmount"}
                   disabled
                 />
               </div>
-              <div className='input-component'>
+              <div className="input-component">
                 <input
                   //value={Number(netAmount).toLocaleString()}
                   value={fields.netAmount}
-                  className='input-field'
-                  placeholder={'Net amount'}
-                  name={'netAmount'}
+                  className="input-field"
+                  placeholder={"Net amount"}
+                  name={"netAmount"}
                   disabled
                 />
               </div>
             </div>
 
             {renderModifiers(groupIndex)}
-            <div className='bills_form__other_form__addons'>
-              <p onClick={() => addModifier(groupIndex, 'ALLOWANCE')}>
+            <div className="bills_form__other_form__addons">
+              <p onClick={() => addModifier(groupIndex, "ALLOWANCE")}>
                 <AddCircleBlue />
                 Add Allowance
               </p>
-              <p onClick={() => addModifier(groupIndex, 'DEDUCTION')}>
+              <p onClick={() => addModifier(groupIndex, "DEDUCTION")}>
                 <AddCircleBlue />
                 Add Deduction
               </p>
@@ -656,37 +685,37 @@ const CreatePayroll = () => {
           </div>
         ))}
       </div>
-      <div className='bills_form__other_form__addons'>
+      <div className="bills_form__other_form__addons">
         <p onClick={handleAddStaff}>
           <AddCircleBlue />
           Add Staff
         </p>
       </div>
 
-      <div className='bills_form__btns'>
+      <div className="bills_form__btns">
         <button
           style={{
-            background: 'transparent',
-            padding: '16px 20px',
-            borderRadius: '5px',
+            background: "transparent",
+            padding: "16px 20px",
+            borderRadius: "5px",
           }}
-          onClick={() => navigate('/payroll')}
+          onClick={() => navigate("/payroll")}
         >
           Cancel
         </button>
 
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '25px' }}>
+        <div style={{ display: "flex", flexDirection: "row", gap: "25px" }}>
           <button
-            disabled={isLoading || fields.name === '' || fields.due_date === ''}
+            disabled={isLoading || fields.name === "" || fields.due_date === ""}
             style={{
-              background: '#439ADE',
-              color: 'white',
-              padding: '16px 20px',
-              borderRadius: '5px',
+              background: "#439ADE",
+              color: "white",
+              padding: "16px 20px",
+              borderRadius: "5px",
             }}
             onClick={() => submit()}
           >
-            {isLoading ? 'Saving...' : 'Save Payroll'}
+            {isLoading ? "Saving..." : "Save Payroll"}
           </button>
         </div>
       </div>

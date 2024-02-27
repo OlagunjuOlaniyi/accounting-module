@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
-import Cancel from '../../../icons/Cancel';
-import { Imodal } from '../../../types/types';
-import TextInput from '../../Input/TextInput';
-import '../Inventory/inventory.scss';
+import React, { useState, useEffect } from "react";
+import Modal from "react-modal";
+import Cancel from "../../../icons/Cancel";
+import { Imodal } from "../../../types/types";
+import TextInput from "../../Input/TextInput";
+import "../Inventory/inventory.scss";
 
-import Cash from '../../../icons/Cash';
-import Bank from '../../../icons/Bank';
+import Cash from "../../../icons/Cash";
+import Bank from "../../../icons/Bank";
 
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from "react-query";
 
-import { useGetBankList } from '../../../hooks/queries/banks';
-import Credit from '../../../icons/Credit';
+import { useGetBankList } from "../../../hooks/queries/banks";
+import Credit from "../../../icons/Credit";
 
-import { useNavigate } from 'react-router';
-import { useRunPayroll } from '../../../hooks/mutations/payroll';
+import { useNavigate } from "react-router";
+import { useRunPayroll } from "../../../hooks/mutations/payroll";
+import { useStaffDetails } from "../../../hooks/queries/SchoolQuery";
 
 const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
   const navigate = useNavigate();
@@ -27,13 +28,13 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
 
   const customStyles = {
     content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      padding: '0px',
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      marginRight: "-50%",
+      transform: "translate(-50%, -50%)",
+      padding: "0px",
     },
   };
 
@@ -66,7 +67,7 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
   };
 
   const close = () => {
-    closeModal('income');
+    closeModal("income");
   };
 
   type StateProps = {
@@ -89,43 +90,43 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
   let todaysDate = new Date().toISOString().substring(0, 10);
 
   const [fields, setFields] = useState<StateProps>({
-    paymentMethod: '',
-    amount: '',
-    description: '',
+    paymentMethod: "",
+    amount: "",
+    description: "",
     dateOfTransaction: todaysDate,
-    bank: '',
-    quantity: '',
-    name: '',
-    product_group_name: '',
-    product_category_name: '',
-    reOrderLevel: '',
-    size: '',
-    ppu: '',
-    spu: '',
-    total: '',
+    bank: "",
+    quantity: "",
+    name: "",
+    product_group_name: "",
+    product_category_name: "",
+    reOrderLevel: "",
+    size: "",
+    ppu: "",
+    spu: "",
+    total: "",
   });
 
   const [errors, setErrors] = useState({
-    quantity: '',
-    paymentMethod: '',
-    amount: '',
-    description: '',
-    dateOfTransaction: '',
-    bank: '',
-    name: '',
-    product_group_name: '',
-    product_category_name: '',
-    reOrderLevel: '',
-    size: '',
-    ppu: '',
-    spu: '',
-    total: '',
+    quantity: "",
+    paymentMethod: "",
+    amount: "",
+    description: "",
+    dateOfTransaction: "",
+    bank: "",
+    name: "",
+    product_group_name: "",
+    product_category_name: "",
+    reOrderLevel: "",
+    size: "",
+    ppu: "",
+    spu: "",
+    total: "",
   });
 
   //component states
 
-  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
-  const [bankId, setBankId] = useState('');
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
+  const [bankId, setBankId] = useState("");
 
   //handle field change
   const handleChange = (evt: any) => {
@@ -154,9 +155,10 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
     }
   };
 
-  const { mutate, isLoading } = useRunPayroll(id || '');
+  const { mutate, isLoading } = useRunPayroll(id || "");
 
   const { data: bank_accounts } = useGetBankList();
+  const { data: staffData } = useStaffDetails();
 
   const formattedBankAccounts = bank_accounts?.data?.map(
     (b: { id: any; account_name: any }) => ({
@@ -169,7 +171,7 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
     setSelectedGroupId(id);
-    if (name === 'bank') {
+    if (name === "bank") {
       setBankId(id);
     }
   };
@@ -181,7 +183,7 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
       type: selectedTypes.map((el: { name: string }) => el.name),
       transactions_date: fields.dateOfTransaction,
       payment_method:
-        fields.paymentMethod.props.children[1] === 'Bank'
+        fields.paymentMethod.props.children[1] === "Bank"
           ? bankId
           : fields.paymentMethod.props.children[1],
     };
@@ -190,7 +192,7 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
       onSuccess: (res) => {
         close();
         toast.success(res.message);
-        navigate('/payroll');
+        navigate("/payroll");
         queryClient.invalidateQueries({
           queryKey: `payroll`,
         });
@@ -209,14 +211,14 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
       style={customStyles}
       ariaHideApp={false}
     >
-      <div className='record-income'>
-        <div style={{ background: '#FBFDFE' }}>
-          <div className='record-income__cancel'>
-            <button className='record-income__cancel__btn' onClick={close}>
+      <div className="record-income">
+        <div style={{ background: "#FBFDFE" }}>
+          <div className="record-income__cancel">
+            <button className="record-income__cancel__btn" onClick={close}>
               <Cancel />
             </button>
           </div>
-          <div className='record-income__heading'>
+          <div className="record-income__heading">
             <h4>Run payroll </h4>
             <p>
               Select the payroll type, payment method, and date of transaction
@@ -225,84 +227,82 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
           </div>
         </div>
 
-        <div className='record-income__body'>
+        <div className="record-income__body">
           <TextInput
-            label={'Staff Name'}
-            placeholder={'StaffName'}
-            name='name'
-            type='dropdown'
-            errorClass={'error-msg'}
+            label={"Staff Name"}
+            placeholder={"StaffName"}
+            name="name"
+            type="dropdown"
+            errorClass={"error-msg"}
             handleChange={handleChange}
-            value={''}
-            fieldClass={errors['name'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['name']}
-            id={'student-name'}
+            value={""}
+            fieldClass={errors["name"] ? "error-field" : "input-field"}
+            errorMessage={errors["name"]}
+            id={"student-name"}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={handleBlur}
             multi={true}
             toggleOption={toggleOption}
             selectedValues={selected}
-            options={[
-              { id: 1, name: 'Ronke Famuyiwa' },
-              { id: 2, name: 'Bola Bola' },
-              { id: 3, name: 'Prince Adeleke' },
-              { id: 4, name: 'Jamal Toheeb Jnr' },
-            ]}
+            options={staffData?.map((el: any, index: number) => ({
+              name: `${el.first_name}  ${el.last_name}`,
+              id: index,
+            }))}
           />
 
           <TextInput
-            label='Payroll type'
-            placeholder='Select payroll type'
-            name='size'
-            type='dropdown'
-            errorClass={'error-msg'}
+            label="Payroll type"
+            placeholder="Select payroll type"
+            name="size"
+            type="dropdown"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.size}
-            fieldClass={errors['size'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['size']}
-            id={'size'}
+            fieldClass={errors["size"] ? "error-field" : "input-field"}
+            errorMessage={errors["size"]}
+            id={"size"}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={() => {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={undefined}
             multi={true}
             toggleOption={toggleTypesOption}
             options={[
-              { id: 1, name: 'ALL DEDUCTIONS' },
-              { id: 2, name: 'ALL ALLOWANCE' },
+              { id: 1, name: "ALL DEDUCTIONS" },
+              { id: 2, name: "ALL ALLOWANCE" },
             ]}
             selectedValues={selectedTypes}
           />
 
           <TextInput
-            label='Payment Method'
-            placeholder='Select payment method'
-            name='paymentMethod'
-            type='dropdown'
-            errorClass={'error-msg'}
+            label="Payment Method"
+            placeholder="Select payment method"
+            name="paymentMethod"
+            type="dropdown"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.paymentMethod}
-            fieldClass={errors['paymentMethod'] ? 'error-field' : 'input-field'}
-            errorMessage={errors['paymentMethod']}
-            id={'paymentMethod'}
+            fieldClass={errors["paymentMethod"] ? "error-field" : "input-field"}
+            errorMessage={errors["paymentMethod"]}
+            id={"paymentMethod"}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={undefined}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             options={[
               {
                 id: 1,
                 name: (
-                  <div className='payment-method-dropdown'>
+                  <div className="payment-method-dropdown">
                     <Cash />
                     CASH
                   </div>
@@ -311,7 +311,7 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
               {
                 id: 2,
                 name: (
-                  <div className='payment-method-dropdown'>
+                  <div className="payment-method-dropdown">
                     <Bank />
                     Bank
                   </div>
@@ -321,7 +321,7 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
               {
                 id: 3,
                 name: (
-                  <div className='payment-method-dropdown'>
+                  <div className="payment-method-dropdown">
                     <Credit />
                     Credit
                   </div>
@@ -332,26 +332,26 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
           />
 
           {fields.paymentMethod?.props?.children[1]?.toLowerCase() ===
-            'bank' && (
+            "bank" && (
             <TextInput
-              label='Bank Accounts'
-              placeholder='Select bank account'
-              name='bank'
-              type='dropdown'
-              errorClass={'error-msg'}
+              label="Bank Accounts"
+              placeholder="Select bank account"
+              name="bank"
+              type="dropdown"
+              errorClass={"error-msg"}
               handleChange={handleChange}
               value={fields.bank}
-              fieldClass={errors['bank'] ? 'error-field' : 'input-field'}
-              errorMessage={errors['bank']}
-              id={'bank'}
+              fieldClass={errors["bank"] ? "error-field" : "input-field"}
+              errorMessage={errors["bank"]}
+              id={"bank"}
               onSelectValue={selectValue}
               isSearchable={false}
               handleSearchValue={function (): void {}}
-              searchValue={''}
+              searchValue={""}
               handleBlur={undefined}
               multi={false}
               toggleOption={function (a: any): void {
-                throw new Error('');
+                throw new Error("");
               }}
               options={formattedBankAccounts}
               selectedValues={undefined}
@@ -359,39 +359,39 @@ const RunPayroll = ({ modalIsOpen, closeModal, id }: any) => {
           )}
 
           <TextInput
-            label='Date of Transaction'
-            placeholder=''
-            name='dateOfTransaction'
-            type='date'
-            min={new Date().toISOString().split('T')[0]}
-            errorClass={'error-msg'}
+            label="Date of Transaction"
+            placeholder=""
+            name="dateOfTransaction"
+            type="date"
+            min={new Date().toISOString().split("T")[0]}
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.dateOfTransaction}
             fieldClass={
-              errors['dateOfTransaction'] ? 'error-field' : 'input-field'
+              errors["dateOfTransaction"] ? "error-field" : "input-field"
             }
-            errorMessage={errors['dateOfTransaction']}
-            id={'dateOfTransaction'}
+            errorMessage={errors["dateOfTransaction"]}
+            id={"dateOfTransaction"}
             onSelectValue={function (a: string, b: string): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
+            searchValue={""}
             handleBlur={undefined}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
-            selectedValues={''}
+            selectedValues={""}
           />
         </div>
         <button
-          className='record-income__footer-btn'
+          className="record-income__footer-btn"
           onClick={() => submit()}
           disabled={
-            fields.paymentMethod === '' || selected.length === 0 || isLoading
+            fields.paymentMethod === "" || selected.length === 0 || isLoading
           }
         >
-          {isLoading ? 'Please wait...' : 'Run Payroll'}
+          {isLoading ? "Please wait..." : "Run Payroll"}
         </button>
       </div>
     </Modal>

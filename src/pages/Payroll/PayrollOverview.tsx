@@ -1,22 +1,22 @@
-import React, { useEffect } from 'react';
-import BarChart from '../../components/Charts/BarChart';
-import CustomLegend from '../../components/CustomLegend/CustomLegend';
+import React, { useEffect } from "react";
+import BarChart from "../../components/Charts/BarChart";
+import CustomLegend from "../../components/CustomLegend/CustomLegend";
 import OverviewCard, {
   ICardProps,
-} from '../../components/OverviewCard/OverviewCard';
-import Expense from '../../icons/Expense';
-import Income from '../../icons/Income';
-import Net from '../../icons/Net';
-import { useGetIncomeAndExpenseOverview } from '../../hooks/queries/overview';
+} from "../../components/OverviewCard/OverviewCard";
+import Expense from "../../icons/Expense";
+import Income from "../../icons/Income";
+import Net from "../../icons/Net";
+import { useGetIncomeAndExpenseOverview } from "../../hooks/queries/overview";
 
-import { Ioverview } from '../../types/types';
-import { mergeMonths } from '../../utilities';
-import { useCurrency } from '../../context/CurrencyContext';
-import Button from '../../components/Button/Button';
+import { Ioverview } from "../../types/types";
+import { mergeMonths } from "../../utilities";
+import { useCurrency } from "../../context/CurrencyContext";
+import Button from "../../components/Button/Button";
 import {
   useGetPayroll,
   useGetPayrollOverview,
-} from '../../hooks/queries/payroll';
+} from "../../hooks/queries/payroll";
 
 interface Iprops {
   filteredData?: Ioverview;
@@ -25,7 +25,7 @@ interface Iprops {
 const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
   const { data: payroll } = useGetPayroll();
   const { data, refetch, isLoading } = useGetPayrollOverview(
-    payroll ? payroll[0]?.id : ''
+    payroll ? payroll[0]?.id : ""
   );
 
   useEffect(() => {
@@ -46,27 +46,27 @@ const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
   const cardDetails: ICardDetails[] = [
     {
       id: 1,
-      title: 'PAYMENT DUE DATE',
+      title: "PAYMENT DUE DATE",
       amount: `SEP 25 2021`,
-      percentage: '',
-      type: '',
+      percentage: "",
+      type: "",
       icon: <Income />,
     },
     {
       id: 2,
-      title: 'NUMBER OF STAFF',
+      title: "NUMBER OF STAFF",
       amount: `1000`,
-      percentage: '',
-      type: '',
+      percentage: "",
+      type: "",
       icon: <Expense />,
     },
     {
       id: 3,
-      title: 'NET AMOUNT',
+      title: "NET AMOUNT",
       amount: `${currency} 120,000`,
-      percentage: '',
+      percentage: "",
       //type: apiData?.profit?.toLocaleString().includes('-') ? 'loss' : 'profit',
-      type: '',
+      type: "",
       icon: <Net />,
     },
   ];
@@ -101,16 +101,16 @@ const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
     labels,
     datasets: [
       {
-        label: 'Income',
+        label: "Income",
         data: apiData?.income_by_month?.map((a: any) => a.income),
-        backgroundColor: '#43F226',
+        backgroundColor: "#43F226",
         borderRadius: 40,
         barThickness: 45,
       },
       {
-        label: 'Expense',
+        label: "Expense",
         data: apiData?.expense_by_month?.map((a: any) => a.expense),
-        backgroundColor: '#FE5050',
+        backgroundColor: "#FE5050",
         borderRadius: 40,
         barThickness: 45,
       },
@@ -122,7 +122,7 @@ const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className='income-expense-overview'>
+        <div className="income-expense-overview">
           {/* <div className='flex justify-between'>
             <h2 className='font-bold'>
               September 2021 Payroll is due on Aug 25, 2021
@@ -158,14 +158,14 @@ const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
             ))}
           </div> */}
 
-          <div className='income-expense-overview__chart-wrapper'>
-            <div className='income-expense-overview__chart-wrapper__top'>
+          <div className="income-expense-overview__chart-wrapper">
+            <div className="income-expense-overview__chart-wrapper__top">
               <p>Report</p>
               <div>
                 <CustomLegend
                   data={[
-                    { id: 1, label: 'Allowance', bgColor: '#7380F6' },
-                    { id: 2, label: 'Deduction', bgColor: '#CD4F56' },
+                    { id: 1, label: "Allowance", bgColor: "#7380F6" },
+                    { id: 2, label: "Deduction", bgColor: "#CD4F56" },
                   ]}
                 />
               </div>
