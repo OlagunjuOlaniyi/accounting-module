@@ -11,8 +11,12 @@ import Duplicate from '../../icons/Duplicate';
 import Unsend from '../../icons/Unsend';
 import { useCurrency } from '../../context/CurrencyContext';
 import Header from '../../components/Header/Header';
-
-const Unsent = () => {
+interface Iprops {
+  filteredData?: any;
+  filteredLoading: Boolean;
+  searchRes: any;
+}
+const Unsent = ({filteredLoading, filteredData, searchRes }: Iprops) => {
   const queryClient = useQueryClient();
   const { currency } = useCurrency();
 

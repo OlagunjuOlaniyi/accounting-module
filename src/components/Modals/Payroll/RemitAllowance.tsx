@@ -197,7 +197,7 @@ const RemitAllowance = ({ modalIsOpen, closeModal, id }: any) => {
         });
       },
 
-      onError: (e) => {
+      onError: (e:any) => {
         toast.error(e.response?.data?.message);
       },
     });

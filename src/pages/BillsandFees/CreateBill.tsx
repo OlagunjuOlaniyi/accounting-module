@@ -1,27 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import './BillsandFees.scss';
-import TextInput from '../../components/Input/TextInput';
-import Button from '../../components/Button/Button';
-import Addcircle from '../../icons/Addcircle';
-import AddCircleBlue from '../../icons/AddCircleBlue';
-import ToggleUnchecked from '../../icons/ToggleUnchecked';
-import ToggleChecked from '../../icons/ToggleChecked';
-import { useGetSchoolDetails } from '../../hooks/queries/SchoolQuery';
-import { useNavigate } from 'react-router';
+import "./BillsandFees.scss";
+import TextInput from "../../components/Input/TextInput";
+import Button from "../../components/Button/Button";
+import Addcircle from "../../icons/Addcircle";
+import AddCircleBlue from "../../icons/AddCircleBlue";
+import ToggleUnchecked from "../../icons/ToggleUnchecked";
+import ToggleChecked from "../../icons/ToggleChecked";
+import { useGetSchoolDetails } from "../../hooks/queries/SchoolQuery";
+import { useNavigate } from "react-router";
 import {
   useGetClasses,
   useGetFeeTypes,
-} from '../../hooks/queries/billsAndFeesMgt';
-import { Discount, Fee } from '../../types/types';
-import toast from 'react-hot-toast';
-import { useQueryClient } from 'react-query';
-import { useCreateBill } from '../../hooks/mutations/billsAndFeesMgt';
-import DeleteRed from '../../icons/DeleteRed';
-import ClassAndStudentSelection from '../../components/ClassAndStudentSelection/ClassAndStudentSelection';
-import { useGetStudents } from '../../hooks/queries/students';
-import MultiLevelDropdown from '../../components/MultilevelDropdown/MultilevelDropdown';
-import Header from '../../components/Header/Header';
+} from "../../hooks/queries/billsAndFeesMgt";
+import { Discount, Fee } from "../../types/types";
+import toast from "react-hot-toast";
+import { useQueryClient } from "react-query";
+import { useCreateBill } from "../../hooks/mutations/billsAndFeesMgt";
+import DeleteRed from "../../icons/DeleteRed";
+import ClassAndStudentSelection from "../../components/ClassAndStudentSelection/ClassAndStudentSelection";
+import { useGetStudents } from "../../hooks/queries/students";
+import MultiLevelDropdown from "../../components/MultilevelDropdown/MultilevelDropdown";
+import Header from "../../components/Header/Header";
 
 const CreateBill = () => {
   const navigate = useNavigate();
@@ -33,22 +33,25 @@ const CreateBill = () => {
   const [partPayment, setPartPayment] = useState<boolean>(false);
   const [percentage, setPercentage] = useState<boolean>(false);
   const [selectedClasses, setSelectedClasses] = useState<any>([]);
-  const [classSearchValue, setClassSearchValue] = useState<string>('');
-  const [selectedFee, setSelectedFee] = useState('');
+  const [classSearchValue, setClassSearchValue] = useState<string>("");
+  const [selectedFee, setSelectedFee] = useState("");
   const [selectedDiscount, setSelectedDiscount] = useState(200);
+  const [selectedDiscountFeeType, setSelectedDiscountFeeType] = useState(200);
   const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
-  const [selectedFeeForDiscount, setSelectedFeeForDiscount] = useState('');
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [showAddFeeDropdown, setShowAddFeeDropdown] = useState(false);
+  const [selectedFeeForDiscount, setSelectedFeeForDiscount] = useState("");
+  const [searchValue, setSearchValue] = useState<string>("");
   const [selected, setSelected] = useState<any>([]);
 
-  const [discountValue, setDiscounValue] = useState('');
+  const [discountValue, setDiscounValue] = useState(1);
+  const [discountIndex, setDiscountIndex] = useState(0);
   const [discountedAmount, setDiscountAmout] = useState(0);
 
   const [fees, setFees] = useState<Fee[]>([
     {
       fee_type: {
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         default_amount: 0.0,
         classes: [],
         students: [],
@@ -62,33 +65,45 @@ const CreateBill = () => {
   const [discounts, setDiscounts] = useState<Discount[]>([
     {
       value: 0,
-      description: '',
+      description: "",
+      fee_type: "",
+      discount_amount: 0,
       is_percentage: true,
       students: [],
       classes: [],
     },
   ]);
 
-  const calcDiscountedValue = () => {
-    const filterFeesByFeeTypeName = (): Fee[] => {
-      return fees.filter((fee) => fee.fee_type.name === selectedFeeForDiscount);
-    };
-    let discounted =
-      (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
-        discountValue) /
-      100;
+  const getDiscount = discounts.map((dis, i) => ({
+    fee_type: dis.fee_type,
+  }));
 
-    setDiscountAmout(Number(discounted).toLocaleString());
-  };
+  // const calcDiscountedValue = () => {
+  //   // let filteredDiscount = () => {
+  //   //   getDiscount.filter()
+  //   // }
+  //   const filterFeesByFeeTypeName = (): Fee[] => {
+  //     return fees.filter(
+  //       (fee) => fee.fee_type.name === getDiscount[discountIndex].fee_type
+  //     );
+  //   };
+
+  //   let discounted =
+  //     (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
+  //       discounts[discountIndex].value) /
+  //     100;
+
+  //   setDiscountAmout(Number(discounted));
+  // };
 
   useEffect(() => {
-    calcDiscountedValue();
-  }, [discountValue, selectedFeeForDiscount]);
+    // calcDiscountedValue();
+  }, [discountValue, discounts, selectedFeeForDiscount]);
 
   const [fields, setFields] = useState({
-    billName: '',
-    dueDate: '',
-    status: 'draft',
+    billName: "",
+    dueDate: "",
+    status: "draft",
     classes: [],
     amount: 0,
     mandatory: false,
@@ -140,8 +155,8 @@ const CreateBill = () => {
   const handleAddFee = () => {
     const newFee: Fee = {
       fee_type: {
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         default_amount: 0.0,
         classes: [],
         students: [],
@@ -153,11 +168,19 @@ const CreateBill = () => {
     setFees([...fees, newFee]);
   };
 
+  // useEffect(() => {
+  //   fees;
+  // }, []);
+
+  const [discountFeeType, setDiscountFeeType] = useState([]);
+
   const handleAddDiscount = () => {
     const newDiscount: Discount = {
-      value: 10,
-      description: '',
+      value: 0,
+      description: "",
       is_percentage: true,
+      fee_type: "",
+      discount_amount: 0,
       students: [],
       classes: [],
     };
@@ -184,12 +207,39 @@ const CreateBill = () => {
       i === index
         ? {
             ...discount,
+            // discount_amount: discountedAmount,
             [field]: value,
           }
         : discount
     );
     setDiscounts(updatedDiscount);
   };
+
+  // populate the discount fields
+  useEffect(() => {
+    const filterFeesByFeeTypeName = (): Fee[] => {
+      return fees.filter(
+        (fee) => fee.fee_type.name === getDiscount[discountIndex].fee_type
+      );
+    };
+
+    let discounted = Number(
+      (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
+        discounts[discountIndex].value) /
+        100
+    );
+
+    // setDiscountAmout(Number(discounted));
+    const updatedDiscount = discounts.map((discount, i) =>
+      i === discountIndex
+        ? {
+            ...discount,
+            discount_amount: discounted,
+          }
+        : discount
+    );
+    setDiscounts(updatedDiscount);
+  }, [discounts]);
 
   const handleClassChange = (
     index: number,
@@ -305,12 +355,12 @@ const CreateBill = () => {
   };
 
   const showClasses = (fee: string) => {
-    if (fee == '') {
-      toast.error('Please enter the fee type first');
+    if (fee == "") {
+      toast.error("Please enter the fee type first");
       return;
     }
     if (selectedFee === fee) {
-      setSelectedFee('');
+      setSelectedFee("");
     } else {
       setSelectedFee(fee);
     }
@@ -324,6 +374,14 @@ const CreateBill = () => {
     }
   };
 
+  const showClassesForDiscountFeeType = (index: number) => {
+    if (selectedDiscount === index) {
+      setSelectedDiscountFeeType(200);
+    } else {
+      setSelectedDiscountFeeType(index);
+    }
+  };
+
   const { mutate, isLoading } = useCreateBill();
 
   const { data: fee_types } = useGetFeeTypes();
@@ -331,15 +389,15 @@ const CreateBill = () => {
   //submit form
   const submit = () => {
     if (isNaN(Number(fields.amount))) {
-      toast.error('Amount field can only contain numbers');
+      toast.error("Amount field can only contain numbers");
       return;
     }
 
     let dataToSend = {
       bill_name: fields.billName,
       due_date: fields.dueDate,
-      status: 'draft',
-      classes: selectedClasses?.map(({ name }) => ({ name })),
+      status: "draft",
+      classes: selectedClasses?.map(({ name }: any) => ({ name })),
       fees: fees,
       amount: fields.amount,
       mandatory: false,
@@ -347,22 +405,22 @@ const CreateBill = () => {
     };
     console.log(dataToSend);
 
-    // mutate(dataToSend, {
-    //   onSuccess: (res) => {
-    //     close();
-    //     toast.success('Bill created successfully');
-    //     queryClient.invalidateQueries({
-    //       queryKey: `bills`,
-    //     });
+    mutate(dataToSend, {
+      onSuccess: (res) => {
+        close();
+        toast.success("Bill created successfully");
+        queryClient.invalidateQueries({
+          queryKey: `bills`,
+        });
 
-    //     setFields({ ...fields });
-    //     navigate('/bills-fees-management');
-    //   },
+        setFields({ ...fields });
+        navigate("/bills-fees-management");
+      },
 
-    //   onError: (e) => {
-    //     toast.error('Error creating bill');
-    //   },
-    // });
+      onError: (e) => {
+        toast.error("Error creating bill");
+      },
+    });
   };
 
   const handleClassDiscountChange = (
@@ -389,76 +447,76 @@ const CreateBill = () => {
   return (
     <div>
       <Header />
-      <div className='bills_overview'>
-        <h2 className='bills_overview__title'>{fields.billName || ''} Bill</h2>
-        <h1 className='bills_overview__approval'>APPROVAL STATUS: Pending</h1>
-        <h1 className='bills_overview__status'>STATUS: Draft</h1>
+      <div className="bills_overview">
+        <h2 className="bills_overview__title">{fields.billName || ""} Bill</h2>
+        <h1 className="bills_overview__approval">APPROVAL STATUS: Pending</h1>
+        <h1 className="bills_overview__status">STATUS: Draft</h1>
       </div>
 
-      <div className='bills_schoolInfo'>
-        <div className='bills_schoolInfo__logo'>
-          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt='' />
+      <div className="bills_schoolInfo">
+        <div className="bills_schoolInfo__logo">
+          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt="" />
         </div>
-        <div className='bills_schoolInfo__details'>
+        <div className="bills_schoolInfo__details">
           {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {fields.billName ? `${fields.billName}` : ''}
-          <p className='bills_schoolInfo__details__email'>
+          <br /> {fields.billName ? `${fields.billName}` : ""}
+          <p className="bills_schoolInfo__details__email">
             Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
         </div>
       </div>
 
-      <div className='bills_form'>
-        <div className='bills_form__top'>
+      <div className="bills_form">
+        <div className="bills_form__top">
           <TextInput
-            label='Bill Name'
-            placeholder='Bill Name'
-            className='bills_form__top__input'
-            name='billName'
-            type='text'
-            fieldClass={'input-field'}
-            errorClass={'error-msg'}
+            label="Bill Name"
+            placeholder="Bill Name"
+            className="bills_form__top__input"
+            name="billName"
+            type="text"
+            fieldClass={"input-field"}
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.billName}
-            errorMessage={''}
-            id={'billName'}
+            errorMessage={""}
+            id={"billName"}
             onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={''}
+            searchValue={""}
+            handleBlur={""}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             selectedValues={undefined}
             options={[
-              { id: 1, name: 'Third term 2022/2023' },
-              { id: 2, name: 'First term 2023/2024' },
-              { id: 3, name: 'Second term 2023/2024' },
-              { id: 4, name: 'Third term 2023/2024' },
+              { id: 1, name: "Third term 2022/2023" },
+              { id: 2, name: "First term 2023/2024" },
+              { id: 3, name: "Second term 2023/2024" },
+              { id: 4, name: "Third term 2023/2024" },
             ]}
           />
 
           <TextInput
-            label='Bill Due Date'
-            placeholder='Bill Name'
-            name='dueDate'
-            type='date'
-            errorClass={'error-msg'}
+            label="Bill Due Date"
+            placeholder="Bill Name"
+            name="dueDate"
+            type="date"
+            errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.dueDate}
-            fieldClass={'input-field'}
-            errorMessage={''}
-            id={'dueDate'}
+            fieldClass={"input-field"}
+            errorMessage={""}
+            id={"dueDate"}
             onSelectValue={function (): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={''}
+            searchValue={""}
+            handleBlur={""}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             selectedValues={undefined}
             options={[]}
@@ -467,38 +525,38 @@ const CreateBill = () => {
 
         <Button
           disabled={false}
-          btnText='Add Class'
-          btnClass='btn-cancel'
-          width='100%'
+          btnText="Add Class"
+          btnClass="btn-cancel"
+          width="100%"
           icon={<Addcircle />}
           onClick={() => setAddClass(!addClass)}
         />
       </div>
 
       {addClass && (
-        <div className='bills_form__other_form'>
-          <div className='bills_form__other_form__header'>
+        <div className="bills_form__other_form">
+          <div className="bills_form__other_form__header">
             <p>ASSIGNED CLASS</p>
             <p>TOTAL BILL AMOUNT</p>
           </div>
 
-          <div className='bills_form__top'>
+          <div className="bills_form__top">
             <TextInput
-              label=''
-              placeholder='Assign Bill to class'
-              name='classes'
-              type='dropdown'
-              errorClass={'error-msg'}
-              handleChange={''}
-              value={''}
-              fieldClass={''}
-              errorMessage={''}
-              id={'classes'}
+              label=""
+              placeholder="Assign Bill to class"
+              name="classes"
+              type="dropdown"
+              errorClass={"error-msg"}
+              handleChange={""}
+              value={""}
+              fieldClass={""}
+              errorMessage={""}
+              id={"classes"}
               onSelectValue={selectValue}
               isSearchable={true}
               handleSearchValue={handleClassSearch}
               searchValue={classSearchValue}
-              handleBlur={''}
+              handleBlur={""}
               multi={true}
               toggleOption={toggleClasses}
               selectedValues={selectedClasses}
@@ -506,21 +564,21 @@ const CreateBill = () => {
             />
 
             <TextInput
-              label=''
-              placeholder=''
-              name='amount'
-              type='text'
-              errorClass={'error-msg'}
+              label=""
+              placeholder=""
+              name="amount"
+              type="text"
+              errorClass={"error-msg"}
               handleChange={handleChange}
               value={fields.amount?.toLocaleString()}
-              fieldClass={'input-field'}
-              errorMessage={''}
-              id={'amount'}
+              fieldClass={"input-field"}
+              errorMessage={""}
+              id={"amount"}
               onSelectValue={function (): void {}}
               isSearchable={false}
               handleSearchValue={function (): void {}}
-              searchValue={''}
-              handleBlur={''}
+              searchValue={""}
+              handleBlur={""}
               multi={false}
               toggleOption={() => {}}
               selectedValues={[]}
@@ -529,51 +587,52 @@ const CreateBill = () => {
             />
           </div>
 
-          <div className='bills_form__other_form__addons'>
+          <div className="bills_form__other_form__addons">
             <p onClick={() => setAddFee(!addFee)}>
               <AddCircleBlue />
               Add Fee
             </p>
 
             {fees.length > 0 && (
-              <div className='bills_form__other_form__addons__addFee'>
+              <div className="bills_form__other_form__addons__addFee">
                 {addFee &&
                   fees.map((fee, index) => (
                     <div
                       key={index}
                       style={{
-                        marginBottom: '30px',
+                        marginBottom: "30px",
                       }}
                     >
                       <div
                         style={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-end',
-                          marginBottom: '20px',
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "flex-end",
+                          marginBottom: "20px",
                         }}
                       >
-                        <div className='bills_form__other_form__addons__addFee__input'>
+                        <div className="bills_form__other_form__addons__addFee__input">
                           <label>Fee Type</label>
-                          <div className='bills_form__other_form__addons__addFee__input__wrapper'>
+                          <div className="bills_form__other_form__addons__addFee__input__wrapper">
                             <input
-                              className='bills_form__other_form__addons__addFee__input__wrapper__input'
-                              type='text'
-                              name=''
-                              id=''
+                              className="bills_form__other_form__addons__addFee__input__wrapper__input"
+                              type="text"
+                              name=""
+                              id=""
                               value={fee.fee_type.name}
-                              onClick={() =>
-                                setShowDiscountDropdown(!showDiscountDropdown)
-                              }
+                              onClick={() => {
+                                setShowAddFeeDropdown(!showAddFeeDropdown);
+                                showClassesForDiscountFeeType(index);
+                              }}
                               onChange={(e) =>
                                 handleFeeTypeChange(
                                   index,
-                                  'name',
+                                  "name",
                                   e.target.value
                                 )
                               }
-                              placeholder='type or select fee type'
+                              placeholder="type or select fee type"
                             />
                             <button
                               onClick={() => showClasses(fee.fee_type.name)}
@@ -581,19 +640,20 @@ const CreateBill = () => {
                               <AddCircleBlue />
                             </button>
                           </div>
-                          <div className='discount_dropdown'>
-                            {showDiscountDropdown &&
+                          <div className="discount_dropdown">
+                            {showAddFeeDropdown &&
+                              selectedDiscountFeeType === index &&
                               fee_types?.results?.map(
                                 (fee: { name: string }) => (
                                   <div
-                                    className='discount_dropdown__item'
+                                    className="discount_dropdown__item"
                                     onClick={() => {
                                       handleFeeTypeChange(
                                         index,
-                                        'name',
+                                        "name",
                                         fee.name
                                       );
-                                      setShowDiscountDropdown(false);
+                                      setShowAddFeeDropdown(false);
                                     }}
                                   >
                                     <p>{fee?.name}</p>
@@ -601,10 +661,10 @@ const CreateBill = () => {
                                 )
                               )}
                           </div>
-                          {selectedFee !== '' &&
+                          {selectedFee !== "" &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
-                                classes={classesAndStudents}
+                                classes={classesAndStudents as any}
                                 cancel={() => showClasses(fee.fee_type.name)}
                                 selectedClassesInParent={fee.fee_type.classes}
                                 selectedStudentsInParent={fee.fee_type.students}
@@ -627,14 +687,14 @@ const CreateBill = () => {
                               />
                             )}
                         </div>
-                        <div className='bills_form__other_form__addons__addFee__input'>
-                          <div className='bills_form__other_form__addons__addFee__input__wrapper'>
+                        <div className="bills_form__other_form__addons__addFee__input">
+                          <div className="bills_form__other_form__addons__addFee__input__wrapper">
                             <input
-                              className='bills_form__other_form__addons__addFee__input__wrapper__input'
-                              type='text'
-                              name=''
-                              id=''
-                              placeholder='Amount'
+                              className="bills_form__other_form__addons__addFee__input__wrapper__input"
+                              type="text"
+                              name=""
+                              id=""
+                              placeholder="Amount"
                               value={fee.amount}
                               onChange={(e) =>
                                 handleAmountChange(index, e.target.value)
@@ -642,7 +702,7 @@ const CreateBill = () => {
                             />
                           </div>
                           <div
-                            style={{ cursor: 'pointer' }}
+                            style={{ cursor: "pointer" }}
                             onClick={() => removeFee(fee.fee_type.name)}
                           >
                             <DeleteRed />
@@ -652,9 +712,9 @@ const CreateBill = () => {
 
                       <div
                         style={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          gap: '10px',
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: "10px",
                         }}
                       >
                         {fee.mandatory ? (
@@ -675,12 +735,12 @@ const CreateBill = () => {
                   <div
                     onClick={handleAddFee}
                     style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: '10px',
-                      color: 'rgba(67, 154, 222, 1)',
-                      marginTop: '20px',
-                      cursor: 'pointer',
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "10px",
+                      color: "rgba(67, 154, 222, 1)",
+                      marginTop: "20px",
+                      cursor: "pointer",
                     }}
                   >
                     <AddCircleBlue />
@@ -698,36 +758,36 @@ const CreateBill = () => {
             {discounts.length > 0 &&
               addDiscount &&
               discounts.map((d, index) => (
-                <div className='bills_form__other_form__addons__addDiscount'>
+                <div className="bills_form__other_form__addons__addDiscount">
                   <div
                     style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-end',
-                      marginBottom: '20px',
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "flex-end",
+                      marginBottom: "20px",
                     }}
                   >
                     <div
-                      className='bills_form__other_form__addons__addFee__input'
+                      className="bills_form__other_form__addons__addFee__input"
                       style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
                       }}
                     >
                       <label>Discount</label>
-                      <div className='bills_form__other_form__addons__addFee__input__wrapper'>
+                      <div className="bills_form__other_form__addons__addFee__input__wrapper">
                         <input
-                          className='bills_form__other_form__addons__addFee__input__wrapper__input'
-                          type='text'
-                          name=''
-                          id=''
+                          className="bills_form__other_form__addons__addFee__input__wrapper__input"
+                          type="text"
+                          name=""
+                          id=""
                           value={d.value}
                           onChange={(e) =>
-                            handleDiscountChange(index, 'value', e.target.value)
+                            handleDiscountChange(index, "value", e.target.value)
                           }
-                          placeholder='type or select fee type'
+                          placeholder="type or select fee type"
                         />
                         <button onClick={() => showClassesForDiscount(index)}>
                           <AddCircleBlue />
@@ -737,7 +797,7 @@ const CreateBill = () => {
                             <ClassAndStudentSelection
                               selectedClassesInParent={d.classes}
                               selectedStudentsInParent={d.students}
-                              classes={classesAndStudents}
+                              classes={classesAndStudents as any}
                               cancel={() => showClassesForDiscount(index)}
                               onClassChange={(
                                 selectedClasses: any,
@@ -760,26 +820,47 @@ const CreateBill = () => {
                       </div>
                     </div>
                     of
-                    <div style={{ position: 'relative' }}>
-                      <div className='bills_form__other_form__addons__addDiscount__input'>
+                    <div style={{ position: "relative" }}>
+                      <div className="bills_form__other_form__addons__addDiscount__input">
                         <input
-                          type='text'
-                          name=''
-                          id=''
-                          value={selectedFeeForDiscount}
-                          placeholder='Select fee type'
-                          onClick={() =>
-                            setShowDiscountDropdown(!showDiscountDropdown)
-                          }
+                          type="text"
+                          name=""
+                          id=""
+                          value={d.fee_type}
+                          placeholder="Select fee type"
+                          // onClick={() =>
+                          //   setShowDiscountDropdown(!showDiscountDropdown)
+                          // }
+                          onClick={(e) => {
+                            setShowDiscountDropdown(!showDiscountDropdown);
+                            showClassesForDiscountFeeType(index);
+                            // setDiscountIndex(index);
+                          }}
+                          onChange={(e) => {
+                            setDiscountIndex(index);
+                            handleDiscountChange(
+                              index,
+                              "fee_type",
+                              e.target.value
+                            );
+                          }}
                         />
                       </div>
-                      <div className='discount_dropdown'>
+                      <div className="discount_dropdown">
                         {showDiscountDropdown &&
+                          // selectedDiscount !== 200 &&
+                          selectedDiscountFeeType === index &&
                           fees.map((fee) => (
                             <div
-                              className='discount_dropdown__item'
+                              className="discount_dropdown__item"
                               onClick={() => {
-                                setSelectedFeeForDiscount(fee?.fee_type?.name);
+                                // setSelectedFeeForDiscount(fee?.fee_type?.name);
+                                setDiscountIndex(index);
+                                handleDiscountChange(
+                                  index,
+                                  "fee_type",
+                                  fee?.fee_type?.name
+                                );
                                 setShowDiscountDropdown(false);
                               }}
                             >
@@ -789,27 +870,28 @@ const CreateBill = () => {
                       </div>
                     </div>
                     —
-                    <div className='bills_form__other_form__addons__addDiscount__input'>
+                    <div className="bills_form__other_form__addons__addDiscount__input">
                       <input
-                        type='text'
-                        name=''
-                        id=''
-                        placeholder=''
+                        type="text"
+                        name=""
+                        id=""
+                        placeholder=""
                         disabled
-                        value={discountedAmount ? discountedAmount : 0}
+                        // value={discountedAmount ? discountedAmount : 0}
+                        value={d.discount_amount}
                       />
                     </div>
-                    <div className='bills_form__other_form__addons__addDiscount__input'>
+                    <div className="bills_form__other_form__addons__addDiscount__input">
                       <input
-                        type='text'
-                        name=''
-                        id=''
+                        type="text"
+                        name=""
+                        id=""
                         value={d.description}
-                        placeholder='Reason for discount'
+                        placeholder="Reason for discount"
                         onChange={(e) =>
                           handleDiscountChange(
                             index,
-                            'description',
+                            "description",
                             e.target.value
                           )
                         }
@@ -819,9 +901,9 @@ const CreateBill = () => {
 
                   <div
                     style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: '10px',
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "10px",
                     }}
                   >
                     {d.is_percentage ? (
@@ -829,7 +911,7 @@ const CreateBill = () => {
                         onClick={() =>
                           handleDiscountChange(
                             index,
-                            'is_percentage',
+                            "is_percentage",
                             !d.is_percentage
                           )
                         }
@@ -841,7 +923,7 @@ const CreateBill = () => {
                         onClick={() =>
                           handleDiscountChange(
                             index,
-                            'is_percentage',
+                            "is_percentage",
                             !d.is_percentage
                           )
                         }
@@ -857,12 +939,12 @@ const CreateBill = () => {
               <div
                 onClick={handleAddDiscount}
                 style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: '10px',
-                  color: 'rgba(67, 154, 222, 1)',
-                  marginTop: '20px',
-                  cursor: 'pointer',
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "10px",
+                  color: "rgba(67, 154, 222, 1)",
+                  marginTop: "20px",
+                  cursor: "pointer",
                 }}
               >
                 <AddCircleBlue />
@@ -872,11 +954,11 @@ const CreateBill = () => {
 
             <div
               style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '10px',
-                marginTop: '20px',
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "10px",
+                marginTop: "20px",
               }}
             >
               {partPayment ? (
@@ -891,10 +973,10 @@ const CreateBill = () => {
 
               <p
                 style={{
-                  margin: '0',
-                  padding: '0',
-                  fontSize: '14px',
-                  color: 'black',
+                  margin: "0",
+                  padding: "0",
+                  fontSize: "14px",
+                  color: "black",
                 }}
               >
                 Click to allow part payment of school bill
@@ -902,46 +984,46 @@ const CreateBill = () => {
             </div>
           </div>
 
-          <div className='bills_form__other_form__note'>
+          <div className="bills_form__other_form__note">
             <label>Notes</label>
             <textarea
-              name=''
-              id=''
+              name=""
+              id=""
               cols={0}
               rows={10}
-              placeholder='Add Notes'
+              placeholder="Add Notes"
               style={{
-                width: '100%',
-                height: '100px',
-                background: 'rgba(250, 250, 250, 1)',
-                padding: '20px',
-                borderRadius: '5px',
-                border: '1px solid rgba(1, 12, 21, 0.1)',
+                width: "100%",
+                height: "100px",
+                background: "rgba(250, 250, 250, 1)",
+                padding: "20px",
+                borderRadius: "5px",
+                border: "1px solid rgba(1, 12, 21, 0.1)",
               }}
             ></textarea>
           </div>
         </div>
       )}
 
-      <div className='bills_form__btns'>
+      <div className="bills_form__btns">
         <button
           style={{
-            background: 'transparent',
-            padding: '16px 20px',
-            borderRadius: '5px',
+            background: "transparent",
+            padding: "16px 20px",
+            borderRadius: "5px",
           }}
-          onClick={() => navigate('/bills-fees-management')}
+          onClick={() => navigate("/bills-fees-management")}
         >
           Cancel
         </button>
 
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '25px' }}>
+        <div style={{ display: "flex", flexDirection: "row", gap: "25px" }}>
           <button
             onClick={() => submit()}
             style={{
-              background: '#E4EFF9',
-              padding: '16px 20px',
-              borderRadius: '5px',
+              background: "#E4EFF9",
+              padding: "16px 20px",
+              borderRadius: "5px",
             }}
           >
             Save as Draft
@@ -950,10 +1032,10 @@ const CreateBill = () => {
           <button
             disabled={isLoading}
             style={{
-              background: '#439ADE',
-              color: 'white',
-              padding: '16px 20px',
-              borderRadius: '5px',
+              background: "#439ADE",
+              color: "white",
+              padding: "16px 20px",
+              borderRadius: "5px",
             }}
             onClick={() => submit()}
           >

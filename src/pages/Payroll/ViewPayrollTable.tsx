@@ -122,19 +122,19 @@ const ViewPayrollTable = ({
   // Organize data into columns based on detail names
   const columns = React.useMemo(
     () => [
-      { Header: "Name", accessor: "name" },
-      ...uniqueDetailNames.map((detailName) => ({
-        Header: detailName,
-        accessor: (row) => {
-          const amount = row.details.find(
-            (detail: { name: string }) => detail.name === detailName
-          )?.amount;
+      { Header: "Name", accessor: (d: any) => d?.staff?.name },
+      // ...uniqueDetailNames.map((detailName) => ({
+      //   Header: detailName,
+      //   accessor: (row) => {
+      //     const amount = row.details.find(
+      //       (detail: { name: string }) => detail.name === detailName
+      //     )?.amount;
 
-          return amount
-            ? `${currency} ${Number(amount).toLocaleString()}`
-            : "N/A";
-        },
-      })),
+      //     return amount
+      //       ? `${currency} ${Number(amount).toLocaleString()}`
+      //       : "N/A";
+      //   },
+      // })),
       {
         Header: "STATUS",
         accessor: "status",
@@ -142,9 +142,16 @@ const ViewPayrollTable = ({
           <Badge value={value} />
         ),
       },
+      // {
+      //   Header: "ALLOWANCE",
+      //   accessor: "total_allowance",
+      //   Cell: ({ cell: { value } }: { cell: { value: string } }) => (
+      //     <Badge value={value} />
+      //   ),
+      // },
       {
         Header: "Actions",
-        accessor: (d: any) => `${d.name}`,
+        accessor: (d: any) => `${d.id}`,
         Cell: ({ cell: { value } }: { cell: { value: string } }) => (
           <>
             <div style={{ display: "flex", gap: "16px" }}>

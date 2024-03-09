@@ -447,6 +447,7 @@
   width: 100%;
   border-radius: 4px;
   overflow: scroll;
+  z-index: 9;
 
   &__item {
     display: flex;
@@ -578,6 +579,12 @@
     & input {
       border-radius: 4px;
     }
+  }
+}
+
+.unique {
+  & .input-component {
+    width: 25%;
   }
 }
 

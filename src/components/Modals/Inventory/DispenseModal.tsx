@@ -321,7 +321,7 @@ const DispenseModal = ({ modalIsOpen, closeModal, name, sizes }: Imodal) => {
             multi={false}
             toggleOption={toggleOption}
             selectedValues={selected}
-            options={classesAndStudents || {}}
+            options={classesAndStudents as any || {}}
             disabled={true}
             isMultidropdown={true}
           />

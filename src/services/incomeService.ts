@@ -80,3 +80,14 @@ export const downloadIncome = async () => {
   const response = await axiosInstance.get(`/incomes/download`);
   return response.data;
 };
+
+//filter expenses by date
+export const filterDownloadIncome = async (
+  start: string,
+  end: string
+) => {
+  const response = await axiosInstance.get(
+    `/incomes/download?start=${start}&end=${end}`
+  );
+  return response.data;
+};

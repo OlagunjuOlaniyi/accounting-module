@@ -36,10 +36,10 @@ export const options: any = {
   plugins: {
     legend: {
       position: "right",
-      display: false,
+      display: true,
     },
     title: {
-      display: false,
+      display: true,
       text: "",
     },
   },
@@ -47,13 +47,13 @@ export const options: any = {
   scales: {
     x: {
       grid: {
-        display: false,
+        display: true,
       },
     },
 
     y: {
       grid: {
-        display: false,
+        display: true,
       },
     },
   },

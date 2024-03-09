@@ -1,25 +1,25 @@
-import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useGetSingleBill } from '../../hooks/queries/billsAndFeesMgt';
-import { useState } from 'react';
-import './BillsandFees.scss';
-import TextInput from '../../components/Input/TextInput';
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetSingleBill } from "../../hooks/queries/billsAndFeesMgt";
+import { useState } from "react";
+import "./BillsandFees.scss";
+import TextInput from "../../components/Input/TextInput";
 
-import ToggleUnchecked from '../../icons/ToggleUnchecked';
-import ToggleChecked from '../../icons/ToggleChecked';
-import { useGetSchoolDetails } from '../../hooks/queries/SchoolQuery';
+import ToggleUnchecked from "../../icons/ToggleUnchecked";
+import ToggleChecked from "../../icons/ToggleChecked";
+import { useGetSchoolDetails } from "../../hooks/queries/SchoolQuery";
 
-import Unsend from '../../icons/Unsend';
-import ViewPayment from '../../icons/ViewPayment';
-import Dots from '../../icons/Dots';
-import { Fee } from '../../types/types';
+import Unsend from "../../icons/Unsend";
+import ViewPayment from "../../icons/ViewPayment";
+import Dots from "../../icons/Dots";
+import { Fee } from "../../types/types";
 import {
   useSendBill,
   useUnsendBill,
-} from '../../hooks/mutations/billsAndFeesMgt';
-import { useQueryClient } from 'react-query';
-import toast from 'react-hot-toast';
-import Header from '../../components/Header/Header';
+} from "../../hooks/mutations/billsAndFeesMgt";
+import { useQueryClient } from "react-query";
+import toast from "react-hot-toast";
+import Header from "../../components/Header/Header";
 
 const SingleBill = () => {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -62,7 +62,7 @@ const SingleBill = () => {
       },
 
       onError: (e) => {
-        toast.error('Error sending bill');
+        toast.error("Error sending bill");
       },
     });
   };
@@ -78,7 +78,7 @@ const SingleBill = () => {
       },
 
       onError: (e) => {
-        toast.error('Error unsending bill');
+        toast.error("Error unsending bill");
       },
     });
   };
@@ -87,75 +87,75 @@ const SingleBill = () => {
     <div>
       <Header />
       <p
-        className='sm-test'
+        className="sm-test"
         onClick={() => navigate(-1)}
-        style={{ marginBottom: '16px' }}
+        style={{ marginBottom: "16px" }}
       >
         Bills and Fees Management /
-        <b style={{ color: '#010c15' }}>{data?.bill_name}</b>
+        <b style={{ color: "#010c15" }}>{data?.bill_name}</b>
       </p>
       <div
-        className='bills_overview'
+        className="bills_overview"
         style={{
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px',
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
         }}
       >
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: '10px',
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "10px",
           }}
         >
-          <h2 className='bills_overview__title'>{data?.bill_name}</h2>
-          <h1 className='bills_overview__approval'>APPROVAL STATUS: Pending</h1>
+          <h2 className="bills_overview__title">{data?.bill_name}</h2>
+          <h1 className="bills_overview__approval">APPROVAL STATUS: Pending</h1>
           <h1
             className={`bills_overview__status ${data?.status}`}
           >{`STATUS: ${data?.status}`}</h1>
         </div>
 
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <button
             disabled={sendLoading || unsendLoading}
-            onClick={() => (data?.status === 'sent' ? unsend() : send())}
+            onClick={() => (data?.status === "sent" ? unsend() : send())}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 16px 12px 16px',
-              borderRadius: '4px',
-              border: '1px solid #E4EFF9',
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "12px 16px 12px 16px",
+              borderRadius: "4px",
+              border: "1px solid #E4EFF9",
             }}
           >
             <span>
               <Unsend />
             </span>
             {sendLoading || unsendLoading
-              ? 'Please wait'
-              : data?.status === 'sent'
-              ? 'Unsend Bill'
-              : 'Send Bill'}
+              ? "Please wait"
+              : data?.status === "sent"
+              ? "Unsend Bill"
+              : "Send Bill"}
           </button>
 
           <button
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              padding: '10px 16px 10px 16px',
-              borderRadius: '4px',
-              background: '#439ADE',
-              color: 'white',
-              width: '185px',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              padding: "10px 16px 10px 16px",
+              borderRadius: "4px",
+              background: "#439ADE",
+              color: "white",
+              width: "185px",
             }}
             onClick={() => {
               navigate(`/payment-status/${id}?bill_name=${data?.bill_name}`);
               localStorage.setItem(
-                'bills_and_fees',
+                "bills_and_fees",
                 JSON.stringify({
                   owner: data?.owner,
                   bill_id: data?.id,
@@ -173,66 +173,66 @@ const SingleBill = () => {
         </div>
       </div>
 
-      <div className='bills_schoolInfo'>
-        <div className='bills_schoolInfo__logo'>
-          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt='' />
+      <div className="bills_schoolInfo">
+        <div className="bills_schoolInfo__logo">
+          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt="" />
         </div>
-        <div className='bills_schoolInfo__details'>
+        <div className="bills_schoolInfo__details">
           {schoolData && schoolData?.data[0]?.arm?.name}
           <br /> {data?.bill_name}
-          <p className='bills_schoolInfo__details__email'>
+          <p className="bills_schoolInfo__details__email">
             Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
         </div>
       </div>
 
-      <div className='bills_form'>
-        <div className='bills_form__top'>
+      <div className="bills_form">
+        <div className="bills_form__top">
           <TextInput
-            label='Bill Name'
+            label="Bill Name"
             disabled
-            placeholder='Bill Name'
-            className='bills_form__top__input'
-            name='billName'
-            type='text'
-            errorClass={'error-msg'}
-            handleChange={''}
+            placeholder="Bill Name"
+            className="bills_form__top__input"
+            name="billName"
+            type="text"
+            errorClass={"error-msg"}
+            handleChange={""}
             value={data && data?.bill_name}
-            fieldClass={'input-field'}
-            errorMessage={''}
-            id={'billName'}
-            onSelectValue={() => ''}
+            fieldClass={"input-field"}
+            errorMessage={""}
+            id={"billName"}
+            onSelectValue={() => ""}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={''}
+            searchValue={""}
+            handleBlur={""}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             selectedValues={undefined}
             options={[]}
           />
 
           <TextInput
-            label='Bill Due Date'
-            placeholder='Bill Name'
-            name='dueDate'
-            type='date'
-            errorClass={'error-msg'}
-            handleChange={''}
+            label="Bill Due Date"
+            placeholder="Bill Name"
+            name="dueDate"
+            type="date"
+            errorClass={"error-msg"}
+            handleChange={""}
             value={data && data?.due_date}
-            fieldClass={'input-field'}
-            errorMessage={''}
-            id={'dueDate'}
+            fieldClass={"input-field"}
+            errorMessage={""}
+            id={"dueDate"}
             onSelectValue={function (): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={''}
+            searchValue={""}
+            handleBlur={""}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             selectedValues={undefined}
             options={[]}
@@ -240,29 +240,29 @@ const SingleBill = () => {
         </div>
       </div>
 
-      <div className='bills_form__other_form'>
-        <div className='bills_form__other_form__header'>
+      <div className="bills_form__other_form">
+        <div className="bills_form__other_form__header">
           <p>ASSIGNED CLASS</p>
           <p>TOTAL BILL AMOUNT</p>
         </div>
 
-        <div className='bills_form__top'>
+        <div className="bills_form__top">
           <TextInput
-            label=''
-            placeholder='Assign Bill to class'
-            name='classes'
-            type='dropdown'
-            errorClass={'error-msg'}
-            handleChange={''}
-            value={''}
-            fieldClass={''}
-            errorMessage={''}
-            id={'classes'}
-            onSelectValue={() => ''}
+            label=""
+            placeholder="Assign Bill to class"
+            name="classes"
+            type="dropdown"
+            errorClass={"error-msg"}
+            handleChange={""}
+            value={""}
+            fieldClass={""}
+            errorMessage={""}
+            id={"classes"}
+            onSelectValue={() => ""}
             isSearchable={false}
-            handleSearchValue={() => ''}
-            searchValue={''}
-            handleBlur={''}
+            handleSearchValue={() => ""}
+            searchValue={""}
+            handleBlur={""}
             multi={true}
             toggleOption={function (a: any): void {}}
             selectedValues={[]}
@@ -270,71 +270,71 @@ const SingleBill = () => {
           />
 
           <TextInput
-            label=''
-            placeholder=''
-            name='amount'
-            type='text'
-            errorClass={'error-msg'}
+            label=""
+            placeholder=""
+            name="amount"
+            type="text"
+            errorClass={"error-msg"}
             handleChange={() => {}}
             value={totalAmount?.toLocaleString()}
-            fieldClass={'input-field'}
-            errorMessage={''}
-            id={'amount'}
+            fieldClass={"input-field"}
+            errorMessage={""}
+            id={"amount"}
             onSelectValue={function (): void {}}
             isSearchable={false}
             handleSearchValue={function (): void {}}
-            searchValue={''}
-            handleBlur={''}
+            searchValue={""}
+            handleBlur={""}
             multi={false}
             toggleOption={function (a: any): void {
-              throw new Error('');
+              throw new Error("");
             }}
             selectedValues={undefined}
             options={[]}
           />
         </div>
 
-        <div className='bills_form__other_form__addons'>
-          <div className='bills_form__other_form__addons__addFee'>
+        <div className="bills_form__other_form__addons">
+          <div className="bills_form__other_form__addons__addFee">
             {fees?.map((fee: any, index: any) => {
               return (
                 <div
                   key={index}
                   style={{
-                    marginBottom: '30px',
+                    marginBottom: "30px",
                   }}
                 >
                   <div
                     style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-end',
-                      marginBottom: '20px',
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "flex-end",
+                      marginBottom: "20px",
                     }}
                   >
-                    <div className='bills_form__other_form__addons__addFee__input'>
+                    <div className="bills_form__other_form__addons__addFee__input">
                       <label>Fee Type</label>
-                      <div className='bills_form__other_form__addons__addFee__input__wrapper'>
+                      <div className="bills_form__other_form__addons__addFee__input__wrapper">
                         <input
-                          className='bills_form__other_form__addons__addFee__input__wrapper__input'
-                          type='text'
-                          name=''
-                          id=''
+                          className="bills_form__other_form__addons__addFee__input__wrapper__input"
+                          type="text"
+                          name=""
+                          id=""
                           value={fee.fee_type.name}
                           disabled
-                          placeholder='type or select fee type'
+                          placeholder="type or select fee type"
                         />
                       </div>
                     </div>
-                    <div className='bills_form__other_form__addons__addFee__input'>
-                      <div className='bills_form__other_form__addons__addFee__input__wrapper'>
+                    <div className="bills_form__other_form__addons__addFee__input">
+                      <div className="bills_form__other_form__addons__addFee__input__wrapper">
                         <input
-                          className='bills_form__other_form__addons__addFee__input__wrapper__input'
-                          type='text'
-                          name=''
-                          id=''
-                          placeholder='Amount'
+                          className="bills_form__other_form__addons__addFee__input__wrapper__input"
+                          type="text"
+                          name=""
+                          id=""
+                          placeholder="Amount"
                           value={Number(fee.amount).toLocaleString()}
                           disabled
                         />
@@ -344,9 +344,9 @@ const SingleBill = () => {
 
                   <div
                     style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: '10px',
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "10px",
                     }}
                   >
                     {fee.mandatory ? (
@@ -555,21 +555,21 @@ const SingleBill = () => {
           </div> */}
         </div>
 
-        <div className='bills_form__other_form__note'>
+        <div className="bills_form__other_form__note">
           <label>Notes</label>
           <textarea
-            name=''
-            id=''
+            name=""
+            id=""
             cols={0}
             rows={10}
-            placeholder='Add Notes'
+            placeholder="Add Notes"
             style={{
-              width: '100%',
-              height: '100px',
-              background: 'rgba(250, 250, 250, 1)',
-              padding: '20px',
-              borderRadius: '5px',
-              border: '1px solid rgba(1, 12, 21, 0.1)',
+              width: "100%",
+              height: "100px",
+              background: "rgba(250, 250, 250, 1)",
+              padding: "20px",
+              borderRadius: "5px",
+              border: "1px solid rgba(1, 12, 21, 0.1)",
             }}
           ></textarea>
         </div>

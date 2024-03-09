@@ -74,12 +74,15 @@
   }
 
   &__footer {
+    position: sticky;
+    bottom: 0;
+    background-color: inherit;
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-radius: 0px 0px 4px 4px;
-    margin-top: 30px;
+    margin-top: 10px;
 
     & p {
       color: rgba(1, 12, 21, 0.7);

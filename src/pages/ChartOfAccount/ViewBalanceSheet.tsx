@@ -27,7 +27,7 @@ const ViewBalanceSheet = () => {
 
   const groupedData = groupTransactionsByTransactionTypeName(tableItems);
 
-  const resultArray: tableData[] = groupedData.map((data, index) => ({
+  const resultArray: tableData[] = groupedData.map((data : any, index:any) => ({
     id: tableItems[0].transaction_type.account_code,
     transaction_type: data.name,
     created_at: tableItems[0].created_at,

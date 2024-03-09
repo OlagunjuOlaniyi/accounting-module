@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import './classandstudnts.scss';
-import Unchecked from '../../icons/Unchecked';
-import Checked from '../../icons/Checked';
+import React, { useState } from "react";
+import "./classandstudnts.scss";
+import Unchecked from "../../icons/Unchecked";
+import Checked from "../../icons/Checked";
 
 type OriginalData = {
   [className: string]: {
@@ -26,10 +26,10 @@ type OriginalData = {
 };
 
 type ConvertedDataItem = {
-  class_name: string;
-  id: string;
-  total_students: number;
-  students_details: { id: number; name: string }[];
+  class_name?: string;
+  id?: string;
+  total_students?: number;
+  students_details?: { id: number; name: string }[];
 };
 
 const ClassAndStudentSelection = ({
@@ -41,11 +41,11 @@ const ClassAndStudentSelection = ({
   selectedStudentsInParent,
 }: {
   classes: OriginalData;
-  cancel: any;
-  onClassChange: any;
-  onStudentsChange: any;
-  selectedClassesInParent: any;
-  selectedStudentsInParent: any;
+  cancel?: any;
+  onClassChange?: any;
+  onStudentsChange?: any;
+  selectedClassesInParent?: any;
+  selectedStudentsInParent?: any;
 }) => {
   const convertedClasses: ConvertedDataItem[] = Object.entries(classes).map(
     ([className, classData]) => ({
@@ -122,44 +122,44 @@ const ClassAndStudentSelection = ({
   const Icon = () => {
     return (
       <svg
-        width='4'
-        height='8'
-        viewBox='0 0 4 8'
-        fill='none'
-        xmlns='http://www.w3.org/2000/svg'
+        width="4"
+        height="8"
+        viewBox="0 0 4 8"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d='M0.666504 7.3335L3.99984 4.00016L0.666504 0.66683L0.666504 7.3335Z'
-          fill='#323232'
+          d="M0.666504 7.3335L3.99984 4.00016L0.666504 0.66683L0.666504 7.3335Z"
+          fill="#323232"
         />
       </svg>
     );
   };
 
   return (
-    <div className='class-and-students'>
-      <div className='class-and-students__heading'>
-        <p className='class-and-students__heading__title'>
+    <div className="class-and-students">
+      <div className="class-and-students__heading">
+        <p className="class-and-students__heading__title">
           Assign To Class/ Student
         </p>
-        <p className='class-and-students__heading__cancel' onClick={cancel}>
+        <p className="class-and-students__heading__cancel" onClick={cancel}>
           Cancel
         </p>
       </div>
-      <div className='class-and-students__search'>
-        <input placeholder='Search' />
+      <div className="class-and-students__search">
+        <input placeholder="Search" />
       </div>
-      <div className='class-and-students__list'>
-        <div className='class-and-students__list__left'>
+      <div className="class-and-students__list">
+        <div className="class-and-students__list__left">
           <Unchecked />
           <p>All Classes</p>
         </div>
-        <div className='class-and-students__list__right'></div>
+        <div className="class-and-students__list__right"></div>
       </div>
       {convertedClasses?.map((c: any) => (
         <div key={c.id}>
-          <div className='class-and-students__list'>
-            <div className='class-and-students__list__left'>
+          <div className="class-and-students__list">
+            <div className="class-and-students__list__left">
               <div onClick={() => toggleClasses(c?.class_name)}>
                 {isSelected(c?.class_name) ? <Checked /> : <Unchecked />}
               </div>
@@ -173,7 +173,7 @@ const ClassAndStudentSelection = ({
                 {c?.class_name}
               </p>
               <div
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 onClick={() => {
                   setShowStudents(!showStudents);
                   setSelectedId(c.id);
@@ -182,7 +182,7 @@ const ClassAndStudentSelection = ({
                 <Icon />
               </div>
             </div>
-            <div className='class-and-students__list__right'>
+            <div className="class-and-students__list__right">
               <p>{c?.total_students}</p>
             </div>
           </div>
@@ -191,13 +191,13 @@ const ClassAndStudentSelection = ({
             c?.students_details.map((s: any) => (
               <div
                 key={s.id}
-                className='class-and-students__list'
-                style={{ marginLeft: '32px' }}
+                className="class-and-students__list"
+                style={{ marginLeft: "32px" }}
                 onClick={() => {
                   toggleStudents(s);
                 }}
               >
-                <div className='class-and-students__list__left'>
+                <div className="class-and-students__list__left">
                   {isStudentSelected(s?.name) ? <Checked /> : <Unchecked />}
                   <p>{s?.name}</p>
                 </div>
@@ -205,14 +205,14 @@ const ClassAndStudentSelection = ({
             ))}
         </div>
       ))}
-      <div className='class-and-students__footer'>
+      <div className="class-and-students__footer">
         <p>Reset Filters</p>
         <button
           style={{
-            background: '#439ADE',
-            color: 'white',
-            padding: '16px 20px',
-            borderRadius: '5px',
+            background: "#439ADE",
+            color: "white",
+            padding: "16px 20px",
+            borderRadius: "5px",
           }}
           onClick={() => {
             onStudentsChange(selectedStudents);

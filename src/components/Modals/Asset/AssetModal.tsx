@@ -8,7 +8,7 @@ import RecordBankTransfer from './RecordBankTransfer';
 
 interface IassetModal extends Imodal {
   type: string;
-  bankId: string;
+  bankId?: string;
 }
 
 const AssetModal = ({ modalIsOpen, closeModal, type, bankId }: IassetModal) => {

@@ -19,7 +19,7 @@ import {
 } from "../../hooks/queries/payroll";
 
 interface Iprops {
-  filteredData?: Ioverview;
+  filteredData?: any;
   filteredLoading: Boolean;
 }
 const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
@@ -97,19 +97,51 @@ const PayrollOverview = ({ filteredData, filteredLoading }: Iprops) => {
     return monthMap[a] - monthMap[b];
   });
 
+  // Test and dummy data
+  const monthMap: { [key: string]: number } = {
+    Jan: 100000,
+    Feb: 20000,
+    Mar: 34000,
+    Apr: 44020,
+    May: 50000,
+    Jun: 60000,
+    Jul: 78000,
+    Aug: 81020,
+    Sep: 99000,
+    Oct: 100044,
+    Nov: 11966,
+    Dec: 72708,
+  };
+  const monthMap2: { [key: string]: number } = {
+    Jan: 90000,
+    Feb: 15000,
+    Mar: 3400,
+    Apr: 4420,
+    May: 40000,
+    Jun: 55000,
+    Jul: 70000,
+    Aug: 70020,
+    Sep: 89000,
+    Oct: 10044,
+    Nov: 11066,
+    Dec: 62708,
+  };
+
   const barData = {
     labels,
     datasets: [
       {
-        label: "Income",
-        data: apiData?.income_by_month?.map((a: any) => a.income),
+        label: "Allowance",
+        // data: apiData?.income_by_month?.map((a: any) => a.income),
+        data: monthMap,
         backgroundColor: "#43F226",
         borderRadius: 40,
         barThickness: 45,
       },
       {
-        label: "Expense",
-        data: apiData?.expense_by_month?.map((a: any) => a.expense),
+        label: "Deduction",
+        // data: apiData?.expense_by_month?.map((a: any) => a.expense),
+        data: monthMap2,
         backgroundColor: "#FE5050",
         borderRadius: 40,
         barThickness: 45,

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import BackArrow from '../../icons/BackArrow';
+import Export from '../../icons/Export';
 
 import Dots from '../../icons/Dots';
 
@@ -23,6 +24,7 @@ import EditProduct from '../../components/Modals/Inventory/EditProduct';
 import { useDiscardProduct } from '../../hooks/mutations/inventory';
 import { useCurrency } from '../../context/CurrencyContext';
 import Header from '../../components/Header/Header';
+import { downloadHistoryInventory } from '../../services/inventoryService';
 
 const SingleProduct = () => {
   const { id } = useParams();
@@ -85,7 +87,15 @@ const SingleProduct = () => {
       },
     });
   };
-
+  const download = async () => {
+    try {
+      const res = await downloadHistoryInventory();
+      window.open(res?.pdf_url, '_blank');
+      // window.open(`${baseURL}${res.pdf_url}`, '_blank');
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //open attachment
   const openAttachment = (url: string) => {
     if (url.includes('.pdf')) {
@@ -95,6 +105,8 @@ const SingleProduct = () => {
       setAttachmentUrl(url);
     }
   };
+  console.log({data});
+
 
   return (
     <>
@@ -115,6 +127,14 @@ const SingleProduct = () => {
               <span>{data?.data?.name}</span>
             </div>
             <div className='single-expense-wrapper__top__right'>
+            <button
+          className='ie_overview__top-level__filter-download'
+          onClick={() => download()}
+        >
+          {' '}
+          <Export />
+          <p>Download</p>
+        </button>
               <button
                 className='ie_overview__top-level__filter-date'
                 style={{ width: '184px' }}
@@ -158,7 +178,7 @@ const SingleProduct = () => {
                 <div className='single-expense-wrapper__title__left'>
                   <h2>{data?.data?.name?.toUpperCase()}</h2>
                   <div className='record-income__body__title__badge'>
-                    <p>#{data?.data?.id}</p>
+                    <p>PRODUCT ID: #{data?.data?.id}</p>
                   </div>
                   <div className='single-expense-wrapper__title__left__status'>
                     STATUS: {data?.data?.status}

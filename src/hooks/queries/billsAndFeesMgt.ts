@@ -22,6 +22,7 @@ export const useGetBills = () => {
   });
 };
 
+
 export const useGetFeeTypes = () => {
   return useQuery<any>({
     queryKey: 'fee-types',

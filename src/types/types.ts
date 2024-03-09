@@ -65,6 +65,8 @@ export interface Discount {
   value: number;
   description: string;
   is_percentage: boolean;
+  fee_type: string;
+  discount_amount: number;
   students: number[];
   classes: number[];
 }
