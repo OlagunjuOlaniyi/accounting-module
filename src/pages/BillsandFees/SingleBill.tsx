@@ -41,6 +41,12 @@ const SingleBill = () => {
     setTotalAmount(totalAmount);
   }, [fees]);
 
+  // const formattedDiscount = data?.fees.map((fee) => ({
+  //   fee_type: fee.fee_type,
+  // }));
+
+  // console.log("discount", formattedDiscount);
+
   // let storedClasses = JSON.parse(localStorage.getItem('classes') || '');
   // let formattedStoredClasses = storedClasses.map((c: any) => ({
   //   id: c.id,
@@ -50,6 +56,20 @@ const SingleBill = () => {
 
   const { mutate: sendBill, isLoading: sendLoading } = useSendBill();
   const { mutate: unsendBill, isLoading: unsendLoading } = useUnsendBill();
+
+  const formattedDiscount = data?.fees?.map((fee: any) => fee?.fee_type?.discounts);
+
+  const formattedDiscountNew = formattedDiscount?.map((d: any) => d[0]);
+  const formattedDiscountFinal = formattedDiscountNew?.map((d: any) => ({
+    value: d?.value,
+    description: d?.description,
+    fee_type: d?.fee_type,
+    discount_amount: d?.discount_amount,
+    is_percentage: d?.is_percentage,
+    students: d?.students,
+    classes: d?.classes,
+  }));
+  console.log("value", formattedDiscountFinal);
 
   const send = () => {
     sendBill(id, {

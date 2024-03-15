@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "react-router";
 import {
   useGetBills,
   useGetClasses,
+  useGetFeeTypes,
   useGetSingleBill,
 } from "../../hooks/queries/billsAndFeesMgt";
 import { Discount, Fee } from "../../types/types";
@@ -27,6 +28,7 @@ const CreateBill = () => {
   const { id } = useParams();
 
   const { data } = useGetSingleBill(id);
+  const { data: fee_types } = useGetFeeTypes();
 
   // get incomes
   const { data: useBills } = useGetBills();
@@ -49,11 +51,14 @@ const CreateBill = () => {
   const [classSearchValue, setClassSearchValue] = useState<string>("");
   const [selectedFee, setSelectedFee] = useState("");
   const [selectedDiscount, setSelectedDiscount] = useState(200);
+  const [selectedDiscountFeeType, setSelectedDiscountFeeType] = useState(200);
+  const [showAddFeeDropdown, setShowAddFeeDropdown] = useState(false);
   const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
   const [selectedFeeForDiscount, setSelectedFeeForDiscount] = useState("");
 
   const [discountValue, setDiscounValue] = useState(1);
   const [discountedAmount, setDiscountAmout] = useState(0);
+  const [discountIndex, setDiscountIndex] = useState(0);
 
   const [fees, setFees] = useState<Fee[]>([]);
 
@@ -90,6 +95,33 @@ const CreateBill = () => {
     },
   ]);
 
+  // const [discounts, setDiscounts] = useState<Discount[]>([]);
+
+  const [discounted, setDiscounted] = useState<Discount[]>([]);
+
+  const formattedDiscount = data?.fees?.map((fee) => fee?.fee_type?.discounts);
+
+  // const formattedDiscount = data?.fees?.map((fee) => ({
+  //   discount: fee?.fee_type?.discounts,
+  // }));
+
+  const formattedDiscountNew = formattedDiscount?.map((d) => d[0]);
+  const formattedDiscountFinal = formattedDiscountNew?.map((d) => ({
+    value: d?.value,
+    description: d?.description,
+    fee_type: d?.fee_type,
+    discount_amount: d?.discount_amount,
+    is_percentage: d?.is_percentage,
+    students: d?.students,
+    classes: d?.classes,
+  }));
+  // console.log("value", formattedDiscountFinal);
+
+  useEffect(() => {
+    setDiscounts(formattedDiscountFinal);
+  }, [data]);
+  // console.log("value", discounts);
+
   useEffect(() => {
     // Calculate the total amount
     const totalAmount = fees?.reduce(
@@ -101,9 +133,10 @@ const CreateBill = () => {
 
   let storedClasses =
     JSON.parse(localStorage.getItem("classes")) || formattedBillsWithId[0];
+  // JSON.parse(localStorage.getItem("classes" || ""));
 
   // console.log("thisis", storedClasses);
-  let formattedStoredClasses = storedClasses.map((c: any) => ({
+  let formattedStoredClasses = storedClasses?.map((c: any) => ({
     id: c.id,
     name: c.class_name,
   }));
@@ -113,22 +146,22 @@ const CreateBill = () => {
 
   // formattedBillsWithId
 
-  const calcDiscountedValue = () => {
-    const filterFeesByFeeTypeName = (): Fee[] => {
-      return fees
-        ? fees?.filter((fee) => fee.fee_type.name === selectedFeeForDiscount)
-        : [];
-    };
-    let discounted =
-      (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
-        discountValue) /
-      100;
-    setDiscountAmout(Number(discounted));
-  };
+  // const calcDiscountedValue = () => {
+  //   const filterFeesByFeeTypeName = (): Fee[] => {
+  //     return fees
+  //       ? fees?.filter((fee) => fee.fee_type.name === selectedFeeForDiscount)
+  //       : [];
+  //   };
+  //   let discounted =
+  //     (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
+  //       discountValue) /
+  //     100;
+  //   setDiscountAmout(Number(discounted));
+  // };
 
-  useEffect(() => {
-    calcDiscountedValue();
-  }, [discountValue, selectedFeeForDiscount]);
+  // useEffect(() => {
+  //   calcDiscountedValue();
+  // }, [discountValue, selectedFeeForDiscount]);
 
   const { data: schoolData } = useGetSchoolDetails();
   const { data: classes } = useGetClasses();
@@ -217,17 +250,78 @@ const CreateBill = () => {
   };
 
   const handleDiscountChange = (index: number, field: string, value: any) => {
+    // const filterFeesByFeeTypeName = (): Fee[] => {
+    //   return fees?.filter(
+    //     (fee) => fee.fee_type.name === getDiscount[discountIndex].fee_type
+    //   );
+    // };
+    // let discounted = Number(
+    //   (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
+    //     discounts[discountIndex].value) /
+    //     100
+    // );
     const updatedDiscount = discounts.map((discount, i) =>
       i === index
         ? {
             ...discount,
+            // discount_amount: discounted,
             [field]: value,
           }
         : discount
     );
     setDiscounts(updatedDiscount);
   };
-  const handleClassChange = (index: number, selectedClasses: number[]) => {
+
+  // populate the discount fields
+  // const getDiscount = discounts.map((dis, i) => ({
+  //   fee_type: dis.fee_type,
+  // }));
+
+  // console.log("get", getDiscount);
+
+  // useEffect(() => {
+
+  //   const filterFeesByFeeTypeName = (): Fee[] => {
+  //     return fees?.filter(
+  //       (fee) => fee.fee_type.name === getDiscount[discountIndex].fee_type
+  //     );
+  //   };
+  //   let discounted =
+  //     (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
+  //       discounts[discountIndex].value) /
+  //     100;
+  //   // setDiscountAmout(Number(discounted));
+  //   const updatedDiscount = discounts.map((discount, i) =>
+  //     i === discountIndex
+  //       ? {
+  //           ...discount,
+  //           discount_amount: discounted,
+  //         }
+  //       : discount
+  //   );
+  //   setDiscounts(updatedDiscount);
+  // }, [discounts]);
+
+  // const handleClassChange = (index: number, selectedClasses: number[]) => {
+  //   const updatedFees = fees.map((fee, i) =>
+  //     i === index
+  //       ? {
+  //           ...fee,
+  //           fee_type: {
+  //             ...fee.fee_type,
+  //             classes: selectedClasses,
+  //           },
+  //         }
+  //       : fee
+  //   );
+
+  //   setFees(updatedFees);
+  // };
+  const handleClassChange = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
     const updatedFees = fees.map((fee, i) =>
       i === index
         ? {
@@ -235,12 +329,39 @@ const CreateBill = () => {
             fee_type: {
               ...fee.fee_type,
               classes: selectedClasses,
+              students: selectedStudents,
             },
           }
         : fee
     );
 
     setFees(updatedFees);
+  };
+
+  const handleClassChangeForDiscount = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    const updatedDiscount = discounts.map((discount, i) =>
+      i === index
+        ? {
+            ...discount,
+            classes: selectedClasses,
+            students: selectedStudents,
+          }
+        : discount
+    );
+
+    setDiscounts(updatedDiscount);
+  };
+
+  const handleClassDropdownChangeForDiscount = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    handleClassChangeForDiscount(index, selectedClasses, selectedStudents);
   };
 
   const handleStudentChange = (index: number, selectedStudents: number[]) => {
@@ -256,15 +377,23 @@ const CreateBill = () => {
           }
         : fee
     );
-    setFees(updatedFees);
+    // setFees(updatedFees);
   };
+
+  // const handleClassDropdownChange = (
+  //   index: number,
+  //   selectedClasses: number[]
+  // ) => {
+  //   // Call the handleClassChange function to update the fees state
+  //   handleClassChange(index, selectedClasses);
+  // };
 
   const handleClassDropdownChange = (
     index: number,
-    selectedClasses: number[]
+    selectedClasses: number[],
+    selectedStudents: any
   ) => {
-    // Call the handleClassChange function to update the fees state
-    handleClassChange(index, selectedClasses);
+    handleClassChange(index, selectedClasses, selectedStudents);
   };
 
   const handleStudentDropdownChange = (
@@ -290,6 +419,12 @@ const CreateBill = () => {
     );
     setFees(updatedFees);
   };
+
+  // useEffect(() => {
+  //   // Calculate the total amount
+  //   const totalAmount = fees.reduce((total, fee) => total + fee.amount, 0);
+  //   setFields({ ...fields, amount: totalAmount });
+  // }, [fees]);
 
   const removeFee = (name: string) => {
     let filtered = fees.filter((el) => el.fee_type.name !== name);
@@ -320,6 +455,14 @@ const CreateBill = () => {
       setSelectedDiscount(200);
     } else {
       setSelectedDiscount(index);
+    }
+  };
+
+  const showClassesForDiscountFeeType = (index: number) => {
+    if (selectedDiscount === index) {
+      setSelectedDiscountFeeType(200);
+    } else {
+      setSelectedDiscountFeeType(index);
     }
   };
 
@@ -522,6 +665,10 @@ const CreateBill = () => {
                               id=""
                               defaultValue={fee.fee_type.name}
                               value={fee.fee_type.name}
+                              onClick={() => {
+                                setShowAddFeeDropdown(!showAddFeeDropdown);
+                                showClassesForDiscountFeeType(index);
+                              }}
                               onChange={(e) =>
                                 handleFeeTypeChange(
                                   index,
@@ -537,6 +684,27 @@ const CreateBill = () => {
                               <AddCircleBlue />
                             </button>
                           </div>
+                          <div className="discount_dropdown">
+                            {showAddFeeDropdown &&
+                              selectedDiscountFeeType === index &&
+                              fee_types?.results?.map(
+                                (fee: { name: string }) => (
+                                  <div
+                                    className="discount_dropdown__item"
+                                    onClick={() => {
+                                      handleFeeTypeChange(
+                                        index,
+                                        "name",
+                                        fee.name
+                                      );
+                                      setShowAddFeeDropdown(false);
+                                    }}
+                                  >
+                                    <p>{fee?.name}</p>
+                                  </div>
+                                )
+                              )}
+                          </div>
                           {selectedFee !== "" &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
@@ -544,10 +712,20 @@ const CreateBill = () => {
                                 cancel={() => showClasses(fee.fee_type.name)}
                                 selectedClassesInParent={fee.fee_type.classes}
                                 selectedStudentsInParent={fee.fee_type.students}
-                                onClassChange={(selectedClasses: number[]) =>
+                                // onClassChange={(selectedClasses: number[]) =>
+                                //   handleClassDropdownChange(
+                                //     index,
+                                //     selectedClasses
+                                //   )
+                                // }
+                                onClassChange={(
+                                  selectedClasses: any,
+                                  selectedStudents: any
+                                ) =>
                                   handleClassDropdownChange(
                                     index,
-                                    selectedClasses
+                                    selectedClasses,
+                                    selectedStudents
                                   )
                                 }
                                 onStudentsChange={(
@@ -623,21 +801,31 @@ const CreateBill = () => {
                 )}
               </div>
             )}
-
-            {/* <p onClick={() => setAddDiscount(!addDiscount)}>
+            {/* 
+            <p onClick={() => setAddDiscount(!addDiscount)}>
               <AddCircleBlue />
               Add Discount
             </p> */}
 
-            {discounts.length > 0 &&
-              addDiscount &&
-              discounts.map((d, index) => (
+            {/* {formattedDiscount?.length &&
+              formattedDiscount?.map((disc, index) => {
+                return (
+                  <>
+                    <p>{disc.discount[index].description}</p>
+                    <p>{disc.discount}</p>
+                  </>
+                );
+              })} */}
+
+            {discounts?.length > 0 &&
+              // addDiscount &&
+              discounts?.map((d, index) => (
                 <div className="bills_form__other_form__addons__addDiscount">
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      gap: "70px",
+                      justifyContent: "space-between",
                       alignItems: "flex-end",
                       marginBottom: "20px",
                     }}
@@ -659,7 +847,7 @@ const CreateBill = () => {
                           id=""
                           value={d.value}
                           onChange={(e) =>
-                            handleDiscountChange(index, "name", e.target.value)
+                            handleDiscountChange(index, "value", e.target.value)
                           }
                           placeholder="type or select fee type"
                         />
@@ -669,13 +857,18 @@ const CreateBill = () => {
                         {selectedDiscount !== 200 &&
                           selectedDiscount === index && (
                             <ClassAndStudentSelection
-                              classes={classes?.results}
+                              selectedClassesInParent={d.classes}
+                              selectedStudentsInParent={d.students}
+                              classes={classesAndStudents as any}
                               cancel={() => showClassesForDiscount(index)}
-                              // selectedClassesInFees={d.classes}
-                              onClassChange={(selectedClasses: number[]) =>
-                                handleClassDropdownChange(
+                              onClassChange={(
+                                selectedClasses: any,
+                                selectedStudents: any
+                              ) =>
+                                handleClassDropdownChangeForDiscount(
                                   index,
-                                  selectedClasses
+                                  selectedClasses,
+                                  selectedStudents
                                 )
                               }
                               onStudentsChange={(selectedStudents: number[]) =>
@@ -695,20 +888,41 @@ const CreateBill = () => {
                           type="text"
                           name=""
                           id=""
-                          value={selectedFeeForDiscount}
+                          value={d.fee_type}
                           placeholder="Select fee type"
-                          onClick={() =>
-                            setShowDiscountDropdown(!showDiscountDropdown)
-                          }
+                          // onClick={() =>
+                          //   setShowDiscountDropdown(!showDiscountDropdown)
+                          // }
+                          onClick={(e) => {
+                            setShowDiscountDropdown(!showDiscountDropdown);
+                            showClassesForDiscountFeeType(index);
+                            // setDiscountIndex(index);
+                          }}
+                          onChange={(e) => {
+                            setDiscountIndex(index);
+                            handleDiscountChange(
+                              index,
+                              "fee_type",
+                              e.target.value
+                            );
+                          }}
                         />
                       </div>
                       <div className="discount_dropdown">
                         {showDiscountDropdown &&
+                          // selectedDiscount !== 200 &&
+                          selectedDiscountFeeType === index &&
                           fees.map((fee) => (
                             <div
                               className="discount_dropdown__item"
                               onClick={() => {
-                                setSelectedFeeForDiscount(fee?.fee_type?.name);
+                                // setSelectedFeeForDiscount(fee?.fee_type?.name);
+                                setDiscountIndex(index);
+                                handleDiscountChange(
+                                  index,
+                                  "fee_type",
+                                  fee?.fee_type?.name
+                                );
                                 setShowDiscountDropdown(false);
                               }}
                             >
@@ -725,7 +939,8 @@ const CreateBill = () => {
                         id=""
                         placeholder=""
                         disabled
-                        value={discountedAmount ? discountedAmount : 0}
+                        // value={discountedAmount ? discountedAmount : 0}
+                        value={d.discount_amount}
                       />
                     </div>
                     <div className="bills_form__other_form__addons__addDiscount__input">
@@ -733,7 +948,15 @@ const CreateBill = () => {
                         type="text"
                         name=""
                         id=""
+                        value={d.description}
                         placeholder="Reason for discount"
+                        onChange={(e) =>
+                          handleDiscountChange(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
                   </div>
@@ -745,12 +968,28 @@ const CreateBill = () => {
                       gap: "10px",
                     }}
                   >
-                    {percentage ? (
-                      <button onClick={() => setPercentage(!percentage)}>
+                    {d.is_percentage ? (
+                      <button
+                        onClick={() =>
+                          handleDiscountChange(
+                            index,
+                            "is_percentage",
+                            !d.is_percentage
+                          )
+                        }
+                      >
                         <ToggleChecked />
                       </button>
                     ) : (
-                      <button onClick={() => setPercentage(!percentage)}>
+                      <button
+                        onClick={() =>
+                          handleDiscountChange(
+                            index,
+                            "is_percentage",
+                            !d.is_percentage
+                          )
+                        }
+                      >
                         <ToggleUnchecked />
                       </button>
                     )}
@@ -758,7 +997,9 @@ const CreateBill = () => {
                   </div>
                 </div>
               ))}
-            {addDiscount && discounts.length > 0 && (
+
+            {/* {addDiscount && discounts.length > 0 && ( */}
+            {discounts && (
               <div
                 onClick={handleAddDiscount}
                 style={{

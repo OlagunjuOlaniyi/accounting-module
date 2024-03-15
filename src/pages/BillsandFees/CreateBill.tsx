@@ -213,6 +213,20 @@ const CreateBill = () => {
         : discount
     );
     setDiscounts(updatedDiscount);
+
+    const updatedFees = fees?.map((fee, i) =>
+      i === index
+        ? {
+            ...fee,
+            fee_type: {
+              ...fee.fee_type,
+              discounts: updatedDiscount[index],
+            },
+          }
+        : fee
+    );
+
+    setFees(updatedFees);
   };
 
   // populate the discount fields
@@ -223,18 +237,16 @@ const CreateBill = () => {
       );
     };
 
-    let discounted = Number(
+    let discounted =
       (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
         discounts[discountIndex].value) /
-        100
-    );
-
+      100;
     // setDiscountAmout(Number(discounted));
     const updatedDiscount = discounts.map((discount, i) =>
       i === discountIndex
         ? {
             ...discount,
-            discount_amount: discounted,
+            discount_amount: Number(discounted),
           }
         : discount
     );
@@ -276,8 +288,21 @@ const CreateBill = () => {
           }
         : discount
     );
-
     setDiscounts(updatedDiscount);
+
+    const updatedFees = fees?.map((fee, i) =>
+      i === index
+        ? {
+            ...fee,
+            fee_type: {
+              ...fee.fee_type,
+              discounts: updatedDiscount[index],
+            },
+          }
+        : fee
+    );
+
+    setFees(updatedFees);
   };
 
   const handleClassDropdownChangeForDiscount = (
@@ -401,7 +426,7 @@ const CreateBill = () => {
       fees: fees,
       amount: fields.amount,
       mandatory: false,
-      discounts: discounts,
+      // discounts: discounts,
     };
     console.log(dataToSend);
 
@@ -780,7 +805,7 @@ const CreateBill = () => {
                       <div className="bills_form__other_form__addons__addFee__input__wrapper">
                         <input
                           className="bills_form__other_form__addons__addFee__input__wrapper__input"
-                          type="text"
+                          type="number"
                           name=""
                           id=""
                           value={d.value}

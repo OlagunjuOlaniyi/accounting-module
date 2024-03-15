@@ -29,6 +29,7 @@ import ClassPaymentStatus from './pages/BillsandFees/ClassPaymentStatus';
 import PaymentBroadsheet from './pages/BillsandFees/PaymentBroadsheet';
 import RecordPayment from './pages/BillsandFees/RecordPayment';
 import StudentTransactions from './pages/BillsandFees/StudentTransactions';
+import StudentBill from './pages/BillsandFees/StudentBill';
 
 export const routes: RouteTypes[] = [
   {
@@ -177,10 +178,15 @@ export const routes: RouteTypes[] = [
     id: 26,
     path: '/record-payment/:id',
     component: RecordPayment,
-  },
+  },  
   {
     id: 27,
     path: '/student-transactions/:id',
     component: StudentTransactions,
+  },
+  {
+    id: 26,
+    path: '/student-bill/:id',
+    component: StudentBill,
   },
 ];

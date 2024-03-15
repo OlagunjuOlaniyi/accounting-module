@@ -18,8 +18,10 @@ import {
 } from "../../hooks/mutations/billsAndFeesMgt";
 import toast from "react-hot-toast";
 import { useGetBankList } from "../../hooks/queries/banks";
+import Visibility from "../../icons/Visibility";
+import AddCircleBlue from "../../icons/AddCircleBlue";
 
-const RecordPayment = () => {
+const StudentBill = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const queryParams = new URLSearchParams(location.search);
@@ -97,6 +99,8 @@ const RecordPayment = () => {
     mandatory: item?.fees?.mandatory,
   }));
 
+  
+
   const { mutate, isLoading } = useRecordPayment();
 
   const submit = () => {
@@ -172,8 +176,10 @@ const RecordPayment = () => {
             gap: "10px",
           }}
         >
+          {/* {data?.student_details?.map((student) => {
+            return <span>{student.firstname}</span>;
+          })} */}
           <h2 className="bills_overview__title">
-            {/* {bill_name} */}
             {`${data?.student_details?.firstname} ${data?.student_details?.last_name}`}
           </h2>
           <h1 className="bills_overview__approval">
@@ -258,7 +264,7 @@ const RecordPayment = () => {
         <h3>TOTAL BILL AMOUNT</h3>
         <h3>NGN {Number(data?.total_outstanding_balance)?.toLocaleString()}</h3>
       </div>
-      <div className="record-payment-amount-paid">
+      {/* <div className="record-payment-amount-paid">
         <h3>AMOUNT PAID</h3>
         <TextInput
           type={"text"}
@@ -280,8 +286,38 @@ const RecordPayment = () => {
           selectedValues={undefined}
           value={fields.amount_paid}
         />
+      </div> */}
+      <div className="studentbill_amount">
+        <div className="studentbill_amount_main">
+          <p>AMOUNT PAID</p>
+          <p>NGN 0</p>
+        </div>
+        <div
+          className="studentbill_amount_link"
+          onClick={() => {
+            // navigate(`/bill/${id}`);
+            navigate(`/record-payment/${id}?bill_name=${bill_name}`);
+          }}
+        >
+          <AddCircleBlue />
+          <p className="studentbill_amount_link_text">Record Payment</p>
+        </div>
       </div>
-      <div className="record-payment-amount-paid">
+
+      <div className="studentbill_note">
+        <p className="studentbill_note_header">Notes</p>
+        <div>
+          <p>
+            For payments with Bank Transfer, kindly use the following account
+            details and bring along the bank teller or upload the payment
+            receipt to your portal.
+          </p>
+          <p>ACCOUNT NAME: MONICA GROUP OF SCHOOLS</p>
+          <p>ACCOUNT NUMBER: 235999490382</p>
+          <p>BANK: GUARANTY TRUST BANK</p>
+        </div>
+      </div>
+      {/* <div className="record-payment-amount-paid">
         <h3>PAYMENT METHOD</h3>
         <TextInput
           type={"dropdown"}
@@ -362,9 +398,9 @@ const RecordPayment = () => {
             selectedValues={undefined}
           />
         </div>
-      )}
+      )} */}
 
-      <div
+      {/* <div
         className="record-payment-footer"
         style={{
           border: "none",
@@ -386,9 +422,9 @@ const RecordPayment = () => {
         >
           {isLoading ? "Recording Payment..." : "Record Payment"}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
 
-export default RecordPayment;
+export default StudentBill;

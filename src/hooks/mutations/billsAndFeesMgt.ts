@@ -13,6 +13,7 @@ import {
   sendReminder,
   unSendBill,
   updateBill,
+  waiveBill,
   viewStudentTransactions,
 } from '../../services/billsServices';
 import { IStudentPayment } from '../../types/billTypes';
@@ -59,6 +60,13 @@ export const useUpdateBill = (id: string) => {
   });
 };
 
+export const useWaiveBill = () => {
+  return useMutation<any, Fee, any>({
+    mutationKey: ['waive-bill'],
+    mutationFn: (id: string) => waiveBill(id),
+  });
+};
+
 export const useGetPaymentStatusOnBill = () => {
   return useMutation<any, any, any>({
     mutationKey: ['get-payment-status-on-bill'],
@@ -94,3 +102,5 @@ export const useSendReminder = (id: string) => {
     mutationFn: (data: any) => sendReminder(data, id),
   });
 };
+
+

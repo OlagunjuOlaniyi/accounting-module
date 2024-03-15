@@ -38,9 +38,6 @@ const Table = ({ columns, data }: any) => {
           return (
             <tr {...row.getRowProps()}>
               {row.cells.map((cell) => {
-                {
-                  console.log("this is", cell);
-                }
                 return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
               })}
             </tr>
