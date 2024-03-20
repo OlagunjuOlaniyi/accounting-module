@@ -68,9 +68,10 @@ export const updateBill = async (id: string, data: Fee) => {
   return response.data;
 };
 
-export const waiveBill = async (id: any) => {
+export const waiveBill = async (id: any, data: any) => {
   const response = await axiosInstance.post(
-    `/payments/payments/bills/${id}/waive_bill/`
+    `/payments/payments/bills/${id}/waive_bill/`,
+    data
   );
   return response.data;
 };

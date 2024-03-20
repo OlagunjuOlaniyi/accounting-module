@@ -60,10 +60,10 @@ export const useUpdateBill = (id: string) => {
   });
 };
 
-export const useWaiveBill = () => {
+export const useWaiveBill = (id: any) => {
   return useMutation<any, Fee, any>({
     mutationKey: ['waive-bill'],
-    mutationFn: (id: string) => waiveBill(id),
+    mutationFn: (data: any) => waiveBill(id, data),
   });
 };
 

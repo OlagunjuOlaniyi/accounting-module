@@ -17,7 +17,7 @@ import { useGetBankList } from "../../../hooks/queries/banks";
 import Credit from "../../../icons/Credit";
 import TouchAppIcon from "../../../assets/icon.png";
 
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useRunPayroll } from "../../../hooks/mutations/payroll";
 import { useStaffDetails } from "../../../hooks/queries/SchoolQuery";
 import { useGetStudentsBills } from "../../../hooks/queries/billsAndFeesMgt";
@@ -80,7 +80,7 @@ const RunWaiveBill = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
   };
 
   const close = () => {
-    closeModal("income");
+    closeModal(true);
   };
 
   type StateProps = {
@@ -169,7 +169,7 @@ const RunWaiveBill = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
   };
 
   const { mutate, isLoading } = useRunPayroll(id || "");
-  const { mutate: waiveBill } = useWaiveBill();
+  const { mutate: waiveBill } = useWaiveBill(id || "");
 
   const { data: bank_accounts } = useGetBankList();
   const { data: staffData } = useStaffDetails();
@@ -219,7 +219,11 @@ const RunWaiveBill = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
   };
 
   const waive = () => {
-    waiveBill(studentNo, {
+    let dataToSend = {
+      admission_number: studentNo,
+    };
+
+    waiveBill(dataToSend, {
       onSuccess: (res) => {
         close();
         toast.success(res?.detail);

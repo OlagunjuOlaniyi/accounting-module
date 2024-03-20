@@ -198,7 +198,11 @@ const ClassAndStudentSelection = ({
                 }}
               >
                 <div className="class-and-students__list__left">
-                  {isStudentSelected(s?.name) ? <Checked /> : <Unchecked />}
+                  {isStudentSelected(s?.name) || isSelected(c?.class_name) ? (
+                    <Checked />
+                  ) : (
+                    <Unchecked />
+                  )}
                   <p>{s?.name}</p>
                 </div>
               </div>

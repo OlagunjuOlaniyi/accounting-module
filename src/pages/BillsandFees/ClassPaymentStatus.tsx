@@ -125,6 +125,7 @@ const ClassPaymentStatus = () => {
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
+    // let class_name = value;
     let class_name = value.split("-")[0];
 
     return (
@@ -305,7 +306,7 @@ const ClassPaymentStatus = () => {
         {/* <Draft data={data} columns={columns} isLoading={isLoading}/> */}
 
         <RunWaiveBill
-          id={selectedId}
+          id={id}
           modalIsOpen={runWaiveBillModalOpen}
           closeModal={() => setWaiveBillModalOpen(false)}
           studentNo={studentNo}

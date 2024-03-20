@@ -71,7 +71,8 @@ const RecordPayment = () => {
   const transformedArray = data?.bills?.map((item: any, index: number) => {
     const feeType = index + 1;
     return {
-      student_payment_id: item.fees[bill_name || ""]?.payment_id,
+      // student_payment_id: item.fees[bill_name || ""]?.payment_id,
+      student_payment_id: item.fees?.payment_id,
       fee_type: feeType,
       bill_id: bills_and_fees?.bill_id,
 
@@ -86,6 +87,10 @@ const RecordPayment = () => {
       discount_amount: item.fees[bill_name || ""]?.total_discount_amount,
     };
   });
+
+  // const studentPaymentArray = data?.bills?.map(
+  //   (item: any, index: number) => item.fees?.payment_id
+  // );
 
   const studentBill = data?.bills?.map((item: any) => ({
     fee_name: item?.fees?.fee_type_name,

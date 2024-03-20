@@ -22,6 +22,7 @@ import ClassAndStudentSelection from "../../components/ClassAndStudentSelection/
 import { useGetStudents } from "../../hooks/queries/students";
 import MultiLevelDropdown from "../../components/MultilevelDropdown/MultilevelDropdown";
 import Header from "../../components/Header/Header";
+import Timeline from "../../icons/Timeline";
 
 const CreateBill = () => {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const CreateBill = () => {
       value: 0,
       description: "",
       fee_type: "",
-      discount_amount: 0,
+      amount: 0,
       is_percentage: true,
       students: [],
       classes: [],
@@ -103,6 +104,8 @@ const CreateBill = () => {
   const [fields, setFields] = useState({
     billName: "",
     dueDate: "",
+    term: "",
+    session: "",
     status: "draft",
     classes: [],
     amount: 0,
@@ -113,9 +116,11 @@ const CreateBill = () => {
   const { data: classes } = useGetClasses();
   const { data: classesAndStudents } = useGetStudents();
 
-  const formattedClasses = classes?.results?.map((c: any) => ({
-    id: c?.idx,
-    name: c?.class_field,
+  const formattedClasses = classes?.map((c: any, index: any) => ({
+    // id: c?.idx,
+    // name: c?.class_field,
+    id: index,
+    name: c,
   }));
 
   const toggleClasses = (option: any) => {
@@ -145,6 +150,10 @@ const CreateBill = () => {
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
+  };
+
+  const selectbillName = (value: any) => {
+    setFields({ ...fields, billName: value });
   };
 
   const handleClassSearch = (evt: any) => {
@@ -180,7 +189,7 @@ const CreateBill = () => {
       description: "",
       is_percentage: true,
       fee_type: "",
-      discount_amount: 0,
+      amount: 0,
       students: [],
       classes: [],
     };
@@ -220,7 +229,7 @@ const CreateBill = () => {
             ...fee,
             fee_type: {
               ...fee.fee_type,
-              discounts: updatedDiscount[index],
+              discounts: [updatedDiscount[index]],
             },
           }
         : fee
@@ -246,7 +255,8 @@ const CreateBill = () => {
       i === discountIndex
         ? {
             ...discount,
-            discount_amount: Number(discounted),
+            amount: Number(discounted),
+            value: Number(discounts[discountIndex].value),
           }
         : discount
     );
@@ -296,7 +306,7 @@ const CreateBill = () => {
             ...fee,
             fee_type: {
               ...fee.fee_type,
-              discounts: updatedDiscount[index],
+              discounts: [updatedDiscount[index]],
             },
           }
         : fee
@@ -421,14 +431,17 @@ const CreateBill = () => {
     let dataToSend = {
       bill_name: fields.billName,
       due_date: fields.dueDate,
+      term: fields.term,
+      session: fields.session,
       status: "draft",
+      part_payment: true,
       classes: selectedClasses?.map(({ name }: any) => ({ name })),
       fees: fees,
-      amount: fields.amount,
-      mandatory: false,
+      // amount: fields.amount,
+      // mandatory: false,
       // discounts: discounts,
     };
-    console.log(dataToSend);
+    // console.log(dataToSend);
 
     mutate(dataToSend, {
       onSuccess: (res) => {
@@ -516,12 +529,83 @@ const CreateBill = () => {
             }}
             selectedValues={undefined}
             options={[
-              { id: 1, name: "Third term 2022/2023" },
-              { id: 2, name: "First term 2023/2024" },
-              { id: 3, name: "Second term 2023/2024" },
-              { id: 4, name: "Third term 2023/2024" },
+              { id: 1, name: "Second term 2023/2024" },
+              { id: 2, name: "Third term 2023/2024" },
+              { id: 3, name: "First term 2023/2024" },
+              { id: 4, name: "Second term 2024/2025" },
             ]}
+            // options={[
+            //   {
+            //     id: 1,
+            //     name: (
+            //       <div className="payment-method-dropdown">
+            //         <Timeline />
+            //         Third term 2022/2023
+            //       </div>
+            //     ),
+            //   },
+            //   {
+            //     id: 2,
+            //     name: (
+            //       <div className="payment-method-dropdown">
+            //         {/* <Bank /> */}
+            //         First term 2023/2024
+            //       </div>
+            //     ),
+            //   },
+
+            //   {
+            //     id: 3,
+            //     name: (
+            //       <div className="payment-method-dropdown">
+            //         {/* <Credit /> */}
+            //         Second term 2023/2024
+            //       </div>
+            //     ),
+            //   },
+            //   {
+            //     id: 4,
+            //     name: (
+            //       <div className="payment-method-dropdown">
+            //         {/* <Credit /> */}
+            //         Third term 2023/2024
+            //       </div>
+            //     ),
+            //   },
+            // ]}
           />
+
+          {/* <div
+            className="bills_form__other_form__addons__addFee__input__wrapper"
+            style={{ position: "relative" }}
+          >
+            <input
+              className="bills_form__other_form__addons__addFee__input__wrapper__input"
+              type="text"
+              name="billName"
+              id="billName"
+              value={fields.billName}
+              onClick={() => {
+                setShowAddFeeDropdown(!showAddFeeDropdown);
+              }}
+              onChange={(e) => handleChange(e)}
+              placeholder="type or select fee type"
+            />
+          </div>
+          <div className="discount_dropdown" style={{ position: "absolute" }}>
+            {showAddFeeDropdown &&
+              fee_types?.results?.map((fee: { name: string }) => (
+                <div
+                  className="discount_dropdown__item"
+                  onClick={() => {
+                    selectbillName(fee.name);
+                    setShowAddFeeDropdown(false);
+                  }}
+                >
+                  <p>{fee?.name}</p>
+                </div>
+              ))}
+          </div> */}
 
           <TextInput
             label="Bill Due Date"
@@ -535,6 +619,63 @@ const CreateBill = () => {
             errorMessage={""}
             id={"dueDate"}
             onSelectValue={function (): void {}}
+            isSearchable={false}
+            handleSearchValue={function (): void {}}
+            searchValue={""}
+            handleBlur={""}
+            multi={false}
+            toggleOption={function (a: any): void {
+              throw new Error("");
+            }}
+            selectedValues={undefined}
+            options={[]}
+          />
+        </div>
+
+        {/* session and term */}
+        <div className="bills_form__top">
+          <TextInput
+            label="Term"
+            placeholder="Term"
+            className="bills_form__top__input"
+            name="term"
+            type="text"
+            fieldClass={"input-field"}
+            errorClass={"error-msg"}
+            handleChange={handleChange}
+            value={fields.term}
+            errorMessage={""}
+            id={"term"}
+            onSelectValue={selectValue}
+            isSearchable={false}
+            handleSearchValue={function (): void {}}
+            searchValue={""}
+            handleBlur={""}
+            multi={false}
+            toggleOption={function (a: any): void {
+              throw new Error("");
+            }}
+            selectedValues={undefined}
+            options={[
+              { id: 1, name: "Second term 2023/2024" },
+              { id: 2, name: "Third term 2023/2024" },
+              { id: 3, name: "First term 2023/2024" },
+              { id: 4, name: "Second term 2024/2025" },
+            ]}
+          />
+
+          <TextInput
+            label="Session"
+            placeholder="Session"
+            name="session"
+            type="text"
+            errorClass={"error-msg"}
+            handleChange={handleChange}
+            value={fields.session}
+            fieldClass={"input-field"}
+            errorMessage={""}
+            id={"session"}
+            onSelectValue={selectValue}
             isSearchable={false}
             handleSearchValue={function (): void {}}
             searchValue={""}
@@ -903,7 +1044,7 @@ const CreateBill = () => {
                         placeholder=""
                         disabled
                         // value={discountedAmount ? discountedAmount : 0}
-                        value={d.discount_amount}
+                        value={d.amount}
                       />
                     </div>
                     <div className="bills_form__other_form__addons__addDiscount__input">
