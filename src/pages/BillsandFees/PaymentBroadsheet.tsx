@@ -144,7 +144,7 @@ const PaymentBroadsheet = () => {
                     );
                   }}
                 >
-                  <ParentIcon /> <p>View Payment History</p>
+                  <ParentIcon /> <p>View Parent History</p>
                 </div>
               </div>
             </>

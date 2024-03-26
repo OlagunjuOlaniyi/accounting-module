@@ -12,6 +12,8 @@ import { useState } from "react";
 import Cash from "../../icons/Cash";
 import Bank from "../../icons/Bank";
 import Credit from "../../icons/Credit";
+import Wallet from "../../icons/Wallet";
+import Caution from "../../icons/Caution";
 import {
   useRecordPayment,
   useSendReminder,
@@ -37,6 +39,8 @@ const RecordPayment = () => {
     amount_paid: "",
     bank: "",
   });
+
+  const [checkedPaymentId, setCheckedPaymentId] = useState([]);
 
   const handleChange = (evt: any) => {
     const value = evt.target.value;
@@ -70,6 +74,7 @@ const RecordPayment = () => {
 
   const transformedArray = data?.bills?.map((item: any, index: number) => {
     const feeType = index + 1;
+
     return {
       // student_payment_id: item.fees[bill_name || ""]?.payment_id,
       student_payment_id: item.fees?.payment_id,
@@ -92,13 +97,16 @@ const RecordPayment = () => {
   //   (item: any, index: number) => item.fees?.payment_id
   // );
 
+  // console.log("payment id", checkedPaymentId);
+
   const studentBill = data?.bills?.map((item: any) => ({
+    student_payment_id: item.fees?.payment_id,
     fee_name: item?.fees?.fee_type_name,
     fee_amount: item?.fees?.fee_amount,
     discount_amount: item?.fees?.total_discount_amount,
     status: item?.fees?.status,
-    discount: item?.fees?.has_discount,
-    reason: item?.fees?.reason,
+    discount: item?.fees?.total_discount_amount,
+    reason: item?.fees?.discount_reason,
     mandatory: item?.fees?.mandatory,
   }));
 
@@ -107,7 +115,8 @@ const RecordPayment = () => {
   const submit = () => {
     const updatedArray = transformedArray.map((item: any) => ({
       ...item,
-      amount_paid: fields?.amount_paid.replace(/,/g, ""),
+      student_payment_id: checkedPaymentId,
+      amount_paid: Number(fields?.amount_paid.replace(/,/g, "")),
       payment_method:
         fields.payment_method.props.children[1] === "Bank"
           ? bankId
@@ -115,7 +124,19 @@ const RecordPayment = () => {
     }));
 
     mutate(
-      { payments: updatedArray },
+      // { payments: updatedArray },
+      {
+        payments: [
+          {
+            student_payment_id: checkedPaymentId,
+            amount_paid: Number(fields?.amount_paid.replace(/,/g, "")),
+            payment_method:
+              fields.payment_method.props.children[1] === "Bank"
+                ? bankId
+                : fields.payment_method.props.children[1],
+          },
+        ],
+      },
       {
         onSuccess: (res) => {
           console.log(res);
@@ -123,7 +144,7 @@ const RecordPayment = () => {
           toast.success(res?.detail);
 
           setFields({ ...fields });
-          // navigate('/bills-fees-management');
+          navigate("/bills-fees-management");
         },
 
         onError: (e) => {
@@ -179,7 +200,7 @@ const RecordPayment = () => {
         >
           <h2 className="bills_overview__title">
             {/* {bill_name} */}
-            {`${data?.student_details?.firstname} ${data?.student_details?.last_name}`}
+            {`${data?.student_details?.firstname} ${data?.student_details?.lastname}`}
           </h2>
           <h1 className="bills_overview__approval">
             APPROVAL STATUS: Approved
@@ -252,11 +273,16 @@ const RecordPayment = () => {
       {studentBill?.map((el: any, index: number) => (
         <FeeItem
           key={index}
+          payment_id={el?.student_payment_id}
           name={el?.fee_name}
           mandatory={el?.mandatory}
           discount={el?.discount}
           amount={el?.fee_amount}
+          reason={el?.reason}
           discount_amount={el?.discount_amount}
+          status={el?.status}
+          setCheckedPaymentId={setCheckedPaymentId}
+          checkedPaymentId={checkedPaymentId}
         />
       ))}
       <div className="record-payment-footer">
@@ -288,6 +314,7 @@ const RecordPayment = () => {
       </div>
       <div className="record-payment-amount-paid">
         <h3>PAYMENT METHOD</h3>
+
         <TextInput
           type={"dropdown"}
           name={"payment_method"}
@@ -335,8 +362,36 @@ const RecordPayment = () => {
                 </div>
               ),
             },
+            {
+              id: 4,
+              name: (
+                <div className="payment-method-dropdown">
+                  <Wallet />
+                  Wallet
+                </div>
+              ),
+            },
           ]}
         />
+        {fields.payment_method?.props?.children[1]?.toLowerCase() ===
+          "wallet" && (
+          <span
+            style={{
+              color: "#FFA800",
+              fontSize: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              position: "absolute",
+              right: "50px",
+              marginTop: "65px",
+            }}
+          >
+            <Caution />
+            You have a total of in NGN 200,000 <br />
+            your wallet
+          </span>
+        )}
       </div>
 
       {fields.payment_method?.props?.children[1]?.toLowerCase() === "bank" && (

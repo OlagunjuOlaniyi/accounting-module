@@ -40,6 +40,8 @@ const StudentBill = () => {
     bank: "",
   });
 
+  const [checkedPaymentId, setCheckedPaymentId] = useState([]);
+
   const handleChange = (evt: any) => {
     const value = evt.target.value;
 
@@ -90,16 +92,15 @@ const StudentBill = () => {
   });
 
   const studentBill = data?.bills?.map((item: any) => ({
+    student_payment_id: item.fees?.payment_id,
     fee_name: item?.fees?.fee_type_name,
     fee_amount: item?.fees?.fee_amount,
     discount_amount: item?.fees?.total_discount_amount,
     status: item?.fees?.status,
-    discount: item?.fees?.has_discount,
-    reason: item?.fees?.reason,
+    discount: item?.fees?.total_discount_amount,
+    reason: item?.fees?.discount_reason,
     mandatory: item?.fees?.mandatory,
   }));
-
-  
 
   const { mutate, isLoading } = useRecordPayment();
 
@@ -253,11 +254,16 @@ const StudentBill = () => {
       {studentBill?.map((el: any, index: number) => (
         <FeeItem
           key={index}
+          payment_id={el?.student_payment_id}
           name={el?.fee_name}
           mandatory={el?.mandatory}
           discount={el?.discount}
           amount={el?.fee_amount}
+          reason={el?.reason}
           discount_amount={el?.discount_amount}
+          status={el?.status}
+          setCheckedPaymentId={setCheckedPaymentId}
+          checkedPaymentId={checkedPaymentId}
         />
       ))}
       <div className="record-payment-footer">

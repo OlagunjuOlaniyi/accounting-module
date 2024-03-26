@@ -120,7 +120,7 @@ const CreateBill = () => {
     // id: c?.idx,
     // name: c?.class_field,
     id: index,
-    name: c,
+    name: c?.class_id,
   }));
 
   const toggleClasses = (option: any) => {

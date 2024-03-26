@@ -132,7 +132,7 @@ export const getStudentBills = async (id: string) => {
 };
 
 export const recordPayment = async (data: { payments: IStudentPayment[] }) => {
-  const response = await axiosInstance.post(`/payments/recordpayment/`, data);
+  const response = await axiosInstance.post(`/payments/payments/recordpayment/`, data);
   return response.data;
 };
 
