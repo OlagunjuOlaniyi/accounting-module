@@ -162,3 +162,8 @@ export const sendReminder = async (data: any, id: string) => {
   );
   return response.data;
 };
+
+export const downloadClassBroadsheet = async (data: any) => {
+  const response = await axiosInstance.get(`/payments/payments/class-payment/`, data);
+  return response.data;
+};

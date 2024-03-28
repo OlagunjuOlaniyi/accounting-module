@@ -345,7 +345,7 @@ const ApplyOverPayment = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
                         name: (
                           <div className="payment-method-dropdown">
                             {/* <Timeline /> */}
-                            Third term 2022/2023
+                            firstname lastname
                           </div>
                         ),
                       },
@@ -354,7 +354,7 @@ const ApplyOverPayment = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
                         name: (
                           <div className="payment-method-dropdown">
                             {/* <Bank /> */}
-                            First term 2023/2024
+                            firstname lastname
                           </div>
                         ),
                       },
@@ -364,7 +364,7 @@ const ApplyOverPayment = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
                         name: (
                           <div className="payment-method-dropdown">
                             {/* <Credit /> */}
-                            Second term 2023/2024
+                            firstname lastname
                           </div>
                         ),
                       },
@@ -373,7 +373,7 @@ const ApplyOverPayment = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
                         name: (
                           <div className="payment-method-dropdown">
                             {/* <Credit /> */}
-                            Third term 2023/2024
+                            firstname lastname
                           </div>
                         ),
                       },

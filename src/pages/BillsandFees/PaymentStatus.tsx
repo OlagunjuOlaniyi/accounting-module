@@ -31,8 +31,6 @@ const PaymentStatus = () => {
 
   const { data, isLoading } = useGetClassPaymentStatus(id || "");
 
-  
-
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
     return (
@@ -149,6 +147,22 @@ const PaymentStatus = () => {
           onClick={() =>
             navigate(
               `/class-payment-status/${id}?status=partly_paid&bill_name=${bill_name}`
+            )
+          }
+        >
+          {value}
+        </button>
+      ),
+    },
+    {
+      Header: "WAIVED",
+      accessor: "waived",
+      Cell: ({ cell: { value } }: any) => (
+        <button
+          className="table-btn"
+          onClick={() =>
+            navigate(
+              `/class-payment-status/${id}?status=waived&bill_name=${bill_name}`
             )
           }
         >

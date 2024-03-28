@@ -138,6 +138,9 @@ const CreateBill = () => {
     });
   };
 
+  // console.log("class", selectedClasses);
+  // console.log("classes", classesAndStudents);
+
   //handle field change
   const handleChange = (evt: any) => {
     const value = evt.target.value;

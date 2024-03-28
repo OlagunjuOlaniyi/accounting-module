@@ -22,6 +22,8 @@ import Expense from "../../icons/Expense";
 import Net from "../../icons/Net";
 import Header from "../../components/Header/Header";
 import ParentIcon from "../../icons/ParentIcon";
+import { downloadClassBroadsheet } from "../../services/billsServices";
+import axios from "axios";
 
 const PaymentBroadsheet = () => {
   const navigate = useNavigate();
@@ -49,6 +51,36 @@ const PaymentBroadsheet = () => {
     grand_total: 0,
     students_data: [],
   });
+
+  // console.log(class_name);
+  // const download = async () => {
+  //   let dataToSend = {
+  //     class: class_name,
+  //   };
+  //   try {
+  //     const res = await downloadClassBroadsheet(dataToSend);
+  //     console.log("response", res);
+  //     window.open(res.pdf_url, "_blank");
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  // download report
+  const download = () => {
+    let dataToSend = {
+      class: class_name,
+    };
+    axios
+      .post(
+        "https://edves.cloud/api/v1/payments/payments/class-payment/",
+        dataToSend
+      )
+      .then((res) => {
+        console.log("response", res);
+        window.open(res.data.pdf_url, "_blank");
+      });
+  };
 
   const submit = () => {
     let dataToSend = {
@@ -241,7 +273,10 @@ const PaymentBroadsheet = () => {
           <p>Filter</p>
         </button>
 
-        <button className="ie_overview__top-level__filter-download">
+        <button
+          className="ie_overview__top-level__filter-download"
+          onClick={download}
+        >
           {" "}
           <Export />
           <p>Download</p>

@@ -24,13 +24,17 @@ import { useGetBankList } from "../../hooks/queries/banks";
 const RecordPayment = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+
   const queryParams = new URLSearchParams(location.search);
 
   let bill_name = queryParams.get("bill_name");
+  let adm_num = queryParams.get("adm_num");
+
+  
 
   const { data: schoolData } = useGetSchoolDetails();
 
-  const { data } = useGetStudentsBills(id || "");
+  const { data } = useGetStudentsBills(adm_num || "");
 
   let bills_and_fees = JSON.parse(localStorage.getItem("bills_and_fees") || "");
 
@@ -93,6 +97,7 @@ const RecordPayment = () => {
     };
   });
 
+  console.log("bank id", bankId);
   // const studentPaymentArray = data?.bills?.map(
   //   (item: any, index: number) => item.fees?.payment_id
   // );

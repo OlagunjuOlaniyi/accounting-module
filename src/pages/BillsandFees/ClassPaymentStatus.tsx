@@ -143,13 +143,16 @@ const ClassPaymentStatus = () => {
           {dropdownActions && value === selectedId && (
             <>
               {/* {billStatus} */}
+              {console.log("value", value.toString())}
 
               <div className="action">
                 <div
                   className="action__flex"
                   onClick={() => {
                     // navigate(`/bill/${id}`);
-                    navigate(`/student-bill/${value}?bill_name=${bill_name}`);
+                    navigate(
+                      `/student-bill/${id}?adm_num=${value}?bill_name=${bill_name}`
+                    );
                   }}
                 >
                   <Visibility />
@@ -158,7 +161,9 @@ const ClassPaymentStatus = () => {
                 <div
                   className="action__flex"
                   onClick={() => {
-                    navigate(`/record-payment/${value}?bill_name=${bill_name}`);
+                    navigate(
+                      `/record-payment/${id}?adm_num=${value}?bill_name=${bill_name}`
+                    );
                   }}
                 >
                   <Edit /> <p>Record Payment</p>
