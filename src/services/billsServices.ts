@@ -163,6 +163,13 @@ export const sendReminder = async (data: any, id: string) => {
   return response.data;
 };
 
+export const sendStudentReminder = async (id: string) => {
+  const response = await axiosInstance.post(
+    `/payments/send_student_invoice/${id}`
+  );
+  return response.data;
+};
+
 export const downloadClassBroadsheet = async (data: any) => {
   const response = await axiosInstance.get(`/payments/payments/class-payment/`, data);
   return response.data;

@@ -11,6 +11,7 @@ import {
   recordPayment,
   sendBill,
   sendReminder,
+  sendStudentReminder,
   unSendBill,
   updateBill,
   waiveBill,
@@ -104,3 +105,9 @@ export const useSendReminder = (id: string) => {
 };
 
 
+export const useSendstudentReminder = (id: string) => {
+  return useMutation<any, any, any>({
+    mutationKey: ['send-student-reminder'],
+    mutationFn: () => sendStudentReminder(id),
+  });
+};

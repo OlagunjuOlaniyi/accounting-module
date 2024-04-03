@@ -15,11 +15,13 @@ import Credit from "../../icons/Credit";
 import {
   useRecordPayment,
   useSendReminder,
+  useSendstudentReminder,
 } from "../../hooks/mutations/billsAndFeesMgt";
 import toast from "react-hot-toast";
 import { useGetBankList } from "../../hooks/queries/banks";
 import Visibility from "../../icons/Visibility";
 import AddCircleBlue from "../../icons/AddCircleBlue";
+import axios from "axios";
 
 const StudentBill = () => {
   const navigate = useNavigate();
@@ -27,13 +29,14 @@ const StudentBill = () => {
   const queryParams = new URLSearchParams(location.search);
 
   let bill_name = queryParams.get("bill_name");
-  let adm_num = queryParams.get("adm_num");
+  let admNum = queryParams.get("adm_num");
 
   const { data: schoolData } = useGetSchoolDetails();
 
-  const { data } = useGetStudentsBills(adm_num || "");
-
   let bills_and_fees = JSON.parse(localStorage.getItem("bills_and_fees") || "");
+  let admNumValue = JSON.parse(localStorage.getItem("adm_num") || admNum);
+
+  const { data } = useGetStudentsBills(admNumValue || "");
 
   const [fields, setFields] = useState<any>({
     payment_method: "",
@@ -63,6 +66,21 @@ const StudentBill = () => {
       name: b.account_name,
     })
   );
+
+  // download invoice
+  const download = () => {
+    axios
+      .post(
+        `https://edves.cloud/api/v1/payments/student_invoice/${admNumValue}`
+      )
+      .then((res) => {
+        console.log("response", res);
+        window.open(res.data.pdf_url, "_blank");
+      })
+      .catch((error) => {
+        console.error("Error occurred during download:", error);
+      });
+  };
 
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
@@ -134,15 +152,14 @@ const StudentBill = () => {
     );
   };
 
-  const { mutate: sendReminder, isLoading: sendLoading } = useSendReminder(
-    id || ""
-  );
-  const onSendReminder = () => {
+  const { mutate: sendStudentReminder, isLoading: sendLoading } =
+    useSendstudentReminder(admNumValue || "");
+  const onSendStudentReminder = () => {
     let dataToSend = {};
 
-    sendReminder(dataToSend, {
+    sendStudentReminder(admNumValue, {
       onSuccess: (res) => {
-        toast.success(res.detail);
+        toast.success(res.details);
       },
 
       onError: (e) => {
@@ -200,6 +217,7 @@ const StudentBill = () => {
               borderRadius: "4px",
               border: "1px solid #E4EFF9",
             }}
+            onClick={download}
           >
             <span>
               <Export />
@@ -220,7 +238,7 @@ const StudentBill = () => {
               color: "white",
               width: "185px",
             }}
-            onClick={() => onSendReminder()}
+            onClick={() => onSendStudentReminder()}
           >
             <span>
               <ViewPayment />
@@ -303,7 +321,7 @@ const StudentBill = () => {
           className="studentbill_amount_link"
           onClick={() => {
             // navigate(`/bill/${id}`);
-            navigate(`/record-payment/${id}?bill_name=${bill_name}`);
+            navigate(`/record-payment/${id}?adm_num=${admNum}`);
           }}
         >
           <AddCircleBlue />

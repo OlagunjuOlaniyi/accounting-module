@@ -17,9 +17,11 @@ import Caution from "../../icons/Caution";
 import {
   useRecordPayment,
   useSendReminder,
+  useSendstudentReminder,
 } from "../../hooks/mutations/billsAndFeesMgt";
 import toast from "react-hot-toast";
 import { useGetBankList } from "../../hooks/queries/banks";
+import axios from "axios";
 
 const RecordPayment = () => {
   const navigate = useNavigate();
@@ -28,13 +30,13 @@ const RecordPayment = () => {
   const queryParams = new URLSearchParams(location.search);
 
   let bill_name = queryParams.get("bill_name");
-  let adm_num = queryParams.get("adm_num");
+  let admNum = queryParams.get("adm_num");
 
-  
+  let admNumValue = JSON.parse(localStorage.getItem("adm_num") || admNum);
 
   const { data: schoolData } = useGetSchoolDetails();
 
-  const { data } = useGetStudentsBills(adm_num || "");
+  const { data } = useGetStudentsBills(admNumValue || "");
 
   let bills_and_fees = JSON.parse(localStorage.getItem("bills_and_fees") || "");
 
@@ -67,6 +69,21 @@ const RecordPayment = () => {
     })
   );
 
+  // download invoice
+  const download = () => {
+    axios
+      .post(
+        `https://edves.cloud/api/v1/payments/student_invoice/${admNumValue}`
+      )
+      .then((res) => {
+        console.log("response", res);
+        window.open(res.data.pdf_url, "_blank");
+      })
+      .catch((error) => {
+        console.error("Error occurred during download:", error);
+      });
+  };
+
   // select value from dropdown
   const selectValue = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
@@ -75,6 +92,8 @@ const RecordPayment = () => {
       setBankId(id);
     }
   };
+
+  // console.log("data", data?.wallet_balance);
 
   const transformedArray = data?.bills?.map((item: any, index: number) => {
     const feeType = index + 1;
@@ -97,7 +116,6 @@ const RecordPayment = () => {
     };
   });
 
-  console.log("bank id", bankId);
   // const studentPaymentArray = data?.bills?.map(
   //   (item: any, index: number) => item.fees?.payment_id
   // );
@@ -138,6 +156,9 @@ const RecordPayment = () => {
             payment_method:
               fields.payment_method.props.children[1] === "Bank"
                 ? bankId
+                : fields.payment_method.props.children[1].toLowerCase() ===
+                  "wallet"
+                ? data?.wallet_account_number
                 : fields.payment_method.props.children[1],
           },
         ],
@@ -159,15 +180,14 @@ const RecordPayment = () => {
     );
   };
 
-  const { mutate: sendReminder, isLoading: sendLoading } = useSendReminder(
-    id || ""
-  );
-  const onSendReminder = () => {
+  const { mutate: sendStudentReminder, isLoading: sendLoading } =
+    useSendstudentReminder(admNumValue || "");
+  const onSendStudentReminder = () => {
     let dataToSend = {};
 
-    sendReminder(dataToSend, {
+    sendStudentReminder(admNumValue, {
       onSuccess: (res) => {
-        toast.success(res.detail);
+        toast.success(res.details);
       },
 
       onError: (e) => {
@@ -223,6 +243,7 @@ const RecordPayment = () => {
               borderRadius: "4px",
               border: "1px solid #E4EFF9",
             }}
+            onClick={download}
           >
             <span>
               <Export />
@@ -243,7 +264,7 @@ const RecordPayment = () => {
               color: "white",
               width: "185px",
             }}
-            onClick={() => onSendReminder()}
+            onClick={() => onSendStudentReminder()}
           >
             <span>
               <ViewPayment />
@@ -393,7 +414,7 @@ const RecordPayment = () => {
             }}
           >
             <Caution />
-            You have a total of in NGN 200,000 <br />
+            You have a total of in NGN {data?.wallet_balance} <br />
             your wallet
           </span>
         )}

@@ -35,6 +35,7 @@ const ClassPaymentStatus = () => {
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [selectedIndex, setSelectedIndex] = useState();
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [runWaiveBillModalOpen, setWaiveBillModalOpen] =
     useState<boolean>(false);
@@ -46,6 +47,7 @@ const ClassPaymentStatus = () => {
   const [apiData, setApiData] = useState([]);
   const [test, setTest] = useState(2022);
   const [studentNo, setStudentNo] = useState(0);
+  const [paymentId, setPaymentId] = useState("");
 
   const submit = () => {
     let dataToSend = {
@@ -124,8 +126,15 @@ const ClassPaymentStatus = () => {
   // console.log("api", apiData2);
 
   //dots button component
-  const DotsBtn = ({ value }: { value: string }) => {
-    // let class_name = value;
+  const DotsBtn = ({
+    value,
+    payment,
+    index,
+  }: {
+    value: string;
+    payment: any;
+    index: any;
+  }) => {
     let class_name = value.split("-")[0];
 
     return (
@@ -134,22 +143,24 @@ const ClassPaymentStatus = () => {
           onClick={() => {
             setSelectedId(value);
             setStudentNo(value);
+            setSelectedIndex(index);
+            setPaymentId(payment);
             setDropdownActions(!dropdownActions);
           }}
           style={{ all: "unset", cursor: "pointer" }}
         >
           <Dots />
 
-          {dropdownActions && value === selectedId && (
+          {dropdownActions && index === selectedIndex && (
             <>
               {/* {billStatus} */}
-              {console.log("value", value.toString())}
 
               <div className="action">
                 <div
                   className="action__flex"
                   onClick={() => {
                     // navigate(`/bill/${id}`);
+                    localStorage.setItem("adm_num", JSON.stringify(value));
                     navigate(
                       `/student-bill/${id}?adm_num=${value}?bill_name=${bill_name}`
                     );
@@ -161,6 +172,7 @@ const ClassPaymentStatus = () => {
                 <div
                   className="action__flex"
                   onClick={() => {
+                    localStorage.setItem("adm_num", JSON.stringify(value));
                     navigate(
                       `/record-payment/${id}?adm_num=${value}?bill_name=${bill_name}`
                     );
@@ -240,14 +252,29 @@ const ClassPaymentStatus = () => {
       ),
     },
 
+    // {
+    //   Header: "Actions",
+    //   // accessor: (d: any) => `${d.class_name}-${d.student_name}`,
+    //   accessor: "admission_number",
+    //   Cell: ({ cell: { value } }: { cell: { value: string } }) => (
+    //     <>
+    //       <div style={{ display: "flex", gap: "16px" }}>
+    //         <DotsBtn value={value} />
+    //       </div>
+    //     </>
+    //   ),
+    // },
     {
       Header: "Actions",
-      // accessor: (d: any) => `${d.class_name}-${d.student_name}`,
       accessor: "admission_number",
-      Cell: ({ cell: { value } }: { cell: { value: string } }) => (
+      Cell: ({ cell, row }: any) => (
         <>
           <div style={{ display: "flex", gap: "16px" }}>
-            <DotsBtn value={value} />
+            <DotsBtn
+              value={cell.value}
+              payment={row.original.student_payment_id}
+              index={row.index}
+            />
           </div>
         </>
       ),
@@ -315,6 +342,7 @@ const ClassPaymentStatus = () => {
           modalIsOpen={runWaiveBillModalOpen}
           closeModal={() => setWaiveBillModalOpen(false)}
           studentNo={studentNo}
+          paymentId={paymentId}
         />
       </div>
     </div>

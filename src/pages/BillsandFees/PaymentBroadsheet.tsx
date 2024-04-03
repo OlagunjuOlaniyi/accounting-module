@@ -32,6 +32,7 @@ const PaymentBroadsheet = () => {
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [selectedIndex, setSelectedIndex] = useState();
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
 
   const toggleDeleteConfirmation = () => {
@@ -143,19 +144,20 @@ const PaymentBroadsheet = () => {
   };
 
   //dots button component
-  const DotsBtn = ({ value }: { value: string }) => {
+  const DotsBtn = ({ value, index }: { value: string; index: any }) => {
     return (
       <div className="action-wrapper">
         <button
           onClick={() => {
             setSelectedId(value);
+            setSelectedIndex(index);
             setDropdownActions(!dropdownActions);
           }}
           style={{ all: "unset", cursor: "pointer" }}
         >
           <Dots />
 
-          {dropdownActions && value === selectedId && (
+          {dropdownActions && index === selectedIndex && (
             <>
               {/* {billStatus} */}
               {/* {console.log("value", value)} */}
@@ -163,7 +165,10 @@ const PaymentBroadsheet = () => {
                 <div
                   className="action__flex"
                   onClick={() => {
-                    navigate(`/record-payment/${value}?bill_name=${bill_name}`);
+                    localStorage.setItem("adm_num", JSON.stringify(value));
+                    navigate(
+                      `/record-payment/${id}?adm_num=${value}?bill_name=${bill_name}`
+                    );
                   }}
                 >
                   <Edit /> <p>Record Payment</p>
@@ -207,7 +212,7 @@ const PaymentBroadsheet = () => {
     {
       Header: "Student Name",
       accessor: (d: any) =>
-        `${d.student_details?.firstname} ${d.student_details?.surname}`,
+        `${d.student_details?.firstname} ${d.student_details?.lastname}`,
       Cell: ({ cell: { value } }: any) => <p>{value}</p>,
     },
     {
@@ -232,13 +237,25 @@ const PaymentBroadsheet = () => {
       ),
     })),
 
+    // {
+    //   Header: "Actions",
+    //   accessor: (d: any, index: any) =>
+    //     `${d.student_details?.admission_number}`,
+    //   Cell: ({ cell: { value } }: { cell: { value: string } }) => (
+    //     <>
+    //       <div style={{ display: "flex", gap: "16px" }}>
+    //         <DotsBtn value={value} />
+    //       </div>
+    //     </>
+    //   ),
+    // },
     {
       Header: "Actions",
       accessor: (d: any) => `${d.student_details?.admission_number}`,
-      Cell: ({ cell: { value } }: { cell: { value: string } }) => (
+      Cell: ({ cell, row }: any) => (
         <>
           <div style={{ display: "flex", gap: "16px" }}>
-            <DotsBtn value={value} />
+            <DotsBtn value={cell.value} index={row.index} />
           </div>
         </>
       ),
