@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import "./BillsandFees.scss";
 import TextInput from "../../components/Input/TextInput";
 import Button from "../../components/Button/Button";
-import Addcircle from "../../icons/Addcircle";
+import AddCircleBlack from "../../icons/AddCircleBlack";
 import AddCircleBlue from "../../icons/AddCircleBlue";
 import ToggleUnchecked from "../../icons/ToggleUnchecked";
 import ToggleChecked from "../../icons/ToggleChecked";
@@ -175,7 +175,7 @@ const CreateBill = () => {
         discounts: [],
       },
       amount: 0.0,
-      mandatory: false,
+      mandatory: true,
     };
     setFees([...fees, newFee]);
   };
@@ -264,7 +264,11 @@ const CreateBill = () => {
         : discount
     );
     setDiscounts(updatedDiscount);
-  }, [discounts]);
+  }, [
+    discounts,
+    discounts[discountIndex].value,
+    getDiscount[discountIndex].fee_type,
+  ]);
 
   const handleClassChange = (
     index: number,
@@ -380,9 +384,18 @@ const CreateBill = () => {
     setFields({ ...fields, amount: totalAmount });
   }, [fees]);
 
-  const removeFee = (name: string) => {
-    let filtered = fees.filter((el) => el.fee_type.name !== name);
+  // const removeFee = (name: string) => {
+  //   let filtered = fees.filter((el) => el.fee_type.name !== name);
+  //   setFees(filtered);
+  // };
+  const removeFee = (name: any) => {
+    let filtered = fees.filter((el, index) => index !== name);
     setFees(filtered);
+  };
+
+  const removeDiscount = (name: any) => {
+    let filtered = discounts.filter((el, index) => index !== name);
+    setDiscounts(filtered);
   };
 
   const handleToggleMandatory = (index: number) => {
@@ -500,7 +513,7 @@ const CreateBill = () => {
         </div>
         <div className="bills_schoolInfo__details">
           {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {fields.billName ? `${fields.billName}` : ""}
+          <br /> {fields.billName ? `${fields.billName} Bill` : ""}
           <p className="bills_schoolInfo__details__email">
             Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
@@ -697,7 +710,7 @@ const CreateBill = () => {
           btnText="Add Class"
           btnClass="btn-cancel"
           width="100%"
-          icon={<Addcircle />}
+          icon={<AddCircleBlack />}
           onClick={() => setAddClass(!addClass)}
         />
       </div>
@@ -757,7 +770,10 @@ const CreateBill = () => {
           </div>
 
           <div className="bills_form__other_form__addons">
-            <p onClick={() => setAddFee(!addFee)}>
+            <p
+              onClick={() => setAddFee(!addFee)}
+              style={{ width: "fit-content" }}
+            >
               <AddCircleBlue />
               Add Fee
             </p>
@@ -872,7 +888,7 @@ const CreateBill = () => {
                           </div>
                           <div
                             style={{ cursor: "pointer" }}
-                            onClick={() => removeFee(fee.fee_type.name)}
+                            onClick={() => removeFee(index)}
                           >
                             <DeleteRed />
                           </div>
@@ -901,25 +917,34 @@ const CreateBill = () => {
                   ))}
 
                 {addFee && fees.length > 0 && (
-                  <div
-                    onClick={handleAddFee}
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: "10px",
-                      color: "rgba(67, 154, 222, 1)",
-                      marginTop: "20px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <AddCircleBlue />
-                    Add Another Fee
+                  <div>
+                    <span
+                      onClick={handleAddFee}
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: "fit-content",
+                        gap: "10px",
+                        color: "rgba(67, 154, 222, 1)",
+                        marginTop: "20px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <AddCircleBlue />
+                      Add Another Fee
+                    </span>
                   </div>
                 )}
               </div>
             )}
 
-            <p onClick={() => setAddDiscount(!addDiscount)}>
+            <p
+              onClick={() => setAddDiscount(!addDiscount)}
+              style={{
+                width: "fit-content",
+              }}
+            >
               <AddCircleBlue />
               Add Discount
             </p>
@@ -1050,21 +1075,36 @@ const CreateBill = () => {
                         value={d.amount}
                       />
                     </div>
-                    <div className="bills_form__other_form__addons__addDiscount__input">
-                      <input
-                        type="text"
-                        name=""
-                        id=""
-                        value={d.description}
-                        placeholder="Reason for discount"
-                        onChange={(e) =>
-                          handleDiscountChange(
-                            index,
-                            "description",
-                            e.target.value
-                          )
-                        }
-                      />
+                    <div
+                      className="bills_form__other_form__addons__addDiscount__input"
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div>
+                        <input
+                          type="text"
+                          name=""
+                          id=""
+                          value={d.description}
+                          placeholder="Reason for discount"
+                          onChange={(e) =>
+                            handleDiscountChange(
+                              index,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+                      <div
+                        style={{ cursor: "pointer" }}
+                        onClick={() => removeDiscount(index)}
+                      >
+                        <DeleteRed />
+                      </div>
                     </div>
                   </div>
 
@@ -1110,6 +1150,8 @@ const CreateBill = () => {
                 style={{
                   display: "flex",
                   flexDirection: "row",
+                  alignItems: "center",
+                  width: "fit-content",
                   gap: "10px",
                   color: "rgba(67, 154, 222, 1)",
                   marginTop: "20px",

@@ -129,10 +129,12 @@ const ClassPaymentStatus = () => {
   const DotsBtn = ({
     value,
     payment,
+    className,
     index,
   }: {
     value: string;
     payment: any;
+    className: any;
     index: any;
   }) => {
     let class_name = value.split("-")[0];
@@ -154,7 +156,7 @@ const ClassPaymentStatus = () => {
           {dropdownActions && index === selectedIndex && (
             <>
               {/* {billStatus} */}
-
+              {/* {console.log("classs", class_name)} */}
               <div className="action">
                 <div
                   className="action__flex"
@@ -184,7 +186,7 @@ const ClassPaymentStatus = () => {
                   className="action__flex"
                   onClick={() => {
                     navigate(
-                      `/payment-broadsheet/${id}?class_name=${class_name}&bill_name=${bill_name}`
+                      `/payment-broadsheet/${id}?class_name=${className}&bill_name=${bill_name}`
                     );
                   }}
                 >
@@ -273,6 +275,7 @@ const ClassPaymentStatus = () => {
             <DotsBtn
               value={cell.value}
               payment={row.original.student_payment_id}
+              className={row.original.class_name}
               index={row.index}
             />
           </div>
