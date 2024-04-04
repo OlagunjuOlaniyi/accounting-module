@@ -59,6 +59,11 @@ const SelectDropdown = ({
     setShowMenu(!showMenu);
   };
 
+  // handle "Select All" option
+  const handleSelectAll = () => {
+    toggleOption(options); // Pass all options to toggleOption
+  };
+
   const isSelected = (option: string) => {
     if (!isSelected) {
       return false;
@@ -66,6 +71,16 @@ const SelectDropdown = ({
 
     return selectedValue === option;
   };
+
+  // Inside the SelectDropdown component
+  // const handleSelectAll = () => {
+  //   const allOptions = options.filter((option) => option.id !== "select-all"); // Exclude the "Select All" option
+  //   onSelectValue(
+  //     allOptions.map((option) => option.name),
+  //     name,
+  //     allOptions.map((option) => option.id)
+  //   );
+  // };
 
   //handle multiple selection true or false
   const isMultiSelected = (option: any) => {
@@ -152,7 +167,15 @@ const SelectDropdown = ({
                 />
               </div>
             )}
-
+            <div
+              className={`dropdown-item ${
+                isSelected("Select All") && "selected"
+              }`}
+              onClick={handleSelectAll}
+            >
+              {isSelected("Select All") ? <Checked /> : <Unchecked />}
+              <p>Select All</p>
+            </div>
             {options ? (
               getOptions()?.map((el: any) => (
                 <div

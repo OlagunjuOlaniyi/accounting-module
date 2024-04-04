@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./classandstudnts.scss";
 import Unchecked from "../../icons/Unchecked";
 import Checked from "../../icons/Checked";
@@ -39,6 +39,7 @@ const ClassAndStudentSelection = ({
   onStudentsChange,
   selectedClassesInParent,
   selectedStudentsInParent,
+  preSelectedClasses,
 }: {
   classes: OriginalData;
   cancel?: any;
@@ -46,20 +47,24 @@ const ClassAndStudentSelection = ({
   onStudentsChange?: any;
   selectedClassesInParent?: any;
   selectedStudentsInParent?: any;
+  preSelectedClasses: any;
 }) => {
-  const convertedClasses: ConvertedDataItem[] = Object.entries(classes).map(
-    ([className, classData]) => ({
-      class_name: className,
-      id: className,
-      total_students: classData?.pagination_info?.total_students,
-      students_details: classData?.students?.map((student: any) => ({
-        id: student.idx,
-        name: `${student.firstname} ${student.lastname}`,
-        ...student,
-      })),
-    })
-  );
+  // const convertedClasses: ConvertedDataItem[] = Object.entries(classes).map(
+  //   ([className, classData]) => ({
+  //     class_name: className,
+  //     id: className,
+  //     total_students: classData?.pagination_info?.total_students,
+  //     students_details: classData?.students?.map((student: any) => ({
+  //       id: student.idx,
+  //       name: `${student.firstname} ${student.lastname}`,
+  //       ...student,
+  //     })),
+  //   })
+  // );
 
+  const [convertedClasses, setFilteredClasses] = useState<ConvertedDataItem[]>(
+    []
+  );
   const [showStudents, setShowStudents] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
@@ -69,6 +74,33 @@ const ClassAndStudentSelection = ({
     []
   );
   const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
+
+  useEffect(() => {
+    const filtered = Object.entries(classes)
+      .map(([className, classData]) => ({
+        class_name: className,
+        id: className,
+        total_students: classData?.pagination_info?.total_students,
+        students_details: classData?.students?.map((student: any) => ({
+          id: student.idx,
+          name: `${student.firstname} ${student.lastname}`,
+          ...student,
+        })),
+      }))
+      .filter((c) =>
+        preSelectedClasses.some((pc: any) => pc.name === c.class_name)
+      );
+
+    setFilteredClasses(filtered);
+  }, [classes, preSelectedClasses]);
+
+  // useEffect(() => {
+  //   // Filter the convertedClasses array to show only the selected classes
+  //   const filteredClasses = convertedClasses.filter((c) =>
+  //     preSelectedClasses.some((pc) => pc.name === c.class_name)
+  //   );
+  //   setSelectedClasses(filteredClasses);
+  // }, []);
 
   const toggleClasses = (name: string) => {
     const index = selectedClasses.findIndex((obj) => obj.name === name);

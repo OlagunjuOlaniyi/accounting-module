@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SelectDropdown from "../SelectDropdown/SelectDropdown";
+import SelectDropdownSelectAll from "../SelectDropdown/SelectDropdownSelectAll";
 import { Iprops } from "./interface";
 import "./input.scss";
 import React from "react";
@@ -48,6 +48,12 @@ const TextInput = ({
     onBlur: handleBlur,
   };
 
+  // Add the "Select All" option to the options list
+  // const updatedOptions = [
+  //   { id: "select-all", name: "Select All" }, // Add the "Select All" option
+  //   ...options, // Spread the existing options
+  // ];
+
   return (
     <div className="input-component">
       <label>{label}</label>
@@ -58,7 +64,7 @@ const TextInput = ({
           disabled={disabled}
         />
       ) : type === "dropdown" ? (
-        <SelectDropdown
+        <SelectDropdownSelectAll
           placeholder={fieldProps.placeholder}
           options={options}
           onSelectValue={onSelectValue}

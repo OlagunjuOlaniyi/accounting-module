@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import "./BillsandFees.scss";
 import TextInput from "../../components/Input/TextInput";
+import TextInputSelectAll from "../../components/Input/TextInputSelectAll";
 import Button from "../../components/Button/Button";
 import AddCircleBlack from "../../icons/AddCircleBlack";
 import AddCircleBlue from "../../icons/AddCircleBlue";
@@ -97,10 +98,6 @@ const CreateBill = () => {
   //   setDiscountAmout(Number(discounted));
   // };
 
-  useEffect(() => {
-    // calcDiscountedValue();
-  }, [discountValue, discounts, selectedFeeForDiscount]);
-
   const [fields, setFields] = useState({
     billName: "",
     dueDate: "",
@@ -123,23 +120,51 @@ const CreateBill = () => {
     name: c?.class_id,
   }));
 
+  // const toggleClasses = (option: any) => {
+  //   setSelectedClasses((prevSelected: any) => {
+  //     // if it's in, remove
+  //     const newArray = [...prevSelected];
+
+  //     if (newArray.filter((e) => e.id === option.id).length > 0) {
+  //       return newArray.filter((item) => item.id != option.id);
+  //       // else, add
+  //     } else {
+  //       newArray.push(option);
+  //       return newArray;
+  //     }
+  //   });
+  // };
+
   const toggleClasses = (option: any) => {
     setSelectedClasses((prevSelected: any) => {
-      // if it's in, remove
-      const newArray = [...prevSelected];
+      // If option is an array, toggle all options
+      if (Array.isArray(option)) {
+        // Check if any of the options are already selected
+        const anySelected = option.some((opt: any) =>
+          prevSelected.some((selected: any) => selected.id === opt.id)
+        );
 
-      if (newArray.filter((e) => e.id === option.id).length > 0) {
-        return newArray.filter((item) => item.id != option.id);
-        // else, add
+        // If any option is selected, deselect all options
+        if (anySelected) {
+          return prevSelected.filter(
+            (prev: any) => !option.some((opt: any) => opt.id === prev.id)
+          );
+        } else {
+          // If no option is selected, select all options
+          return [...prevSelected, ...option];
+        }
       } else {
-        newArray.push(option);
-        return newArray;
+        // If it's a single option, toggle its selection
+        const newArray = [...prevSelected];
+        if (newArray.filter((e) => e.id === option.id).length > 0) {
+          return newArray.filter((item) => item.id !== option.id);
+        } else {
+          newArray.push(option);
+          return newArray;
+        }
       }
     });
   };
-
-  // console.log("class", selectedClasses);
-  // console.log("classes", classesAndStudents);
 
   //handle field change
   const handleChange = (evt: any) => {
@@ -241,34 +266,64 @@ const CreateBill = () => {
     setFees(updatedFees);
   };
 
-  // populate the discount fields
-  useEffect(() => {
-    const filterFeesByFeeTypeName = (): Fee[] => {
-      return fees.filter(
-        (fee) => fee.fee_type.name === getDiscount[discountIndex].fee_type
-      );
-    };
+  // Function to calculate the discount amount
+  const calculateDiscountAmount = (discount: Discount, fees: Fee[]) => {
+    // Find the fee associated with the discount
+    const fee = fees.find((fee) => fee.fee_type.name === discount.fee_type);
 
-    let discounted =
-      (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
-        discounts[discountIndex].value) /
-      100;
-    // setDiscountAmout(Number(discounted));
-    const updatedDiscount = discounts.map((discount, i) =>
-      i === discountIndex
-        ? {
-            ...discount,
-            amount: Number(discounted),
-            value: Number(discounts[discountIndex].value),
-          }
-        : discount
-    );
-    setDiscounts(updatedDiscount);
-  }, [
-    discounts,
-    discounts[discountIndex].value,
-    getDiscount[discountIndex].fee_type,
-  ]);
+    // If fee is not found or discount is not applied to a fee, return 0
+    if (!fee) return 0;
+
+    // Calculate the discount amount based on whether it's a percentage or fixed amount
+    let discountAmount = discount.is_percentage
+      ? (fee.amount * discount.value) / 100
+      : discount.value;
+
+    return discountAmount;
+  };
+
+  // Inside your component, you can use this function to calculate the discount amount
+  // Replace the existing code inside the useEffect hook where you're setting the discount amount
+
+  useEffect(() => {
+    // Calculate discount amount for each discount
+    const updatedDiscounts = discounts.map((discount, index) => ({
+      ...discount,
+      amount: calculateDiscountAmount(discount, fees),
+    }));
+
+    // Update the discounts state with calculated discount amounts
+    setDiscounts(updatedDiscounts);
+  }, [discounts, fees]);
+
+  // populate the discount fields
+  // useEffect(() => {
+  //   const filterFeesByFeeTypeName = (): Fee[] => {
+  //     return fees.filter(
+  //       (fee) => fee.fee_type.name === getDiscount[discountIndex].fee_type
+  //     );
+  //   };
+
+  //   let discounted =
+  //     (Number(filterFeesByFeeTypeName()[0]?.fee_type?.default_amount) *
+  //       discounts[discountIndex].value) /
+  //     100;
+  //   // setDiscountAmout(Number(discounted));
+  //   const updatedDiscount = discounts.map((discount, i) =>
+  //     i === discountIndex
+  //       ? {
+  //           ...discount,
+  //           amount: Number(discounted),
+  //           value: Number(discounts[discountIndex].value),
+  //         }
+  //       : discount
+  //   );
+  //   setDiscounts(updatedDiscount);
+  // }, [
+  //   discounts,
+  //   discounts[discountIndex].value,
+  //   getDiscount[discountIndex].fee_type,
+  // ]);
 
   const handleClassChange = (
     index: number,
@@ -389,13 +444,30 @@ const CreateBill = () => {
   //   setFees(filtered);
   // };
   const removeFee = (name: any) => {
+    // Ensure there is at least one fee remaining
+    if (fees.length === 1) {
+      return; // Prevent removing the last discount
+    }
+
     let filtered = fees.filter((el, index) => index !== name);
     setFees(filtered);
   };
 
-  const removeDiscount = (name: any) => {
-    let filtered = discounts.filter((el, index) => index !== name);
-    setDiscounts(filtered);
+  // const removeDiscount = (name: any) => {
+  //   let filtered = discounts.filter((el, index) => index !== name);
+  //   setDiscounts(filtered);
+  // };
+
+  const removeDiscount = (indexToRemove: number) => {
+    // Ensure there is at least one discount remaining
+    if (discounts.length === 1) {
+      return; // Prevent removing the last discount
+    }
+
+    const updatedDiscounts = discounts.filter(
+      (_, index) => index !== indexToRemove
+    );
+    setDiscounts(updatedDiscounts);
   };
 
   const handleToggleMandatory = (index: number) => {
@@ -723,7 +795,7 @@ const CreateBill = () => {
           </div>
 
           <div className="bills_form__top">
-            <TextInput
+            <TextInputSelectAll
               label=""
               placeholder="Assign Bill to class"
               name="classes"
@@ -849,6 +921,7 @@ const CreateBill = () => {
                           {selectedFee !== "" &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
+                                preSelectedClasses={selectedClasses}
                                 classes={classesAndStudents as any}
                                 cancel={() => showClasses(fee.fee_type.name)}
                                 selectedClassesInParent={fee.fee_type.classes}
@@ -974,7 +1047,7 @@ const CreateBill = () => {
                       <div className="bills_form__other_form__addons__addFee__input__wrapper">
                         <input
                           className="bills_form__other_form__addons__addFee__input__wrapper__input"
-                          type="number"
+                          type="text"
                           name=""
                           id=""
                           value={d.value}
@@ -989,6 +1062,7 @@ const CreateBill = () => {
                         {selectedDiscount !== 200 &&
                           selectedDiscount === index && (
                             <ClassAndStudentSelection
+                              preSelectedClasses={selectedClasses}
                               selectedClassesInParent={d.classes}
                               selectedStudentsInParent={d.students}
                               classes={classesAndStudents as any}
