@@ -22,6 +22,22 @@ import { useGetBankList } from "../../hooks/queries/banks";
 import Visibility from "../../icons/Visibility";
 import AddCircleBlue from "../../icons/AddCircleBlue";
 import axios from "axios";
+import { useQuery } from "react-query";
+
+const fetchStudentBill = async (admNum: any, idxValue: any) => {
+  const baseUrl = "https://edves.cloud/api/v1/payments/student_bills/";
+  const queryParams = new URLSearchParams();
+  queryParams.append("idx", idxValue);
+
+  const url = `${baseUrl}${admNum}/?${queryParams.toString()}`;
+
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch student bill");
+  }
+};
 
 const StudentBill = () => {
   const navigate = useNavigate();
@@ -36,7 +52,13 @@ const StudentBill = () => {
   let bills_and_fees = JSON.parse(localStorage.getItem("bills_and_fees") || "");
   let admNumValue = JSON.parse(localStorage.getItem("adm_num") || admNum);
 
-  const { data } = useGetStudentsBills(admNumValue || "");
+  // const { data } = useGetStudentsBills(admNumValue || "");
+
+  const idxValue = schoolData?.data[0]?.arm?.idx;
+
+  const { data } = useQuery(["studentBill", admNumValue, idxValue], () =>
+    fetchStudentBill(admNumValue, idxValue)
+  );
 
   const [fields, setFields] = useState<any>({
     payment_method: "",
@@ -204,7 +226,10 @@ const StudentBill = () => {
           <h1 className="bills_overview__approval">
             APPROVAL STATUS: Approved
           </h1>
-          <h1 className={`bills_overview__status `}>{`STATUS: `}</h1>
+          <h1 className={`bills_overview__status `}>
+            {`STATUS: `}
+            {/* ${data?.bills[0]?.fees?.status} */}
+          </h1>
         </div>
 
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>

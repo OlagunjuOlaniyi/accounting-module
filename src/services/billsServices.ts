@@ -26,6 +26,11 @@ export const getFeeTypes = async () => {
   return response.data;
 };
 
+export const getTerm = async () => {
+  const response = await axiosInstance.get(`/payments/payments/term`);
+  return response.data;
+};
+
 //get single bill
 export const getSingleBill = async (id?: string) => {
   const response = await axiosInstance.get(`/payments/payments/bills/${id}/`);
@@ -126,8 +131,11 @@ export const getPaymentBroadSheet = async (data: IPaymentBroadsheetData) => {
   return response.data;
 };
 
-export const getStudentBills = async (id: string) => {
-  const response = await axiosInstance.get(`/payments/student_bills/${id}/`);
+export const getStudentBills = async (data: any) => {
+  const formData = new FormData();
+  formData.append('idx', data.idx);
+  
+  const response = await axiosInstance.get(`/payments/student_bills/${data.adm_num}/`, data);
   return response.data;
 };
 
@@ -173,4 +181,17 @@ export const sendStudentReminder = async (id: string) => {
 export const downloadClassBroadsheet = async (data: any) => {
   const response = await axiosInstance.get(`/payments/payments/class-payment/`, data);
   return response.data;
+};
+
+export const fetchStudentBill = async (admNum: any, idxValue: any) => {
+  const url = `${baseURL}/payments/student_bills/${admNum}/`;
+   const formData = new FormData();
+  formData.append('idx', idxValue);
+
+  try {
+    const response = await axios.post(url, formData);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch student bill');
+  }
 };

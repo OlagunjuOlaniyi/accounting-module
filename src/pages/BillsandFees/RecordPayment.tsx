@@ -8,7 +8,7 @@ import Header from "../../components/Header/Header";
 import FeeItem from "../../components/FeeItem/FeeItem";
 import { useGetStudentsBills } from "../../hooks/queries/billsAndFeesMgt";
 import TextInput from "../../components/Input/TextInput";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cash from "../../icons/Cash";
 import Bank from "../../icons/Bank";
 import Credit from "../../icons/Credit";
@@ -22,6 +22,23 @@ import {
 import toast from "react-hot-toast";
 import { useGetBankList } from "../../hooks/queries/banks";
 import axios from "axios";
+import { useQuery } from "react-query";
+// import { fetchStudentBill } from "../../services/billsServices";
+
+const fetchStudentBill = async (admNum: any, idxValue: any) => {
+  const baseUrl = "https://edves.cloud/api/v1/payments/student_bills/";
+  const queryParams = new URLSearchParams();
+  queryParams.append("idx", idxValue);
+
+  const url = `${baseUrl}${admNum}/?${queryParams.toString()}`;
+
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch student bill");
+  }
+};
 
 const RecordPayment = () => {
   const navigate = useNavigate();
@@ -36,7 +53,37 @@ const RecordPayment = () => {
 
   const { data: schoolData } = useGetSchoolDetails();
 
-  const { data } = useGetStudentsBills(admNumValue || "");
+  let info = { idx: schoolData?.data[0]?.arm?.idx, adm_num: admNumValue };
+
+  // const { data } = useGetStudentsBills(admNumValue || "");
+
+  const idxValue = schoolData?.data[0]?.idx;
+
+  // console.log("school idx", idxValue);
+
+  const { data } = useQuery(["studentBill", admNumValue, idxValue], () =>
+    fetchStudentBill(admNumValue, idxValue)
+  );
+
+  // const getStudent = () => {
+  //   let dataToSend = {
+  //     idx: schoolData?.data[0]?.arm?.idx,
+  //   };
+  //   console.log("long", schoolData?.data[0]?.arm?.idx);
+  //   axios
+  //     .post(
+  //       `https://edves.cloud/api/v1/payments/student_bills/${admNumValue}`,
+  //       dataToSend
+  //     )
+  //     .then((res) => {
+  //       console.log("response", res);
+  //       // window.open(res.data.pdf_url, "_blank");
+  //     });
+  // };
+
+  // useEffect(() => {
+  //   getStudent();
+  // }, [schoolData?.data[0]?.arm?.idx, admNumValue]);
 
   let bills_and_fees = JSON.parse(localStorage.getItem("bills_and_fees") || "");
 
@@ -230,7 +277,10 @@ const RecordPayment = () => {
           <h1 className="bills_overview__approval">
             APPROVAL STATUS: Approved
           </h1>
-          <h1 className={`bills_overview__status `}>{`STATUS: `}</h1>
+          <h1 className={`bills_overview__status `}>
+            {`STATUS: `}
+            {/* ${data?.bills[0]?.fees?.status} */}
+          </h1>
         </div>
 
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
@@ -379,15 +429,15 @@ const RecordPayment = () => {
                 </div>
               ),
             },
-            {
-              id: 3,
-              name: (
-                <div className="payment-method-dropdown">
-                  <Credit />
-                  Credit
-                </div>
-              ),
-            },
+            // {
+            //   id: 3,
+            //   name: (
+            //     <div className="payment-method-dropdown">
+            //       <Credit />
+            //       Credit
+            //     </div>
+            //   ),
+            // },
             {
               id: 4,
               name: (

@@ -1,9 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetSingleBill } from "../../hooks/queries/billsAndFeesMgt";
+import {
+  useGetClasses,
+  useGetSingleBill,
+} from "../../hooks/queries/billsAndFeesMgt";
 import { useState } from "react";
 import "./BillsandFees.scss";
 import TextInput from "../../components/Input/TextInput";
+import TextInputSelectAll from "../../components/Input/TextInputSelectAll";
 
 import ToggleUnchecked from "../../icons/ToggleUnchecked";
 import ToggleChecked from "../../icons/ToggleChecked";
@@ -31,6 +35,8 @@ const SingleBill = () => {
 
   const { data } = useGetSingleBill(id);
   const { data: schoolData } = useGetSchoolDetails();
+
+  const [addDiscount, setAddDiscount] = useState<boolean>(false);
 
   const fees = data && data?.fees;
   useEffect(() => {
@@ -72,24 +78,49 @@ const SingleBill = () => {
   const { mutate: sendBill, isLoading: sendLoading } = useSendBill();
   const { mutate: unsendBill, isLoading: unsendLoading } = useUnsendBill();
 
-  const formattedDiscount = data?.fees?.map(
-    (fee: any) => fee?.fee_type?.discounts
-  );
+  // const formattedDiscount = data?.fees?.map(
+  //   (fee: any) => fee?.fee_type?.discounts
+  // );
 
-  const formattedDiscountNew = formattedDiscount?.map((d: any) => d[0]);
-  const formattedDiscountFinal = formattedDiscountNew?.map((d: any) => ({
-    value: d?.value,
-    description: d?.description,
-    fee_type: d?.fee_type,
-    amount: d?.amount,
-    is_percentage: d?.is_percentage,
-    students: d?.students,
-    classes: d?.classes,
-  }));
+  // const formattedDiscountNew = formattedDiscount?.map((d: any) => d[0]);
+  // const formattedDiscountFinal = formattedDiscountNew?.map((d: any) => ({
+  //   value: d?.value,
+  //   description: d?.description,
+  //   fee_type: d?.fee_type,
+  //   amount: d?.amount,
+  //   is_percentage: d?.is_percentage,
+  //   students: d?.students,
+  //   classes: d?.classes,
+  // }));
+
+  // useEffect(() => {
+  //   setDiscounts(formattedDiscountFinal);
+  // }, [data]);
 
   useEffect(() => {
-    setDiscounts(formattedDiscountFinal);
+    if (data) {
+      // Extract discounts from bill data
+      const extractedDiscounts = data.fees.map((fee: any) => ({
+        value: fee?.fee_type?.discounts[0]?.value,
+        description: fee?.fee_type?.discounts[0]?.description,
+        fee_type: fee?.fee_type?.discounts[0]?.fee_type,
+        amount: fee?.fee_type.discounts[0]?.amount,
+        is_percentage: fee?.fee_type?.discounts[0]?.is_percentage,
+        students: fee?.fee_type?.discounts[0]?.students,
+        classes: fee?.fee_type?.discounts[0]?.classes,
+      }));
+      setAddDiscount(extractedDiscounts[0].value ? true : false);
+      setDiscounts(extractedDiscounts);
+    }
   }, [data]);
+
+  const { data: classes } = useGetClasses();
+  const formattedClasses = classes?.map((c: any, index: number) => ({
+    // id: c.idx,
+    // name: c?.class_field,
+    id: index,
+    name: c?.class_id,
+  }));
 
   const send = () => {
     sendBill(id, {
@@ -309,6 +340,7 @@ const SingleBill = () => {
               { id: 3, name: "First term 2023/2024" },
               { id: 4, name: "Second term 2024/2025" },
             ]}
+            disabled
           />
 
           <TextInput
@@ -333,6 +365,7 @@ const SingleBill = () => {
             }}
             selectedValues={undefined}
             options={[]}
+            disabled
           />
         </div>
       </div>
@@ -344,7 +377,7 @@ const SingleBill = () => {
         </div>
 
         <div className="bills_form__top">
-          <TextInput
+          <TextInputSelectAll
             label=""
             placeholder="Assign Bill to class"
             name="classes"
@@ -363,7 +396,8 @@ const SingleBill = () => {
             multi={true}
             toggleOption={function (a: any): void {}}
             selectedValues={selectedClasses}
-            // options={[]}
+            options={formattedClasses}
+            disabled
           />
 
           <TextInput
@@ -536,7 +570,7 @@ const SingleBill = () => {
           </p> */}
 
           {discounts?.length > 0 &&
-            // addDiscount &&
+            addDiscount &&
             discounts?.map((d, index) => (
               <div className="bills_form__other_form__addons__addDiscount">
                 <div
@@ -576,7 +610,7 @@ const SingleBill = () => {
                       </button>
                     </div>
                   </div>
-                  of
+                  Off
                   <div style={{ position: "relative" }}>
                     <div className="bills_form__other_form__addons__addDiscount__input">
                       <input
@@ -731,6 +765,7 @@ const SingleBill = () => {
           <textarea
             name=""
             id=""
+            disabled
             cols={0}
             rows={10}
             placeholder="Add Notes"

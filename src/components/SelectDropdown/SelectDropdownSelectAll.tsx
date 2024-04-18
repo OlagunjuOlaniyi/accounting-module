@@ -5,6 +5,7 @@ import React from "react";
 import Clear from "../../icons/Clear";
 import Checked from "../../icons/Checked";
 import Unchecked from "../../icons/Unchecked";
+import Arrow from "../../icons/arrow.svg";
 import MultiLevelDropdown from "../MultilevelDropdown/MultilevelDropdown";
 
 const SelectDropdown = ({
@@ -88,7 +89,11 @@ const SelectDropdown = ({
       return false;
     }
 
-    return selectedValues.filter((e: any) => e.id === option.id).length > 0;
+    return (
+      selectedValues.filter(
+        (e: any) => e?.name.toLowerCase() === option?.name.toLowerCase()
+      ).length > 0
+    );
   };
 
   const Icon = () => {
@@ -147,7 +152,8 @@ const SelectDropdown = ({
 
         <div className="dropdown-tools">
           <div className="dropdown-tool">
-            <Icon />
+            {/* <Icon /> */}
+            <img src={Arrow} alt="" />
           </div>
         </div>
       </div>
@@ -174,7 +180,7 @@ const SelectDropdown = ({
               onClick={handleSelectAll}
             >
               {isSelected("Select All") ? <Checked /> : <Unchecked />}
-              <p>Select All</p>
+              <p>All Classes</p>
             </div>
             {options ? (
               getOptions()?.map((el: any) => (

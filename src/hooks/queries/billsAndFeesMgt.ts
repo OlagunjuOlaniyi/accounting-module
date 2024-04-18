@@ -6,6 +6,7 @@ import {
   getFeeTypes,
   getSingleBill,
   getStudentBills,
+  getTerm,
 } from '../../services/billsServices';
 
 export const useGetClasses = () => {
@@ -27,6 +28,13 @@ export const useGetFeeTypes = () => {
   return useQuery<any>({
     queryKey: 'fee-types',
     queryFn: () => getFeeTypes(),
+  });
+};
+
+export const useGetTerm = () => {
+  return useQuery<any>({
+    queryKey: 'term',
+    queryFn: () => getTerm(),
   });
 };
 

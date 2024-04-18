@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./classandstudnts.scss";
 import Unchecked from "../../icons/Unchecked";
 import Checked from "../../icons/Checked";
+import Arrow from "../../icons/arrow.svg";
 
 type OriginalData = {
   [className: string]: {
@@ -74,6 +75,12 @@ const ClassAndStudentSelection = ({
     []
   );
   const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  useEffect(() => {
+    // Reset filters when the component is mounted
+    resetFilters();
+  }, []);
 
   useEffect(() => {
     const filtered = Object.entries(classes)
@@ -151,6 +158,16 @@ const ClassAndStudentSelection = ({
       )
     );
   };
+
+  const resetFilters = () => {
+    setSelectedClasses([]);
+    setSelectedStudents([]);
+  };
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
   const Icon = () => {
     return (
       <svg
@@ -179,70 +196,86 @@ const ClassAndStudentSelection = ({
         </p>
       </div>
       <div className="class-and-students__search">
-        <input placeholder="Search" />
+        <input
+          placeholder="Search"
+          value={searchTerm}
+          onChange={handleSearch}
+        />
       </div>
-      <div className="class-and-students__list">
+      {/* <div className="class-and-students__list">
         <div className="class-and-students__list__left">
           <Unchecked />
           <p>All Classes</p>
         </div>
         <div className="class-and-students__list__right"></div>
-      </div>
-      {convertedClasses?.map((c: any) => (
-        <div key={c.id}>
-          <div className="class-and-students__list">
-            <div className="class-and-students__list__left">
-              <div onClick={() => toggleClasses(c?.class_name)}>
-                {isSelected(c?.class_name) ? <Checked /> : <Unchecked />}
-              </div>
+      </div> */}
+      {convertedClasses
+        // ?.filter((c) =>
+        //   c.class_name.toLowerCase().includes(searchTerm.toLowerCase())
+        // )
+        ?.filter(
+          (c) =>
+            c.class_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.students_details.some((student: any) =>
+              student.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        )
+        .map((c: any) => (
+          <div key={c.id}>
+            <div className="class-and-students__list">
+              <div className="class-and-students__list__left">
+                <div onClick={() => toggleClasses(c?.class_name)}>
+                  {isSelected(c?.class_name) ? <Checked /> : <Unchecked />}
+                </div>
 
-              <p
-                onClick={() => {
-                  setShowStudents(!showStudents);
-                  setSelectedId(c.id);
-                }}
-              >
-                {c?.class_name}
-              </p>
-              <div
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  setShowStudents(!showStudents);
-                  setSelectedId(c.id);
-                }}
-              >
-                <Icon />
-              </div>
-            </div>
-            <div className="class-and-students__list__right">
-              <p>{c?.total_students}</p>
-            </div>
-          </div>
-          {showStudents &&
-            selectedId === c.id &&
-            c?.students_details.map((s: any) => (
-              <div
-                key={s.id}
-                className="class-and-students__list"
-                style={{ marginLeft: "32px" }}
-                onClick={() => {
-                  toggleStudents(s);
-                }}
-              >
-                <div className="class-and-students__list__left">
-                  {isStudentSelected(s?.name) || isSelected(c?.class_name) ? (
-                    <Checked />
-                  ) : (
-                    <Unchecked />
-                  )}
-                  <p>{s?.name}</p>
+                <p
+                  onClick={() => {
+                    setShowStudents(!showStudents);
+                    setSelectedId(c.id);
+                  }}
+                >
+                  {c?.class_name}
+                </p>
+                <div
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setShowStudents(!showStudents);
+                    setSelectedId(c.id);
+                  }}
+                >
+                  {/* <Icon /> */}
+                  <img src={Arrow} alt="" />
                 </div>
               </div>
-            ))}
-        </div>
-      ))}
+              <div className="class-and-students__list__right">
+                <p>{c?.total_students}</p>
+              </div>
+            </div>
+            {showStudents &&
+              selectedId === c.id &&
+              c?.students_details.map((s: any) => (
+                <div
+                  key={s.id}
+                  className="class-and-students__list"
+                  style={{ marginLeft: "32px" }}
+                  onClick={() => {
+                    toggleStudents(s);
+                  }}
+                >
+                  <div className="class-and-students__list__left">
+                    {isStudentSelected(s?.name) || isSelected(c?.class_name) ? (
+                      <Checked />
+                    ) : (
+                      <Unchecked />
+                    )}
+                    <p>{s?.name}</p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        ))}
       <div className="class-and-students__footer">
-        <p>Reset Filters</p>
+        <p onClick={resetFilters}>Reset Filters</p>
         <button
           style={{
             background: "#439ADE",

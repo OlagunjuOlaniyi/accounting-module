@@ -47,16 +47,19 @@ const PaymentStatus = () => {
           {dropdownActions && value === selectedId && (
             <>
               {/* {billStatus} */}
-              {console.log("seleid", selectedId)}
+              {/* {console.log("seleid", selectedId)} */}
               <div className="action">
                 <div
                   className="action__flex"
                   onClick={() => {
-                    navigate(`/bill/${id}`);
+                    // navigate(`/bill/${id}`);
+                    navigate(
+                      `/class-payment-status/${id}?status=not_paid&bill_name=${bill_name}`
+                    );
                   }}
                 >
                   <Visibility />
-                  <p>View Student Bill</p>
+                  <p>View</p>
                 </div>
                 <div
                   className="action__flex"
@@ -80,7 +83,7 @@ const PaymentStatus = () => {
   //table header and columns
   const columns = [
     {
-      Header: "CLASS NAME",
+      Header: "CLASS",
       accessor: "class_name",
       Cell: ({ cell: { value } }: any) => <p>{value ? value : "N/A"}</p>,
     },

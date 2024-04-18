@@ -9,6 +9,8 @@ export const useGetSchoolDetails = () => {
   });
 };
 
+
+
 //get staff Detail
 export const useStaffDetails = () => {
   return useQuery<any>({

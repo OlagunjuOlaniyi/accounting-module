@@ -123,7 +123,6 @@ const Overview = ({ filteredLoading, filteredData, searchRes }: Iprops) => {
   const getClasses = () => {
     let filtered = data.filter((d: any) => Number(d.id) === Number(selectedId));
 
-    
     localStorage.setItem("classes", JSON.stringify(filtered[0].classes));
   };
   //dots button component
@@ -232,13 +231,13 @@ const Overview = ({ filteredLoading, filteredData, searchRes }: Iprops) => {
                   <p>Unsend Bill</p>
                 </div>
 
-                <div
+                {/* <div
                   className="action__flex"
                   onClick={() => toggleDeleteConfirmation()}
                 >
                   <Delete />
                   <p>Delete</p>
-                </div>
+                </div> */}
               </div>
             </>
           )}
@@ -352,12 +351,13 @@ const Overview = ({ filteredLoading, filteredData, searchRes }: Iprops) => {
         <>
           <div style={{ display: "flex", gap: "16px" }}>
             {["draft", "unsent"].includes(value.split(",")[1].toLowerCase()) ? (
-              <button
-                style={{ all: "unset" }}
-                onClick={() => navigate(`/update-bill/${value.split(",")[0]}`)}
-              >
-                <Edit />
-              </button>
+              // <button
+              //   style={{ all: "unset", cursor: "pointer" }}
+              //   onClick={() => navigate(`/update-bill/${value.split(",")[0]}`)}
+              // >
+              //   <Edit />
+              // </button>
+              <></>
             ) : (
               ""
             )}

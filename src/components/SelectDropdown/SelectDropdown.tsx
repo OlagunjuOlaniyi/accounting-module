@@ -6,6 +6,7 @@ import Clear from "../../icons/Clear";
 import Checked from "../../icons/Checked";
 import Unchecked from "../../icons/Unchecked";
 import MultiLevelDropdown from "../MultilevelDropdown/MultilevelDropdown";
+import Arrow from "../../icons/arrow.svg";
 
 const SelectDropdown = ({
   placeholder,
@@ -132,7 +133,8 @@ const SelectDropdown = ({
 
         <div className="dropdown-tools">
           <div className="dropdown-tool">
-            <Icon />
+            {/* <Icon /> */}
+            <img src={Arrow} alt="" />
           </div>
         </div>
       </div>

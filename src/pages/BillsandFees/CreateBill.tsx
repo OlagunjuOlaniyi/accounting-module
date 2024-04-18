@@ -13,10 +13,11 @@ import { useNavigate } from "react-router";
 import {
   useGetClasses,
   useGetFeeTypes,
+  useGetTerm,
 } from "../../hooks/queries/billsAndFeesMgt";
 import { Discount, Fee } from "../../types/types";
 import toast from "react-hot-toast";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useCreateBill } from "../../hooks/mutations/billsAndFeesMgt";
 import DeleteRed from "../../icons/DeleteRed";
 import ClassAndStudentSelection from "../../components/ClassAndStudentSelection/ClassAndStudentSelection";
@@ -24,6 +25,18 @@ import { useGetStudents } from "../../hooks/queries/students";
 import MultiLevelDropdown from "../../components/MultilevelDropdown/MultilevelDropdown";
 import Header from "../../components/Header/Header";
 import Timeline from "../../icons/Timeline";
+
+const fetchStudents = async (term: any, year: any) => {
+  const response = await fetch(
+    `https://edves.cloud/api/v1/payments/payments/student/?term=${encodeURIComponent(
+      term
+    )}&year=${encodeURIComponent(year)}`
+  );
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
 
 const CreateBill = () => {
   const navigate = useNavigate();
@@ -111,7 +124,18 @@ const CreateBill = () => {
 
   const { data: schoolData } = useGetSchoolDetails();
   const { data: classes } = useGetClasses();
-  const { data: classesAndStudents } = useGetStudents();
+  // const { data: classesAndStudents } = useGetStudents();
+  const { data: classesAndStudents } = useGetStudents(
+    fields.term,
+    fields.session
+  );
+
+  // console.log("field", `${fields.session} and ${fields.term}`);
+
+  // const { data: classAndStud } = useQuery(
+  //   ["students", fields.term, fields.session],
+  //   () => fetchStudents(fields.term, fields.session)
+  // );
 
   const formattedClasses = classes?.map((c: any, index: any) => ({
     // id: c?.idx,
@@ -165,6 +189,11 @@ const CreateBill = () => {
       }
     });
   };
+
+  // console.log(
+  //   "i",
+  //   selectedClasses2?.map(({ name }: any) => ({ name }))
+  // );
 
   //handle field change
   const handleChange = (evt: any) => {
@@ -245,7 +274,13 @@ const CreateBill = () => {
         ? {
             ...discount,
             // discount_amount: discountedAmount,
-            [field]: value,
+            [field]: discount.is_percentage
+              ? value > 100
+                ? 100
+                : value < 0
+                ? 1
+                : value
+              : value,
           }
         : discount
     );
@@ -281,9 +316,6 @@ const CreateBill = () => {
 
     return discountAmount;
   };
-
-  // Inside your component, you can use this function to calculate the discount amount
-  // Replace the existing code inside the useEffect hook where you're setting the discount amount
 
   useEffect(() => {
     // Calculate discount amount for each discount
@@ -336,6 +368,7 @@ const CreateBill = () => {
             ...fee,
             fee_type: {
               ...fee.fee_type,
+              // classes: selectedClasses2,
               classes: selectedClasses,
               students: selectedStudents,
             },
@@ -343,6 +376,7 @@ const CreateBill = () => {
         : fee
     );
 
+    // console.log("hi", selectedClasses2)
     setFees(updatedFees);
   };
 
@@ -446,6 +480,7 @@ const CreateBill = () => {
   const removeFee = (name: any) => {
     // Ensure there is at least one fee remaining
     if (fees.length === 1) {
+      setAddFee(false);
       return; // Prevent removing the last discount
     }
 
@@ -461,6 +496,7 @@ const CreateBill = () => {
   const removeDiscount = (indexToRemove: number) => {
     // Ensure there is at least one discount remaining
     if (discounts.length === 1) {
+      setAddDiscount(false);
       return; // Prevent removing the last discount
     }
 
@@ -478,6 +514,10 @@ const CreateBill = () => {
   };
 
   const showClasses = (fee: string) => {
+    if (fields.term == "" && fields.session == "") {
+      toast.error("Please enter the term and session first");
+      return;
+    }
     if (fee == "") {
       toast.error("Please enter the fee type first");
       return;
@@ -509,12 +549,37 @@ const CreateBill = () => {
 
   const { data: fee_types } = useGetFeeTypes();
 
+  const { data: term } = useGetTerm();
+
+  const formattedTerm = term?.map((t: any, index: any) => ({
+    id: index,
+    name: t?.term_id,
+  }));
+
   //submit form
   const submit = () => {
     if (isNaN(Number(fields.amount))) {
       toast.error("Amount field can only contain numbers");
       return;
     }
+
+    const updatedFees = fees.map((fee, i) =>
+      fee.fee_type.classes
+        ? {
+            ...fee,
+            fee_type: {
+              ...fee.fee_type,
+
+              classes:
+                fee?.fee_type?.classes?.length === 0 &&
+                fee?.fee_type?.students?.length === 0
+                  ? selectedClasses?.map(({ name }: any) => ({ name }))
+                  : fee?.fee_type?.classes,
+            },
+          }
+        : fee
+    );
+    // setFees(updatedFees);
 
     let dataToSend = {
       bill_name: fields.billName,
@@ -524,7 +589,7 @@ const CreateBill = () => {
       status: "draft",
       part_payment: true,
       classes: selectedClasses?.map(({ name }: any) => ({ name })),
-      fees: fees,
+      fees: updatedFees,
       // amount: fields.amount,
       // mandatory: false,
       // discounts: discounts,
@@ -574,7 +639,7 @@ const CreateBill = () => {
     <div>
       <Header />
       <div className="bills_overview">
-        <h2 className="bills_overview__title">{fields.billName || ""} Bill</h2>
+        <h2 className="bills_overview__title">{fields.billName || ""}</h2>
         <h1 className="bills_overview__approval">APPROVAL STATUS: Pending</h1>
         <h1 className="bills_overview__status">STATUS: Draft</h1>
       </div>
@@ -585,7 +650,7 @@ const CreateBill = () => {
         </div>
         <div className="bills_schoolInfo__details">
           {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {fields.billName ? `${fields.billName} Bill` : ""}
+          <br /> {fields.billName ? `${fields.billName}` : ""}
           <p className="bills_schoolInfo__details__email">
             Email: {schoolData && schoolData?.data[0]?.arm?.email}
           </p>
@@ -727,7 +792,7 @@ const CreateBill = () => {
             placeholder="Term"
             className="bills_form__top__input"
             name="term"
-            type="text"
+            type="dropdown"
             fieldClass={"input-field"}
             errorClass={"error-msg"}
             handleChange={handleChange}
@@ -744,19 +809,20 @@ const CreateBill = () => {
               throw new Error("");
             }}
             selectedValues={undefined}
-            options={[
-              { id: 1, name: "Second term 2023/2024" },
-              { id: 2, name: "Third term 2023/2024" },
-              { id: 3, name: "First term 2023/2024" },
-              { id: 4, name: "Second term 2024/2025" },
-            ]}
+            options={formattedTerm}
+            // options={[
+            //   { id: 1, name: "Second term 2023/2024" },
+            //   { id: 2, name: "Third term 2023/2024" },
+            //   { id: 3, name: "First term 2023/2024" },
+            //   { id: 4, name: "Second term 2024/2025" },
+            // ]}
           />
 
           <TextInput
             label="Session"
             placeholder="Session"
             name="session"
-            type="text"
+            type="dropdown"
             errorClass={"error-msg"}
             handleChange={handleChange}
             value={fields.session}
@@ -773,7 +839,12 @@ const CreateBill = () => {
               throw new Error("");
             }}
             selectedValues={undefined}
-            options={[]}
+            // options={[]}
+            options={[
+              { id: 1, name: "2023/2024" },
+              { id: 2, name: "2024/2025" },
+              { id: 3, name: "2025/2026" },
+            ]}
           />
         </div>
 
@@ -1014,6 +1085,7 @@ const CreateBill = () => {
 
             <p
               onClick={() => setAddDiscount(!addDiscount)}
+              // onClick={handleAddFee}
               style={{
                 width: "fit-content",
               }}
@@ -1054,7 +1126,7 @@ const CreateBill = () => {
                           onChange={(e) =>
                             handleDiscountChange(index, "value", e.target.value)
                           }
-                          placeholder="type or select fee type"
+                          placeholder="Type the discount percentage"
                         />
                         <button onClick={() => showClassesForDiscount(index)}>
                           <AddCircleBlue />
@@ -1087,7 +1159,7 @@ const CreateBill = () => {
                           )}
                       </div>
                     </div>
-                    of
+                    Off
                     <div style={{ position: "relative" }}>
                       <div className="bills_form__other_form__addons__addDiscount__input">
                         <input
@@ -1303,7 +1375,7 @@ const CreateBill = () => {
         </button>
 
         <div style={{ display: "flex", flexDirection: "row", gap: "25px" }}>
-          <button
+          {/* <button
             onClick={() => submit()}
             style={{
               background: "#E4EFF9",
@@ -1312,7 +1384,7 @@ const CreateBill = () => {
             }}
           >
             Save as Draft
-          </button>
+          </button> */}
 
           <button
             disabled={isLoading}
