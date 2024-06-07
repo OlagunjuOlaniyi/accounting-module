@@ -7,6 +7,7 @@ import axiosInstance from './utils';
 // };
 
 export const getStudents = async (term: any, year: any) => {
+  
   const response = await axiosInstance.post(`/payments/payments/student/?term=${term}&year=${year}`);
   return response.data;
 };

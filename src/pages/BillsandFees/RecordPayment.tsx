@@ -29,8 +29,10 @@ const fetchStudentBill = async (admNum: any, idxValue: any) => {
   const baseUrl = "https://edves.cloud/api/v1/payments/student_bills/";
   const queryParams = new URLSearchParams();
   queryParams.append("idx", idxValue);
+  let dataToSend = { idx: idxValue };
 
-  const url = `${baseUrl}${admNum}/?${queryParams.toString()}`;
+  const url = `${baseUrl}${admNum}/`;
+  // const url = `${baseUrl}${admNum}/?${idxValue}`;
 
   try {
     const response = await axios.get(url);
@@ -54,15 +56,19 @@ const RecordPayment = () => {
   const { data: schoolData } = useGetSchoolDetails();
 
   let info = { idx: schoolData?.data[0]?.arm?.idx, adm_num: admNumValue };
+  let idxLocalValue = JSON.parse(localStorage.getItem("userDetails") || "");
 
   // const { data } = useGetStudentsBills(admNumValue || "");
 
-  const idxValue = schoolData?.data[0]?.idx;
-
-  // console.log("school idx", idxValue);
+  const idxValue = idxLocalValue?.idx || schoolData?.data[0]?.idx;
+  // const { data } = useGetStudentsBills(admNumValue || "");
 
   const { data } = useQuery(["studentBill", admNumValue, idxValue], () =>
     fetchStudentBill(admNumValue, idxValue)
+  );
+
+  const schoolDetailsLocal = JSON.parse(
+    localStorage.getItem("userDetails") || ""
   );
 
   // const getStudent = () => {
@@ -172,7 +178,9 @@ const RecordPayment = () => {
   const studentBill = data?.bills?.map((item: any) => ({
     student_payment_id: item.fees?.payment_id,
     fee_name: item?.fees?.fee_type_name,
-    fee_amount: item?.fees?.fee_amount,
+    fee_amount: item?.fees?.total_outstanding,
+    amount_paid: item?.fees?.amount_paid,
+    total_amount: item?.fees?.original_fee_amount,
     discount_amount: item?.fees?.total_discount_amount,
     status: item?.fees?.status,
     discount: item?.fees?.total_discount_amount,
@@ -193,6 +201,10 @@ const RecordPayment = () => {
           : fields.payment_method.props.children[1],
     }));
 
+    if (checkedPaymentId.length === 0) {
+      toast.error("Please check the fee(s) you wish to pay");
+      return;
+    }
     mutate(
       // { payments: updatedArray },
       {
@@ -217,11 +229,14 @@ const RecordPayment = () => {
           toast.success(res?.detail);
 
           setFields({ ...fields });
-          navigate("/bills-fees-management");
+          // navigate("/bills-fees-management");
+          navigate(
+            `/student-bill/${id}?adm_num=${admNumValue}?bill_name=${bill_name}`
+          );
         },
 
-        onError: (e) => {
-          toast.error("Error recording payment");
+        onError: (e: any) => {
+          toast.error(e?.response.data.detail || "error occured");
         },
       }
     );
@@ -274,7 +289,10 @@ const RecordPayment = () => {
             {/* {bill_name} */}
             {`${data?.student_details?.firstname} ${data?.student_details?.lastname}`}
           </h2>
-          <h1 className="bills_overview__approval">
+          <h1
+            className="bills_overview__approval"
+            style={{ background: "#ADFF87" }}
+          >
             APPROVAL STATUS: Approved
           </h1>
           <h1 className={`bills_overview__status `}>
@@ -328,23 +346,31 @@ const RecordPayment = () => {
 
       <div className="bills_schoolInfo">
         <div className="bills_schoolInfo__logo">
-          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt="" />
+          <img
+            src={schoolData?.data[0]?.arm?.logo || schoolDetailsLocal?.logo}
+            alt=""
+          />
         </div>
         <div className="bills_schoolInfo__details">
-          {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {bill_name}
+          {schoolData?.[0]?.arm?.name || schoolDetailsLocal?.name}
+          <p style={{ fontSize: "22px" }}>
+            {schoolData?.data[0]?.arm?.address || schoolDetailsLocal?.address}
+          </p>
+          {bill_name}
           <p className="bills_schoolInfo__details__email">
-            Email: {schoolData && schoolData?.data[0]?.arm?.email}
+            Email:{" "}
+            {schoolData?.data[0]?.arm?.email || schoolDetailsLocal?.contact}
           </p>
         </div>
       </div>
 
       <div className="record-payment-header">
-        <h3>FEE TYPE</h3>
-        <h3>DISCOUNT</h3>
-        <h3>REASON FOR DISCOUNT</h3>
-        <h3>AMOUNT</h3>
-        <h3>TOTAL AMOUNT</h3>
+        <h3 className="flex-item">FEE TYPE</h3>
+        <h3 className="flex-item">DISCOUNT</h3>
+        <h3 className="flex-item">REASON FOR DISCOUNT</h3>
+        <h3 className="flex-item">AMOUNT PAID</h3>
+        <h3 className="flex-item">AMOUNT DUE</h3>
+        <h3 className="flex-item">TOTAL AMOUNT</h3>
       </div>
       {studentBill?.map((el: any, index: number) => (
         <FeeItem
@@ -354,11 +380,15 @@ const RecordPayment = () => {
           mandatory={el?.mandatory}
           discount={el?.discount}
           amount={el?.fee_amount}
+          amount_paid={el?.amount_paid}
+          total_amount={el?.total_amount}
           reason={el?.reason}
           discount_amount={el?.discount_amount}
           status={el?.status}
           setCheckedPaymentId={setCheckedPaymentId}
           checkedPaymentId={checkedPaymentId}
+          currency={schoolData?.data[0]?.currency}
+          page="record"
         />
       ))}
       <div className="record-payment-footer">

@@ -13,11 +13,15 @@ type Iprops = {
   mandatory: boolean;
   discount: boolean;
   amount: number;
+  amount_paid: number;
+  total_amount: number;
   reason: string;
   discount_amount: number;
   status: string;
   checkedPaymentId: any;
   setCheckedPaymentId: any;
+  currency: any;
+  page: string;
 };
 const FeeItem = ({
   name,
@@ -25,11 +29,15 @@ const FeeItem = ({
   mandatory,
   discount,
   amount,
+  amount_paid,
+  total_amount,
   reason,
   discount_amount,
   status,
   checkedPaymentId,
   setCheckedPaymentId,
+  currency,
+  page,
 }: Iprops) => {
   const [isChecked, setIsChecked] = useState(false);
   const [checkedAmounts, setCheckedAmounts] = useState<number[]>([]);
@@ -41,7 +49,7 @@ const FeeItem = ({
       setCheckedPaymentId([...checkedPaymentId, payment_id]);
     } else {
       const updatedPaymentId = checkedPaymentId.filter(
-        (checkedPaymentId) => checkedPaymentId !== payment_id
+        (checkedPaymentId: any) => checkedPaymentId !== payment_id
       );
       // setCheckedAmounts(updatedAmounts);
       setCheckedPaymentId(updatedPaymentId);
@@ -52,19 +60,21 @@ const FeeItem = ({
   return (
     <div className="fee-item">
       <div
-        className="fee-item__first"
+        className="fee-item__first flex-item"
         // onClick={handleCheckboxChange}
         style={{ display: "flex", gap: "10px", cursor: "pointer" }}
       >
-        {status === "fully paid" ? null : isChecked ? (
-          <button onClick={handleCheckboxChange}>
-            <Checked />
-          </button>
-        ) : (
-          <button onClick={handleCheckboxChange}>
-            <Unchecked />
-          </button>
-        )}
+        {page === "record" ? (
+          status === "fully paid" ? null : isChecked ? (
+            <button onClick={handleCheckboxChange}>
+              <Checked />
+            </button>
+          ) : (
+            <button onClick={handleCheckboxChange}>
+              <Unchecked />
+            </button>
+          )
+        ) : null}
 
         {/* {isChecked ? (
           <button onClick={handleCheckboxChange}>
@@ -87,11 +97,20 @@ const FeeItem = ({
           </p>
         </div>
       </div>
-      <h3>{discount ? `${discount}` : "0"}</h3>
-      <h4>{discount ? reason : "N/A"}</h4>
-      <h3>{discount ? Number(amount).toLocaleString() : 0}</h3>
 
-      <h3>NGN {Number(amount)?.toLocaleString()}</h3>
+      <h3 className="flex-item">{discount ? `${discount}` : "0"}</h3>
+
+      <h4 className="flex-item">{discount ? reason : "N/A"}</h4>
+      <h3 className="flex-item">
+        {Number(amount_paid).toLocaleString() || 0}
+      </h3>
+      <h3 className="flex-item">
+        {Number(amount).toLocaleString() || 0}
+      </h3>
+
+      <h3 className="flex-item">
+        {currency} {Number(total_amount)?.toLocaleString()}
+      </h3>
     </div>
   );
 };

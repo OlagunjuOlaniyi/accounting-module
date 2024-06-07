@@ -58,9 +58,13 @@ const BankModal = ({ modalIsOpen, closeModal }: Imodal) => {
     bank: "",
   });
 
-  const selectValue = (option: string, name: string, id: string) => {
+  const selectValues = (option: string, name: string, id: string) => {
     setFields({ ...fields, [name]: option });
     setBankId(id);
+  };
+
+  const selectValue = (option: string, name: string, id: string) => {
+    setFields({ ...fields, [name]: option });
   };
 
   //handle field change
@@ -154,7 +158,7 @@ const BankModal = ({ modalIsOpen, closeModal }: Imodal) => {
             fieldClass={errors["bank"] ? "error-field" : "input-field"}
             errorMessage={errors["bank"]}
             id={"bank"}
-            onSelectValue={selectValue}
+            onSelectValue={selectValues}
             isSearchable={true}
             handleSearchValue={handleSearch}
             searchValue={searchValue}

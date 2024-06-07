@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Table from "../../components/Table/Table";
 import Dots from "../../icons/Dots";
 import Visibility from "../../icons/Visibility";
@@ -6,21 +6,21 @@ import Delete from "../../icons/Delete";
 import Edit from "../../icons/Edit";
 import { useNavigate, useParams } from "react-router";
 
-import { useGetClassPaymentStatus } from "../../hooks/queries/billsAndFeesMgt";
-import Send from "../../icons/Send";
-import Duplicate from "../../icons/Duplicate";
-import Unsend from "../../icons/Unsend";
-import ViewPayment from "../../icons/ViewPayment";
+import {
+  useGetClassPaymentStatus,
+  useSingleParentWallet,
+} from "../../hooks/queries/billsAndFeesMgt";
 
 import Button from "../../components/Button/Button";
 import Export from "../../icons/Export";
 import Addcircle from "../../icons/Addcircle";
+import Wallet from "../../icons/Wallet";
 import Filter from "../../icons/Filter";
 import Search from "../../icons/Search";
 import Header from "../../components/Header/Header";
 import Broadsheet from "../../icons/Broadsheet";
 
-const PaymentStatus = () => {
+const ParentWallet = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const queryParams = new URLSearchParams(location.search);
@@ -30,7 +30,26 @@ const PaymentStatus = () => {
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
 
-  const { data, isLoading } = useGetClassPaymentStatus(id || "");
+  const { data, isLoading } = useSingleParentWallet(id || "");
+
+  // Extract and format students data
+  const formattedStudents = useMemo(() => {
+    if (!data) return [];
+
+    return Object.values(data.wallets).flatMap((wallet: any) =>
+      wallet.students.map((student: any) => ({
+        admissionNumber: student.admissionnumber,
+        firstName: student.firstname,
+        lastName: student.lastname,
+        accountNumber: student.account_number,
+        balance: student.balance,
+        totalBalance: wallet.total_balance,
+        parentName: student.parent_name,
+      }))
+    );
+  }, [data]);
+
+  // console.log("hello", formattedStudents);
 
   //dots button component
   const DotsBtn = ({ value }: { value: string }) => {
@@ -84,107 +103,52 @@ const PaymentStatus = () => {
   //table header and columns
   const columns = [
     {
-      Header: "CLASS",
-      accessor: "class_name",
+      Header: "PARENT NAME",
+      accessor: "parentName",
       Cell: ({ cell: { value } }: any) => <p>{value ? value : "N/A"}</p>,
     },
-    {
-      Header: "TOTAL STUDENT",
-      accessor: "total_students",
-    },
 
     {
-      Header: "Fully Paid",
-      accessor: "fully_paid",
+      Header: "STUDENT NAME",
+      accessor: "firstName",
       Cell: ({ cell, row }: any) => (
-        <button
-          className="table-btn"
-          onClick={() =>
-            navigate(
-              `/class-payment-status/${id}?status=fully_paid&bill_name=${bill_name}&class=${row.original.class_name}`
-            )
-          }
-        >
-          {cell.value}
-        </button>
+        <p>
+          {cell.value} {row.original.lastName}
+        </p>
       ),
     },
 
     {
-      Header: "NOT PAID",
-      accessor: "not_paid",
-      Cell: ({ cell, row }: any) => (
-        <button
-          className="table-btn"
-          onClick={() =>
-            navigate(
-              `/class-payment-status/${id}?status=not_paid&bill_name=${bill_name}&class=${row.original.class_name}`
-            )
-          }
-        >
-          {cell.value}
-        </button>
-      ),
+      Header: "ADMISSION NUMBER",
+      accessor: "admissionNumber",
+      Cell: ({ cell, row }: any) => <p>{cell.value}</p>,
     },
     {
-      Header: "OVER PAID",
-      accessor: "overpaid",
-      Cell: ({ cell, row }: any) => (
-        <button
-          className="table-btn"
-          onClick={() =>
-            navigate(
-              `/class-payment-status/${id}?status=overpaid&bill_name=${bill_name}&class=${row.original.class_name}`
-            )
-          }
-        >
-          {cell.value}
-        </button>
-      ),
+      Header: "BALANCE",
+      accessor: "balance",
+      Cell: ({ cell, row }: any) => <p>{cell.value}</p>,
     },
     {
-      Header: "PARTLY PAID",
-      accessor: "partly_paid",
-      Cell: ({ cell, row }: any) => (
-        <button
-          className="table-btn"
-          onClick={() =>
-            navigate(
-              `/class-payment-status/${id}?status=partly_paid&bill_name=${bill_name}&class=${row.original.class_name}`
-            )
-          }
-        >
-          {cell.value}
-        </button>
-      ),
+      Header: "ACCOUNT NUMBER",
+      accessor: "accountNumber",
+      Cell: ({ cell, row }: any) => <p>{cell.value}</p>,
     },
     {
-      Header: "WAIVED",
-      accessor: "waived",
-      Cell: ({ cell, row }: any) => (
-        <button
-          className="table-btn"
-          onClick={() =>
-            navigate(
-              `/class-payment-status/${id}?status=waived&bill_name=${bill_name}&class=${row.original.class_name}`
-            )
-          }
-        >
-          {cell.value}
-        </button>
-      ),
+      Header: "TOTAL BALANCE",
+      accessor: "totalBalance",
+      Cell: ({ cell, row }: any) => <p>{cell.value}</p>,
     },
-    {
-      Header: "Actions",
-      accessor: (d: any) => `${d.class_name}`,
-      Cell: ({ cell: { value } }: { cell: { value: string } }) => (
-        <>
-          <div style={{ display: "flex", gap: "16px" }}>
-            <DotsBtn value={value} />
-          </div>
-        </>
-      ),
-    },
+    // {
+    //   Header: "Actions",
+    //   accessor: (d: any) => `${d.class_name}`,
+    //   Cell: ({ cell: { value } }: { cell: { value: string } }) => (
+    //     <>
+    //       <div style={{ display: "flex", gap: "16px" }}>
+    //         <DotsBtn value={value} />
+    //       </div>
+    //     </>
+    //   ),
+    // },
   ];
   return (
     <div>
@@ -195,7 +159,7 @@ const PaymentStatus = () => {
       </p>
       <div style={{ margin: "32px 0" }}>
         <h3 style={{ fontSize: "36px", color: "#010C15" }}>
-          {bill_name} Payment Status
+          {bill_name} Parent Wallet
         </h3>
       </div>
 
@@ -221,7 +185,16 @@ const PaymentStatus = () => {
           <p>Download</p>
         </button>
 
-        <div className="ie_overview__top-level__btn-wrap">
+        <button
+          className="ie_overview__top-level__filter-download btn-primary"
+          onClick={() => navigate(-1)}
+        >
+          {" "}
+          <Wallet />
+          <p>View Wallet</p>
+        </button>
+
+        {/* <div className="ie_overview__top-level__btn-wrap">
           <Button
             btnText="Create Bill"
             btnClass="btn-primary"
@@ -232,17 +205,17 @@ const PaymentStatus = () => {
               throw new Error("Function not implemented.");
             }} //onClick={() => setShowActions(!showActions)}
           />
-        </div>
+        </div> */}
       </div>
       <div className="table_container">
         {isLoading ? (
           <p>Loading...</p>
         ) : (
-          <Table data={data?.results} columns={columns} />
+          <Table data={formattedStudents} columns={columns} />
         )}
       </div>
     </div>
   );
 };
 
-export default PaymentStatus;
+export default ParentWallet;

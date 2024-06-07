@@ -13,6 +13,7 @@ export interface Imodal {
   closeModal: any;
   name?: string;
   sizes?: any;
+  
 }
 
 export interface IeditModal extends Imodal {

@@ -8,8 +8,10 @@ import Button from "../../components/Button/Button";
 import Export from "../../icons/Export";
 import Addcircle from "../../icons/Addcircle";
 import Filter from "../../icons/Filter";
+
 import Search from "../../icons/Search";
 import {
+  useDeleteStudentBill,
   useGetPaymentBroadsheet,
   useGetPaymentStatusOnBill,
   useSendReminder,
@@ -24,13 +26,19 @@ import { useGetClassPaymentStatus } from "../../hooks/queries/billsAndFeesMgt";
 import TouchApp from "../../icons/TouchApp";
 import RunPayrollDiscard from "../../components/Modals/Payroll/RunPayrollDiscard";
 import RunWaiveBill from "../../components/Modals/BillsAndFees/WaiveBill";
+import Generate from "../../icons/Generate";
+import DeleteConfirmation from "../../components/Modals/DeleteConfirmation/DeleteConfirmation";
+import Delete from "../../icons/Delete";
+import { useQueryClient } from "react-query";
+import axios from "axios";
 
 const ClassPaymentStatus = () => {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { id } = useParams();
   const queryParams = new URLSearchParams(location.search);
   let bill_name = queryParams.get("bill_name");
-  let class_name = queryParams.get("class_name");
+  let class_name = queryParams.get("class");
   let status = queryParams.get("status");
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
@@ -40,19 +48,68 @@ const ClassPaymentStatus = () => {
   const [runWaiveBillModalOpen, setWaiveBillModalOpen] =
     useState<boolean>(false);
 
+  const toggleDeleteConfirmation = () => {
+    setDeleteConfirmation(!deleteConfirmation);
+  };
+
   const { mutate, isLoading } = useGetPaymentStatusOnBill();
 
   const { mutate: sendReminder } = useSendReminder(id || "");
 
   const [apiData, setApiData] = useState([]);
   const [test, setTest] = useState(2022);
-  const [studentNo, setStudentNo] = useState(0);
-  const [paymentId, setPaymentId] = useState("");
+  const [studentNo, setStudentNo] = useState<any>(0);
+
+  const [paymentId, setPaymentId] = useState<any>(0);
+
+  const { mutate: deleteStudentBillFn, isLoading: deleteLoading } =
+    useDeleteStudentBill();
+
+  const deleteStudentBill = () => {
+    let dataToSend = {
+      student_payment_id: paymentId,
+      id: id,
+    };
+    deleteStudentBillFn(dataToSend, {
+      onSuccess: (res) => {
+        close();
+        toast.success("Student bill deleted successfully");
+        queryClient.invalidateQueries({
+          queryKey: `delete-student-bill`,
+        });
+        setDeleteConfirmation(false);
+      },
+
+      onError: (e) => {
+        toast.error("Error deactivating wallet");
+      },
+    });
+  };
+
+  // download receipt
+  const download = () => {
+    // let dataToSend = { student_payment_id: paymentId };
+    const formData = new FormData();
+    formData.append("student_payment_id", paymentId);
+    axios
+      .post(
+        `https://edves.cloud/api/v1/payments/payments/student_receipt/`,
+        formData
+      )
+      .then((res) => {
+        console.log("response", res);
+        window.open(res.data.pdf_url, "_blank");
+      })
+      .catch((error) => {
+        console.error("Error occurred during download:", error);
+      });
+  };
 
   const submit = () => {
     let dataToSend = {
       bill_id: id,
       payment_status: status,
+      class: class_name,
     };
 
     mutate(dataToSend, {
@@ -130,11 +187,13 @@ const ClassPaymentStatus = () => {
     value,
     payment,
     className,
+    name,
     index,
   }: {
     value: string;
     payment: any;
     className: any;
+    name: any;
     index: any;
   }) => {
     let class_name = value.split("-")[0];
@@ -156,7 +215,7 @@ const ClassPaymentStatus = () => {
           {dropdownActions && index === selectedIndex && (
             <>
               {/* {billStatus} */}
-              {/* {console.log("classs", class_name)} */}
+
               <div className="action">
                 <div
                   className="action__flex"
@@ -164,35 +223,36 @@ const ClassPaymentStatus = () => {
                     // navigate(`/bill/${id}`);
                     localStorage.setItem("adm_num", JSON.stringify(value));
                     navigate(
-                      `/student-bill/${id}?adm_num=${value}?bill_name=${bill_name}`
+                      `/student-bill/${id}?adm_num=${value}&bill_name=${bill_name}`
                     );
                   }}
                 >
                   <Visibility />
                   <p>View Student Bill</p>
                 </div>
-                <div
-                  className="action__flex"
-                  onClick={() => {
-                    localStorage.setItem("adm_num", JSON.stringify(value));
-                    navigate(
-                      `/record-payment/${id}?adm_num=${value}?bill_name=${bill_name}`
-                    );
-                  }}
-                >
-                  <Edit /> <p>Record Payment</p>
-                </div>
-                <div
-                  className="action__flex"
-                  onClick={() => {
-                    navigate(
-                      `/payment-broadsheet/${id}?class_name=${className}&bill_name=${bill_name}`
-                    );
-                  }}
-                >
-                  <Broadsheet />
-                  <p>Payment Broadsheet</p>
-                </div>
+                {status !== "not_paid" ? (
+                  <div className="action__flex" onClick={download}>
+                    <Generate /> <p>Generate Receipt</p>
+                  </div>
+                ) : (
+                  ""
+                )}
+
+                {status !== "fully_paid" ? (
+                  <div
+                    className="action__flex"
+                    onClick={() => {
+                      localStorage.setItem("adm_num", JSON.stringify(value));
+                      navigate(
+                        `/record-payment/${id}?adm_num=${value}&bill_name=${bill_name}`
+                      );
+                    }}
+                  >
+                    <Edit /> <p>Record Payment</p>
+                  </div>
+                ) : (
+                  ""
+                )}
 
                 <div
                   className="action__flex"
@@ -206,11 +266,40 @@ const ClassPaymentStatus = () => {
                 <div
                   className="action__flex"
                   onClick={() => {
+                    navigate(
+                      `/payment-broadsheet/${id}?class_name=${className}&bill_name=${bill_name}`
+                    );
+                  }}
+                >
+                  <Broadsheet />
+                  <p>Payment Broadsheet</p>
+                </div>
+                <div
+                  className="action__flex"
+                  onClick={() => {
+                    localStorage.setItem("adm_num", JSON.stringify(value));
+                    navigate(
+                      `/student-transactions/${id}?adm_num=${value}&bill_name=${bill_name}`
+                    );
+                  }}
+                >
+                  <ParentIcon /> <p>View Parent History</p>
+                </div>
+                <div
+                  className="action__flex"
+                  onClick={() => {
                     setWaiveBillModalOpen(true);
                   }}
                 >
                   <TouchApp />
                   <p>Waive Bill</p>
+                </div>
+                <div
+                  className="action__flex"
+                  onClick={() => toggleDeleteConfirmation()}
+                >
+                  <Delete />
+                  <p>Delete</p>
                 </div>
               </div>
             </>
@@ -222,6 +311,18 @@ const ClassPaymentStatus = () => {
 
   //table header and columns
   const columns = [
+    {
+      Header: "STUDENT NAME",
+      accessor: "student_name",
+      Cell: ({ cell, row }: any) => (
+        <div>
+          <p>{cell.value}</p>
+          <span style={{ color: "darkgrey", fontSize: "12px" }}>
+            {row.original.admission_number}
+          </span>
+        </div>
+      ),
+    },
     {
       Header: "CLASS NAME",
       accessor: "class_name",
@@ -240,10 +341,6 @@ const ClassPaymentStatus = () => {
       ),
     },
 
-    {
-      Header: "STUDENT NAME",
-      accessor: "student_name",
-    },
     {
       Header: "STATUS",
       accessor: "status",
@@ -274,6 +371,7 @@ const ClassPaymentStatus = () => {
           <div style={{ display: "flex", gap: "16px" }}>
             <DotsBtn
               value={cell.value}
+              name={row.original.student_name}
               payment={row.original.student_payment_id}
               className={row.original.class_name}
               index={row.index}
@@ -346,6 +444,15 @@ const ClassPaymentStatus = () => {
           closeModal={() => setWaiveBillModalOpen(false)}
           studentNo={studentNo}
           paymentId={paymentId}
+          billName={bill_name}
+        />
+        <DeleteConfirmation
+          modalIsOpen={deleteConfirmation}
+          close={toggleDeleteConfirmation}
+          confirmationText={"This action cannot be reversed"}
+          deleteFn={deleteStudentBill}
+          deleteBtnText={"Delete Bill"}
+          loading={deleteLoading}
         />
       </div>
     </div>

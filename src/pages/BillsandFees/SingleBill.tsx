@@ -25,6 +25,9 @@ import { useQueryClient } from "react-query";
 import toast from "react-hot-toast";
 import Header from "../../components/Header/Header";
 import AddCircleBlue from "../../icons/AddCircleBlue";
+import ClassAndStudentSelection from "../../components/ClassAndStudentSelection/ClassAndStudentSelection";
+import { useGetStudents } from "../../hooks/queries/students";
+import Edit from "../../icons/Edit";
 
 const SingleBill = () => {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -36,9 +39,29 @@ const SingleBill = () => {
   const { data } = useGetSingleBill(id);
   const { data: schoolData } = useGetSchoolDetails();
 
-  const [addDiscount, setAddDiscount] = useState<boolean>(false);
+  const [addDiscount, setAddDiscount] = useState<boolean>(true);
+  const [selectedFee, setSelectedFee] = useState("");
+  const [selectedDiscount, setSelectedDiscount] = useState(200);
+  const [selectedFeeId, setSelectedFeeId] = useState(200);
+  const [selectedDiscountFeeType, setSelectedDiscountFeeType] = useState(200);
+  const [fees, setFees] = useState<Fee[]>([]);
 
-  const fees = data && data?.fees;
+  useEffect(() => {
+    setFees(data?.fees);
+    // setFields({
+    //   ...fields,
+    //   dueDate: data?.due_date,
+    //   billName: data?.bill_name,
+    //   term: data?.term,
+    //   session: data?.session,
+    // });
+  }, [data]);
+
+  const schoolDetailsLocal = JSON.parse(
+    localStorage.getItem("userDetails") || ""
+  );
+
+  // const fees = data && data?.fees;
   useEffect(() => {
     // Calculate the total amount
     const totalAmount = fees?.reduce(
@@ -59,6 +82,11 @@ const SingleBill = () => {
       classes: [],
     },
   ]);
+
+  const { data: classesAndStudents } = useGetStudents(
+    data?.term || "",
+    data?.session || ""
+  );
 
   // const formattedDiscount = data?.fees.map((fee) => ({
   //   fee_type: fee.fee_type,
@@ -100,16 +128,36 @@ const SingleBill = () => {
   useEffect(() => {
     if (data) {
       // Extract discounts from bill data
-      const extractedDiscounts = data.fees.map((fee: any) => ({
-        value: fee?.fee_type?.discounts[0]?.value,
-        description: fee?.fee_type?.discounts[0]?.description,
-        fee_type: fee?.fee_type?.discounts[0]?.fee_type,
-        amount: fee?.fee_type.discounts[0]?.amount,
-        is_percentage: fee?.fee_type?.discounts[0]?.is_percentage,
-        students: fee?.fee_type?.discounts[0]?.students,
-        classes: fee?.fee_type?.discounts[0]?.classes,
-      }));
-      setAddDiscount(extractedDiscounts[0].value ? true : false);
+      // const extractedDiscounts = data.fees.map((fee: any) => ({
+      //   value: fee?.fee_type?.discounts[0]?.value,
+      //   description: fee?.fee_type?.discounts[0]?.description,
+      //   fee_type: fee?.fee_type?.discounts[0]?.fee_type,
+      //   amount: fee?.fee_type.discounts[0]?.amount,
+      //   is_percentage: fee?.fee_type?.discounts[0]?.is_percentage,
+      //   students: fee?.fee_type?.discounts[0]?.students,
+      //   classes: fee?.fee_type?.discounts[0]?.classes,
+      // }));
+
+      const extractedDiscounts = data.fees.flatMap((fee: any) => {
+        if (
+          fee?.fee_type?.discounts &&
+          fee.fee_type.discounts.length > 0 && // Check if discounts array is not empty
+          fee.fee_type.discounts.some((discount: any) => !!discount) // Check if any discount is truthy
+        ) {
+          return fee.fee_type.discounts.map((discount: any) => ({
+            value: discount.value,
+            description: discount.description,
+            fee_type: discount.fee_type,
+            amount: discount.amount,
+            is_percentage: discount.is_percentage,
+            students: discount.students,
+            classes: discount.classes,
+          }));
+        } else {
+          return [];
+        }
+      });
+      // setAddDiscount(extractedDiscounts[0].value ? true : false);
       setDiscounts(extractedDiscounts);
     }
   }, [data]);
@@ -121,6 +169,129 @@ const SingleBill = () => {
     id: index,
     name: c?.class_id,
   }));
+
+  const showClasses = (fee: string, index: number) => {
+    if (fee == "") {
+      toast.error("Please enter the fee type first");
+      return;
+    }
+    if (selectedFee === fee && selectedFeeId === index) {
+      setSelectedFee("");
+      setSelectedFeeId(200);
+    } else {
+      setSelectedFee(fee);
+      setSelectedFeeId(index);
+    }
+  };
+
+  const handleClassChange = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    const updatedFees = fees.map((fee, i) =>
+      i === index
+        ? {
+            ...fee,
+            fee_type: {
+              ...fee.fee_type,
+              classes: selectedClasses,
+              students: selectedStudents,
+            },
+          }
+        : fee
+    );
+
+    setFees(updatedFees);
+  };
+
+  const handleClassDropdownChange = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    handleClassChange(index, selectedClasses, selectedStudents);
+  };
+
+  const handleStudentDropdownChange = (
+    index: number,
+    selectedStudents: number[]
+  ) => {
+    // Call the handleClassChange function to update the fees state
+    handleStudentChange(index, selectedStudents);
+  };
+
+  const showClassesForDiscount = (index: number) => {
+    if (selectedDiscount === index) {
+      setSelectedDiscount(200);
+    } else {
+      setSelectedDiscount(index);
+    }
+  };
+
+  const showClassesForDiscountFeeType = (index: number) => {
+    if (selectedDiscount === index) {
+      setSelectedDiscountFeeType(200);
+    } else {
+      setSelectedDiscountFeeType(index);
+    }
+  };
+
+  const handleClassDropdownChangeForDiscount = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    handleClassChangeForDiscount(index, selectedClasses, selectedStudents);
+  };
+
+  const handleClassChangeForDiscount = (
+    index: number,
+    selectedClasses: number[],
+    selectedStudents: any
+  ) => {
+    const updatedDiscount = discounts.map((discount, i) =>
+      i === index
+        ? {
+            ...discount,
+            classes: selectedClasses,
+            students: selectedStudents,
+          }
+        : discount
+    );
+
+    setDiscounts(updatedDiscount);
+
+    const updatedFees = fees?.map((fee, i) =>
+      i === index
+        ? {
+            ...fee,
+            fee_type: {
+              ...fee.fee_type,
+              discounts: [updatedDiscount[index]],
+            },
+          }
+        : fee
+    );
+
+    setFees(updatedFees);
+  };
+
+  const handleStudentChange = (index: number, selectedStudents: number[]) => {
+    const updatedFees = fees.map((fee, i) =>
+      i === index
+        ? {
+            ...fee,
+            fee_type: {
+              ...fee.fee_type,
+              student: selectedStudents,
+              students: selectedStudents,
+            },
+          }
+        : fee
+    );
+    // setFees(updatedFees);
+  };
 
   const send = () => {
     sendBill(id, {
@@ -189,6 +360,38 @@ const SingleBill = () => {
         </div>
 
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          {/* {data?.status !== "sent" ? (
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "10px 16px 10px 16px",
+                borderRadius: "4px",
+                border: "1px solid #E4EFF9",
+                // background: "#439ADE",
+                color: "#000",
+                width: "fit-content",
+              }}
+              onClick={() => {
+                navigate(`/update-bill/${id}`);
+                localStorage.setItem(
+                  "bills_and_fees",
+                  JSON.stringify({
+                    owner: data?.owner,
+                    bill_id: data?.id,
+                  })
+                );
+              }}
+            >
+              <span>
+                <Edit />
+              </span>
+              Edit
+            </button>
+          ) : null} */}
+
           <button
             disabled={sendLoading || unsendLoading}
             onClick={() => (data?.status === "sent" ? unsend() : send())}
@@ -199,6 +402,8 @@ const SingleBill = () => {
               padding: "12px 16px 12px 16px",
               borderRadius: "4px",
               border: "1px solid #E4EFF9",
+              background: `${data?.status === "sent" ? "#fff" : "#439ADE"}`,
+              color: `${data?.status === "sent" ? "#000" : "#fff"}`,
             }}
           >
             <span>
@@ -246,13 +451,21 @@ const SingleBill = () => {
 
       <div className="bills_schoolInfo">
         <div className="bills_schoolInfo__logo">
-          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt="" />
+          <img
+            src={schoolData?.data[0]?.arm?.logo || schoolDetailsLocal?.logo}
+            alt=""
+          />
         </div>
         <div className="bills_schoolInfo__details">
-          {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {data?.bill_name}
+          {schoolData?.data[0]?.arm?.name || schoolDetailsLocal?.name}
+          <p style={{ fontSize: "22px" }}>
+            {schoolData?.data[0]?.arm?.address || schoolDetailsLocal?.address}
+          </p>
+          {data?.bill_name}
+
           <p className="bills_schoolInfo__details__email">
-            Email: {schoolData && schoolData?.data[0]?.arm?.email}
+            Email:{" "}
+            {schoolData?.data[0]?.arm?.email || schoolDetailsLocal?.contact}
           </p>
         </div>
       </div>
@@ -396,7 +609,8 @@ const SingleBill = () => {
             multi={true}
             toggleOption={function (a: any): void {}}
             selectedValues={selectedClasses}
-            options={formattedClasses}
+            // options={formattedClasses}
+            options={selectedClasses}
             disabled
           />
 
@@ -457,15 +671,57 @@ const SingleBill = () => {
                           disabled
                           placeholder="type or select fee type"
                         />
+
+                        <button
+                          onClick={() => showClasses(fee.fee_type.name, index)}
+                        >
+                          <AddCircleBlue />
+                        </button>
                       </div>
+                      {selectedFee !== "" &&
+                        selectedFeeId == index &&
+                        selectedFee === fee.fee_type.name && (
+                          <ClassAndStudentSelection
+                            preSelectedClasses={selectedClasses}
+                            classes={classesAndStudents as any}
+                            cancel={() => showClasses(fee.fee_type.name, index)}
+                            selectedClassesInParent={fee.fee_type.classes}
+                            selectedStudentsInParent={fee.fee_type.students}
+                            // onClassChange={(selectedClasses: number[]) =>
+                            //   handleClassDropdownChange(
+                            //     index,
+                            //     selectedClasses
+                            //   )
+                            // }
+                            onClassChange={(
+                              selectedClasses: any,
+                              selectedStudents: any
+                            ) =>
+                              handleClassDropdownChange(
+                                index,
+                                selectedClasses,
+                                selectedStudents
+                              )
+                            }
+                            onStudentsChange={(selectedStudents: number[]) =>
+                              handleStudentDropdownChange(
+                                index,
+                                selectedStudents
+                              )
+                            }
+                          />
+                        )}
                     </div>
                     <div className="bills_form__other_form__addons__addFee__input">
                       <div className="bills_form__other_form__addons__addFee__input__wrapper">
+                        {/* <span className="currency">
+                          {schoolData?.data[0]?.currency}
+                        </span> */}
                         <input
                           className="bills_form__other_form__addons__addFee__input__wrapper__input"
                           type="text"
                           name=""
-                          id=""
+                          id="input"
                           placeholder="Amount"
                           value={Number(fee.amount).toLocaleString()}
                           disabled
@@ -605,9 +861,36 @@ const SingleBill = () => {
                         disabled
                       />
 
-                      <button>
+                      <button onClick={() => showClassesForDiscount(index)}>
                         <AddCircleBlue />
                       </button>
+
+                      {selectedDiscount !== 200 &&
+                        selectedDiscount === index && (
+                          <ClassAndStudentSelection
+                            preSelectedClasses={selectedClasses}
+                            selectedClassesInParent={d.classes}
+                            selectedStudentsInParent={d.students}
+                            classes={classesAndStudents as any}
+                            cancel={() => showClassesForDiscount(index)}
+                            onClassChange={(
+                              selectedClasses: any,
+                              selectedStudents: any
+                            ) =>
+                              handleClassDropdownChangeForDiscount(
+                                index,
+                                selectedClasses,
+                                selectedStudents
+                              )
+                            }
+                            onStudentsChange={(selectedStudents: number[]) =>
+                              handleStudentDropdownChange(
+                                index,
+                                selectedStudents
+                              )
+                            }
+                          />
+                        )}
                     </div>
                   </div>
                   Off
@@ -641,10 +924,13 @@ const SingleBill = () => {
                   </div>
                   —
                   <div className="bills_form__other_form__addons__addDiscount__input">
+                    {/* <span className="currency currency_d">
+                      {schoolData?.data[0]?.currency}
+                    </span> */}
                     <input
                       type="text"
                       name=""
-                      id=""
+                      id="input"
                       placeholder=""
                       disabled
                       // value={discountedAmount ? discountedAmount : 0}

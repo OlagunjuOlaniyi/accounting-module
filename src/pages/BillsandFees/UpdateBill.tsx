@@ -5,6 +5,7 @@ import TextInput from "../../components/Input/TextInput";
 import TextInputSelectAll from "../../components/Input/TextInputSelectAll";
 import AddCircleBlue from "../../icons/AddCircleBlue";
 import ToggleUnchecked from "../../icons/ToggleUnchecked";
+import Caution from "../../icons/Caution";
 import ToggleChecked from "../../icons/ToggleChecked";
 import { useGetSchoolDetails } from "../../hooks/queries/SchoolQuery";
 import { useNavigate, useParams } from "react-router";
@@ -17,7 +18,7 @@ import {
 } from "../../hooks/queries/billsAndFeesMgt";
 import { Discount, Fee } from "../../types/types";
 import toast from "react-hot-toast";
-import { useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useUpdateBill } from "../../hooks/mutations/billsAndFeesMgt";
 import DeleteRed from "../../icons/DeleteRed";
 import ClassAndStudentSelection from "../../components/ClassAndStudentSelection/ClassAndStudentSelection";
@@ -48,17 +49,19 @@ const CreateBill = () => {
 
   const [addClass, setAddClass] = useState<boolean>(true);
   const [addFee, setAddFee] = useState<boolean>(true);
-  const [addDiscount, setAddDiscount] = useState<boolean>(false);
+  const [addDiscount, setAddDiscount] = useState<boolean>(true);
   const [partPayment, setPartPayment] = useState<boolean>(false);
   const [percentage, setPercentage] = useState<boolean>(false);
 
   const [classSearchValue, setClassSearchValue] = useState<string>("");
   const [selectedFee, setSelectedFee] = useState("");
   const [selectedDiscount, setSelectedDiscount] = useState(200);
+  const [selectedFeeId, setSelectedFeeId] = useState(200);
   const [selectedDiscountFeeType, setSelectedDiscountFeeType] = useState(200);
   const [showAddFeeDropdown, setShowAddFeeDropdown] = useState(false);
   const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
   const [selectedFeeForDiscount, setSelectedFeeForDiscount] = useState("");
+  const [showAuth, setShowAuth] = useState(false);
 
   const [discountValue, setDiscounValue] = useState(1);
   const [discountedAmount, setDiscountAmout] = useState(0);
@@ -92,12 +95,13 @@ const CreateBill = () => {
   //   useGetStudents();
 
   const { data: classesAndStudents } = useGetStudents(
-    fields.term,
-    fields.session
+    fields.term || "SECOND TERM",
+    fields.session || "2023/2024"
   );
 
   const [discounts, setDiscounts] = useState<Discount[]>([
     {
+      // id: 0,
       value: 0,
       description: "",
       fee_type: "",
@@ -114,19 +118,47 @@ const CreateBill = () => {
   //   setAddDiscount(discounts.length > 0 ? true : false);
   // }, []);
 
+  const [mainDiscounts, setMainDiscounts] = useState([]);
+
   useEffect(() => {
     if (data) {
       // Extract discounts from bill data
-      const extractedDiscounts = data.fees.map((fee: any) => ({
-        value: fee?.fee_type?.discounts[0]?.value,
-        description: fee?.fee_type?.discounts[0]?.description,
-        fee_type: fee?.fee_type?.discounts[0]?.fee_type,
-        amount: fee?.fee_type.discounts[0]?.amount,
-        is_percentage: fee?.fee_type?.discounts[0]?.is_percentage,
-        students: fee?.fee_type?.discounts[0]?.students,
-        classes: fee?.fee_type?.discounts[0]?.classes,
-      }));
-      setAddDiscount(extractedDiscounts[0].value ? true : false);
+      // const extractedDiscounts = data.fees.map((fee: any) => ({
+      //   value: fee?.fee_type?.discounts[0]?.value,
+      //   description: fee?.fee_type?.discounts[0]?.description,
+      //   fee_type: fee?.fee_type?.discounts[0]?.fee_type,
+      //   amount: fee?.fee_type.discounts[0]?.amount,
+      //   is_percentage: fee?.fee_type?.discounts[0]?.is_percentage,
+      //   students: fee?.fee_type?.discounts[0]?.students,
+      //   classes: fee?.fee_type?.discounts[0]?.classes,
+      // }));
+      const extractedDiscounts = data.fees.flatMap(
+        (fee: any, index: number) => {
+          if (
+            fee?.fee_type?.discounts &&
+            fee.fee_type.discounts.length > 0 && // Check if discounts array is not empty
+            fee.fee_type.discounts.some((discount: any) => !!discount) // Check if any discount is truthy
+          ) {
+            return fee.fee_type.discounts.map(
+              (discount: any, index: number) => ({
+                // index: index,
+                id: discount.id,
+                value: discount.value,
+                description: discount.description,
+                fee_type: discount.fee_type,
+                amount: discount.amount,
+                is_percentage: discount.is_percentage,
+                students: discount.students,
+                classes: discount.classes,
+              })
+            );
+          } else {
+            return [];
+          }
+        }
+      );
+      // setAddDiscount(extractedDiscounts[0].value ? true : false);
+      setMainDiscounts(extractedDiscounts);
       setDiscounts(extractedDiscounts);
     }
   }, [data]);
@@ -232,6 +264,10 @@ const CreateBill = () => {
   }));
   // console.log(formattedClasses);
 
+  const schoolDetailsLocal = JSON.parse(
+    localStorage.getItem("userDetails") || ""
+  );
+
   // const toggleClasses = (option: any) => {
   //   setSelectedClasses((prevSelected: any) => {
   //     // if it's in, remove
@@ -313,6 +349,8 @@ const CreateBill = () => {
     setFees([...fees, newFee]);
   };
 
+  const [feeTypeId, setFeeTypeId] = useState(0);
+
   const handleAddDiscount = () => {
     const newDiscount: Discount = {
       value: 0,
@@ -325,6 +363,29 @@ const CreateBill = () => {
     };
     setDiscounts([...discounts, newDiscount]);
   };
+  const handleAddDiscount2 = () => {
+    const newDiscount: Discount = [
+      {
+        value: 0,
+        description: "",
+        fee_type: "",
+        amount: 0,
+        is_percentage: true,
+        students: [],
+        classes: [],
+      },
+      {
+        value: 0,
+        description: "",
+        fee_type: "",
+        amount: 0,
+        is_percentage: true,
+        students: [],
+        classes: [],
+      },
+    ];
+    setDiscounts(newDiscount);
+  };
 
   const handleFeeTypeChange = (index: number, field: string, value: any) => {
     const updatedFees = fees.map((fee, i) =>
@@ -334,6 +395,7 @@ const CreateBill = () => {
             fee_type: {
               ...fee.fee_type,
               [field]: value,
+              id: index,
             },
           }
         : fee
@@ -342,8 +404,15 @@ const CreateBill = () => {
   };
 
   const [discounted, setDiscounted] = useState(0);
+  const [feeTypeAmount, setFeeTypeAmount] = useState(0);
 
-  const handleDiscountChange = (index: number, field: string, value: any) => {
+  const handleDiscountChange = (
+    index: number,
+    field: string,
+    value: any,
+    feeType: string,
+    id: number
+  ) => {
     // const filterFeesByFeeTypeName = (): Fee[] => {
     //   return fees?.filter(
     //     (fee) => fee.fee_type.name === getDiscount[discountIndex].fee_type
@@ -354,6 +423,7 @@ const CreateBill = () => {
     //     discounts[discountIndex].value) /
     //     100
     // );
+
     const updatedDiscount = discounts.map((discount, i) =>
       i === index
         ? {
@@ -365,6 +435,10 @@ const CreateBill = () => {
                 : value < 0
                 ? 1
                 : value
+              : discount.is_percentage === false
+              ? value > feeTypeAmount
+                ? feeTypeAmount
+                : value
               : value,
           }
         : discount
@@ -372,7 +446,7 @@ const CreateBill = () => {
     setDiscounts(updatedDiscount);
 
     const updatedFees = fees?.map((fee, i) =>
-      i === index
+      fee.fee_type.name === feeType && i === id
         ? {
             ...fee,
             fee_type: {
@@ -517,14 +591,15 @@ const CreateBill = () => {
           }
         : fee
     );
-
+    // console.log("hi", selectedClasses);
     setFees(updatedFees);
   };
 
   const handleClassChangeForDiscount = (
     index: number,
     selectedClasses: number[],
-    selectedStudents: any
+    selectedStudents: any,
+    feeType: string
   ) => {
     const updatedDiscount = discounts.map((discount, i) =>
       i === index
@@ -539,7 +614,7 @@ const CreateBill = () => {
     setDiscounts(updatedDiscount);
 
     const updatedFees = fees?.map((fee, i) =>
-      i === index
+      fee.fee_type.name === feeType
         ? {
             ...fee,
             fee_type: {
@@ -556,9 +631,15 @@ const CreateBill = () => {
   const handleClassDropdownChangeForDiscount = (
     index: number,
     selectedClasses: number[],
-    selectedStudents: any
+    selectedStudents: any,
+    feeType: string
   ) => {
-    handleClassChangeForDiscount(index, selectedClasses, selectedStudents);
+    handleClassChangeForDiscount(
+      index,
+      selectedClasses,
+      selectedStudents,
+      feeType
+    );
   };
 
   const handleStudentChange = (index: number, selectedStudents: number[]) => {
@@ -597,7 +678,6 @@ const CreateBill = () => {
     index: number,
     selectedStudents: number[]
   ) => {
-    // Call the handleClassChange function to update the fees state
     handleStudentChange(index, selectedStudents);
   };
 
@@ -659,15 +739,17 @@ const CreateBill = () => {
     setFees(updatedFees);
   };
 
-  const showClasses = (fee: string) => {
+  const showClasses = (fee: string, index: number) => {
     if (fee == "") {
       toast.error("Please enter the fee type first");
       return;
     }
-    if (selectedFee === fee) {
+    if (selectedFee === fee && selectedFeeId === index) {
       setSelectedFee("");
+      setSelectedFeeId(200);
     } else {
       setSelectedFee(fee);
+      setSelectedFeeId(index);
     }
   };
 
@@ -701,6 +783,8 @@ const CreateBill = () => {
 
   const { mutate, isLoading } = useUpdateBill(id ? id : "");
 
+  // console.log("class", selectedClasses);
+
   //submit form
   const submit = () => {
     if (isNaN(Number(fields.amount))) {
@@ -717,8 +801,10 @@ const CreateBill = () => {
               ...fee.fee_type,
 
               classes:
-                fee?.fee_type?.classes?.length === 0 &&
-                fee?.fee_type?.students?.length === 0
+                fee?.fee_type?.classes?.length === formattedStoredClasses.length
+                  ? selectedClasses?.map(({ name }: any) => ({ name }))
+                  : fee?.fee_type?.classes?.length === 0 &&
+                    fee?.fee_type?.students?.length === 0
                   ? selectedClasses?.map(({ name }: any) => ({ name }))
                   : fee?.fee_type?.classes,
             },
@@ -753,7 +839,7 @@ const CreateBill = () => {
       },
 
       onError: (e) => {
-        toast.error("Error updating bill");
+        toast.error(e?.response.data.bill_name || "Error updating bill");
       },
     });
   };
@@ -769,13 +855,28 @@ const CreateBill = () => {
 
       <div className="bills_schoolInfo">
         <div className="bills_schoolInfo__logo">
-          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt="" />
+          <img
+            src={
+              schoolData
+                ? schoolData?.data[0]?.arm?.logo
+                : schoolDetailsLocal?.logo
+            }
+            alt=""
+          />
         </div>
         <div className="bills_schoolInfo__details">
-          {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {fields.billName ? `${fields.billName}` : ""}
+          {schoolData
+            ? schoolData?.data[0]?.arm?.name
+            : schoolDetailsLocal?.name}
+          <p style={{ fontSize: "22px" }}>
+            {schoolData?.data[0]?.arm?.address || schoolDetailsLocal?.address}
+          </p>
+          {fields.billName ? `${fields.billName}` : ""}
           <p className="bills_schoolInfo__details__email">
-            Email: {schoolData && schoolData?.data[0]?.arm?.email}
+            Email:{" "}
+            {schoolData
+              ? schoolData?.data[0]?.arm?.email
+              : schoolDetailsLocal?.contact}
           </p>
         </div>
       </div>
@@ -918,7 +1019,7 @@ const CreateBill = () => {
           <div className="bills_form__top">
             <TextInputSelectAll
               label=""
-              placeholder="Assign Bill to class"
+              placeholder="Assign Bill to Class"
               name="classes"
               type="dropdown"
               errorClass={"error-msg"}
@@ -965,7 +1066,10 @@ const CreateBill = () => {
           </div>
 
           <div className="bills_form__other_form__addons">
-            <p onClick={() => setAddFee(!addFee)}>
+            <p
+              onClick={() => setAddFee(!addFee)}
+              style={{ width: "fit-content" }}
+            >
               <AddCircleBlue />
               Add Fee
             </p>
@@ -1012,7 +1116,9 @@ const CreateBill = () => {
                               placeholder="type or select fee type"
                             />
                             <button
-                              onClick={() => showClasses(fee.fee_type.name)}
+                              onClick={() =>
+                                showClasses(fee.fee_type.name, index)
+                              }
                             >
                               <AddCircleBlue />
                             </button>
@@ -1039,13 +1145,16 @@ const CreateBill = () => {
                               )}
                           </div>
                           {selectedFee !== "" &&
+                            selectedFeeId === index &&
                             selectedFee === fee.fee_type.name && (
                               <ClassAndStudentSelection
                                 preSelectedClasses={selectedClasses}
-                                classes={classesAndStudents as any}
-                                cancel={() => showClasses(fee.fee_type.name)}
                                 selectedClassesInParent={fee.fee_type.classes}
                                 selectedStudentsInParent={fee.fee_type.students}
+                                classes={classesAndStudents as any}
+                                cancel={() =>
+                                  showClasses(fee.fee_type.name, index)
+                                }
                                 // onClassChange={(selectedClasses: number[]) =>
                                 //   handleClassDropdownChange(
                                 //     index,
@@ -1053,6 +1162,7 @@ const CreateBill = () => {
                                 //   )
                                 // }
                                 onClassChange={(
+                                  // index: any,
                                   selectedClasses: any,
                                   selectedStudents: any
                                 ) =>
@@ -1075,11 +1185,14 @@ const CreateBill = () => {
                         </div>
                         <div className="bills_form__other_form__addons__addFee__input">
                           <div className="bills_form__other_form__addons__addFee__input__wrapper">
+                            {/* <span className="currency">
+                              {schoolData?.data[0]?.currency}
+                            </span> */}
                             <input
                               className="bills_form__other_form__addons__addFee__input__wrapper__input"
                               type="text"
                               name=""
-                              id=""
+                              id="input"
                               placeholder="Amount"
                               value={fee.amount}
                               onChange={(e) =>
@@ -1089,7 +1202,7 @@ const CreateBill = () => {
                           </div>
                           <div
                             style={{ cursor: "pointer" }}
-                            onClick={() => removeFee(fee.fee_type.name)}
+                            onClick={() => removeFee(index)}
                           >
                             <DeleteRed />
                           </div>
@@ -1123,6 +1236,8 @@ const CreateBill = () => {
                     style={{
                       display: "flex",
                       flexDirection: "row",
+                      alignItems: "center",
+                      width: "fit-content",
                       gap: "10px",
                       color: "rgba(67, 154, 222, 1)",
                       marginTop: "20px",
@@ -1141,15 +1256,27 @@ const CreateBill = () => {
               Add Discount
             </p> */}
 
-            <p
-              onClick={() => setAddDiscount(!addDiscount)}
-              style={{
-                width: "fit-content",
-              }}
-            >
-              <AddCircleBlue />
-              Add Discount
-            </p>
+            {discounts?.length > 0 ? (
+              <p
+                onClick={() => setAddDiscount(!addDiscount)}
+                style={{
+                  width: "fit-content",
+                }}
+              >
+                <AddCircleBlue />
+                Add Discount
+              </p>
+            ) : (
+              <p
+                onClick={handleAddDiscount2}
+                style={{
+                  width: "fit-content",
+                }}
+              >
+                <AddCircleBlue />
+                Add Discount
+              </p>
+            )}
 
             {/* {formattedDiscount?.length &&
               formattedDiscount?.map((disc, index) => {
@@ -1160,210 +1287,538 @@ const CreateBill = () => {
                   </>
                 );
               })} */}
+            {/* {addDiscount && discounts?.length > 0
+              ? discounts.map((d, index) =>
+                  index >= 1 ? <div>Yes{d.amount}</div> : null
+                )
+              : discounts.map((d, index) =>
+                  index >= 1 ? <div>Yes{d.amount}</div> : null
+                )} */}
 
-            {discounts?.length > 0 &&
-              addDiscount &&
-              discounts?.map((d, index) => (
-                <div className="bills_form__other_form__addons__addDiscount">
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "flex-end",
-                      marginBottom: "20px",
-                    }}
-                  >
+            {mainDiscounts?.length > 0
+              ? addDiscount &&
+                discounts?.map((d, index) => (
+                  <div className="bills_form__other_form__addons__addDiscount">
                     <div
-                      className="bills_form__other_form__addons__addFee__input"
                       style={{
                         display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "flex-end",
+                        marginBottom: "20px",
                       }}
                     >
-                      <label>Discount</label>
+                      <div
+                        className="bills_form__other_form__addons__addFee__input"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <label>Discount</label>
 
-                      <div className="bills_form__other_form__addons__addFee__input__wrapper">
+                        <div className="bills_form__other_form__addons__addFee__input__wrapper wrapper">
+                          <input
+                            className="bills_form__other_form__addons__addFee__input__wrapper__input width"
+                            type="text"
+                            name=""
+                            id=""
+                            value={d.value}
+                            // defaultValue={d.value}
+                            onChange={(e) =>
+                              handleDiscountChange(
+                                index,
+                                "value",
+                                e.target.value,
+                                d.fee_type,
+                                feeTypeId
+                              )
+                            }
+                            placeholder="type or select fee type"
+                          />
+
+                          <button onClick={() => showClassesForDiscount(index)}>
+                            <AddCircleBlue />
+                          </button>
+
+                          {selectedDiscount !== 200 &&
+                            selectedDiscount === index && (
+                              <ClassAndStudentSelection
+                                preSelectedClasses={selectedClasses}
+                                selectedClassesInParent={d.classes}
+                                selectedStudentsInParent={d.students}
+                                classes={classesAndStudents as any}
+                                cancel={() => showClassesForDiscount(index)}
+                                onClassChange={(
+                                  selectedClasses: any,
+                                  selectedStudents: any
+                                ) =>
+                                  handleClassDropdownChangeForDiscount(
+                                    index,
+                                    selectedClasses,
+                                    selectedStudents,
+                                    d.fee_type
+                                  )
+                                }
+                                onStudentsChange={(
+                                  selectedStudents: number[]
+                                ) =>
+                                  handleStudentDropdownChange(
+                                    index,
+                                    selectedStudents
+                                  )
+                                }
+                              />
+                            )}
+                        </div>
+                      </div>
+                      Off
+                      {/* <p>{d.fee_type}</p> */}
+                      <div style={{ position: "relative" }}>
+                        <div className="bills_form__other_form__addons__addDiscount__input">
+                          <input
+                            type="text"
+                            name=""
+                            id=""
+                            value={d.fee_type}
+                            // defaultValue={d.fee_type}
+                            placeholder="Select fee type"
+                            // onClick={() =>
+                            //   setShowDiscountDropdown(!showDiscountDropdown)
+                            // }
+                            onClick={(e) => {
+                              setShowDiscountDropdown(!showDiscountDropdown);
+                              showClassesForDiscountFeeType(index);
+                              // setDiscountIndex(index);
+                            }}
+                            onChange={(e) => {
+                              setDiscountIndex(index);
+                              handleDiscountChange(
+                                index,
+                                "fee_type",
+                                e.target.value,
+                                d.fee_type,
+                                feeTypeId
+                              );
+                            }}
+                          />
+                        </div>
+                        <div className="discount_dropdown">
+                          {showDiscountDropdown &&
+                            // selectedDiscount !== 200 &&
+                            selectedDiscountFeeType === index &&
+                            fees.map((fee, i) => (
+                              <div
+                                className="discount_dropdown__item"
+                                onClick={() => {
+                                  // setSelectedFeeForDiscount(fee?.fee_type?.name);
+                                  setFeeTypeAmount(
+                                    fee?.fee_type?.default_amount
+                                  );
+                                  setDiscountIndex(index);
+                                  handleDiscountChange(
+                                    index,
+                                    "fee_type",
+                                    fee?.fee_type?.name,
+                                    d.fee_type,
+                                    i
+                                  );
+                                  setFeeTypeId(i);
+                                  setShowDiscountDropdown(false);
+                                }}
+                              >
+                                <p>{fee?.fee_type?.name}</p>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                      —
+                      <div className="bills_form__other_form__addons__addDiscount__input">
+                        {/* <span className="currency currency_d">
+                        {schoolData?.data[0]?.currency}
+                      </span> */}
                         <input
-                          className="bills_form__other_form__addons__addFee__input__wrapper__input"
                           type="text"
                           name=""
-                          id=""
-                          value={d.value}
-                          // defaultValue={d.value}
-                          onChange={(e) =>
-                            handleDiscountChange(index, "value", e.target.value)
-                          }
-                          placeholder="type or select fee type"
+                          id="input"
+                          placeholder=""
+                          disabled
+                          // value={discountedAmount ? discountedAmount : 0}
+                          value={d.amount}
                         />
-
-                        <button onClick={() => showClassesForDiscount(index)}>
-                          <AddCircleBlue />
-                        </button>
-
-                        {selectedDiscount !== 200 &&
-                          selectedDiscount === index && (
-                            <ClassAndStudentSelection
-                              preSelectedClasses={selectedClasses}
-                              selectedClassesInParent={d.classes}
-                              selectedStudentsInParent={d.students}
-                              classes={classesAndStudents as any}
-                              cancel={() => showClassesForDiscount(index)}
-                              onClassChange={(
-                                selectedClasses: any,
-                                selectedStudents: any
-                              ) =>
-                                handleClassDropdownChangeForDiscount(
-                                  index,
-                                  selectedClasses,
-                                  selectedStudents
-                                )
-                              }
-                              onStudentsChange={(selectedStudents: number[]) =>
-                                handleStudentDropdownChange(
-                                  index,
-                                  selectedStudents
-                                )
-                              }
-                            />
+                      </div>
+                      <div
+                        className="bills_form__other_form__addons__addDiscount__input"
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div>
+                          <input
+                            type="text"
+                            name=""
+                            id=""
+                            value={d.description}
+                            // defaultValue={d.description}
+                            placeholder="Reason for discount"
+                            onFocus={() => {
+                              setDiscountIndex(index);
+                              setShowAuth(true);
+                            }}
+                            onBlur={() => {
+                              setShowAuth(false);
+                            }}
+                            onChange={(e) => {
+                              handleDiscountChange(
+                                index,
+                                "description",
+                                e.target.value,
+                                d.fee_type,
+                                feeTypeId
+                              );
+                              // setDiscountIndex(index);
+                              // setShowAuth(true);
+                            }}
+                          />
+                          {showAuth && index === discountIndex && (
+                            <p
+                              // style={{
+                              //   position: "absolute",
+                              //   color: "red",
+                              //   fontSize: "11px",
+                              // }}
+                              style={{
+                                color: "#FFA800",
+                                fontSize: 12,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 5,
+                                position: "absolute",
+                                // right: "50px",
+                                // marginTop: "65px",
+                              }}
+                            >
+                              <Caution />
+                              Please re-select this Fee Type
+                            </p>
                           )}
+                        </div>
+                        <div
+                          style={{ cursor: "pointer" }}
+                          onClick={() => removeDiscount(index)}
+                        >
+                          <DeleteRed />
+                        </div>
                       </div>
                     </div>
-                    Off
-                    {/* <p>{d.fee_type}</p> */}
-                    <div style={{ position: "relative" }}>
-                      <div className="bills_form__other_form__addons__addDiscount__input">
-                        <input
-                          type="text"
-                          name=""
-                          id=""
-                          value={d.fee_type}
-                          // defaultValue={d.fee_type}
-                          placeholder="Select fee type"
-                          // onClick={() =>
-                          //   setShowDiscountDropdown(!showDiscountDropdown)
-                          // }
-                          onClick={(e) => {
-                            setShowDiscountDropdown(!showDiscountDropdown);
-                            showClassesForDiscountFeeType(index);
-                            // setDiscountIndex(index);
-                          }}
-                          onChange={(e) => {
-                            setDiscountIndex(index);
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "10px",
+                      }}
+                    >
+                      {d.is_percentage ? (
+                        <button
+                          onClick={() =>
                             handleDiscountChange(
                               index,
-                              "fee_type",
-                              e.target.value
-                            );
+                              "is_percentage",
+                              !d.is_percentage,
+                              d.fee_type,
+                              feeTypeId
+                            )
+                          }
+                        >
+                          <ToggleChecked />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            handleDiscountChange(
+                              index,
+                              "is_percentage",
+                              !d.is_percentage,
+                              d.fee_type,
+                              feeTypeId
+                            )
+                          }
+                        >
+                          <ToggleUnchecked />
+                        </button>
+                      )}
+                      Percentage
+                    </div>
+                  </div>
+                ))
+              : discounts?.length > 0 &&
+                addDiscount &&
+                discounts.map((d, index) =>
+                  index >= 1 ? (
+                    <div className="bills_form__other_form__addons__addDiscount">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "flex-end",
+                          marginBottom: "20px",
+                        }}
+                      >
+                        <div
+                          className="bills_form__other_form__addons__addFee__input"
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-start",
                           }}
-                        />
-                      </div>
-                      <div className="discount_dropdown">
-                        {showDiscountDropdown &&
-                          // selectedDiscount !== 200 &&
-                          selectedDiscountFeeType === index &&
-                          fees.map((fee) => (
-                            <div
-                              className="discount_dropdown__item"
-                              onClick={() => {
-                                // setSelectedFeeForDiscount(fee?.fee_type?.name);
+                        >
+                          <label>Discount</label>
+
+                          <div className="bills_form__other_form__addons__addFee__input__wrapper wrapper">
+                            <input
+                              className="bills_form__other_form__addons__addFee__input__wrapper__input width"
+                              type="text"
+                              name=""
+                              id=""
+                              value={d.value}
+                              // defaultValue={d.value}
+                              onChange={(e) =>
+                                handleDiscountChange(
+                                  index,
+                                  "value",
+                                  e.target.value,
+                                  d.fee_type,
+                                  feeTypeId
+                                )
+                              }
+                              placeholder="type or select fee type"
+                            />
+
+                            <button
+                              onClick={() => showClassesForDiscount(index)}
+                            >
+                              <AddCircleBlue />
+                            </button>
+
+                            {selectedDiscount !== 200 &&
+                              selectedDiscount === index && (
+                                <ClassAndStudentSelection
+                                  preSelectedClasses={selectedClasses}
+                                  selectedClassesInParent={d.classes}
+                                  selectedStudentsInParent={d.students}
+                                  classes={classesAndStudents as any}
+                                  cancel={() => showClassesForDiscount(index)}
+                                  onClassChange={(
+                                    selectedClasses: any,
+                                    selectedStudents: any
+                                  ) =>
+                                    handleClassDropdownChangeForDiscount(
+                                      index,
+                                      selectedClasses,
+                                      selectedStudents,
+                                      d.fee_type
+                                    )
+                                  }
+                                  onStudentsChange={(
+                                    selectedStudents: number[]
+                                  ) =>
+                                    handleStudentDropdownChange(
+                                      index,
+                                      selectedStudents
+                                    )
+                                  }
+                                />
+                              )}
+                          </div>
+                        </div>
+                        Off
+                        {/* <p>{d.fee_type}</p> */}
+                        <div style={{ position: "relative" }}>
+                          <div className="bills_form__other_form__addons__addDiscount__input">
+                            <input
+                              type="text"
+                              name=""
+                              id=""
+                              value={d.fee_type}
+                              // defaultValue={d.fee_type}
+                              placeholder="Select fee type"
+                              // onClick={() =>
+                              //   setShowDiscountDropdown(!showDiscountDropdown)
+                              // }
+                              onClick={(e) => {
+                                setShowDiscountDropdown(!showDiscountDropdown);
+                                showClassesForDiscountFeeType(index);
+                                // setDiscountIndex(index);
+                              }}
+                              onChange={(e) => {
                                 setDiscountIndex(index);
                                 handleDiscountChange(
                                   index,
                                   "fee_type",
-                                  fee?.fee_type?.name
+                                  e.target.value,
+                                  d.fee_type,
+                                  feeTypeId
                                 );
-                                setShowDiscountDropdown(false);
                               }}
-                            >
-                              <p>{fee?.fee_type?.name}</p>
-                            </div>
-                          ))}
+                            />
+                          </div>
+                          <div className="discount_dropdown">
+                            {showDiscountDropdown &&
+                              // selectedDiscount !== 200 &&
+                              selectedDiscountFeeType === index &&
+                              fees.map((fee, i) => (
+                                <div
+                                  className="discount_dropdown__item"
+                                  onClick={() => {
+                                    // setSelectedFeeForDiscount(fee?.fee_type?.name);
+                                    setFeeTypeAmount(
+                                      fee?.fee_type?.default_amount
+                                    );
+                                    setDiscountIndex(index);
+                                    handleDiscountChange(
+                                      index,
+                                      "fee_type",
+                                      fee?.fee_type?.name,
+                                      d.fee_type,
+                                      i
+                                    );
+                                    setFeeTypeId(i);
+                                    setShowDiscountDropdown(false);
+                                  }}
+                                >
+                                  <p>{fee?.fee_type?.name}</p>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                        —
+                        <div className="bills_form__other_form__addons__addDiscount__input">
+                          {/* <span className="currency currency_d">
+                        {schoolData?.data[0]?.currency}
+                      </span> */}
+                          <input
+                            type="text"
+                            name=""
+                            id="input"
+                            placeholder=""
+                            disabled
+                            // value={discountedAmount ? discountedAmount : 0}
+                            value={d.amount}
+                          />
+                        </div>
+                        <div
+                          className="bills_form__other_form__addons__addDiscount__input"
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div>
+                            <input
+                              type="text"
+                              name=""
+                              id=""
+                              value={d.description}
+                              // defaultValue={d.description}
+                              placeholder="Reason for discount"
+                              onKeyDown={() => {
+                                setDiscountIndex(index);
+                                setShowAuth(true);
+                              }}
+                              onBlur={() => {
+                                setShowAuth(false);
+                              }}
+                              onChange={(e) => {
+                                handleDiscountChange(
+                                  index,
+                                  "description",
+                                  e.target.value,
+                                  d.fee_type,
+                                  feeTypeId
+                                );
+                                // setDiscountIndex(index);
+                                // setShowAuth(true);
+                              }}
+                            />
+                            {showAuth && index === discountIndex && (
+                              <p
+                                // style={{
+                                //   position: "absolute",
+                                //   color: "red",
+                                //   fontSize: "11px",
+                                // }}
+                                style={{
+                                  color: "#FFA800",
+                                  fontSize: 12,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 5,
+                                  position: "absolute",
+                                  // right: "50px",
+                                  // marginTop: "65px",
+                                }}
+                              >
+                                <Caution />
+                                Please re-select this Fee Type
+                              </p>
+                            )}
+                          </div>
+                          <div
+                            style={{ cursor: "pointer" }}
+                            onClick={() => removeDiscount(index)}
+                          >
+                            <DeleteRed />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    —
-                    <div className="bills_form__other_form__addons__addDiscount__input">
-                      <input
-                        type="text"
-                        name=""
-                        id=""
-                        placeholder=""
-                        disabled
-                        // value={discountedAmount ? discountedAmount : 0}
-                        value={d.amount}
-                      />
-                    </div>
-                    <div
-                      className="bills_form__other_form__addons__addDiscount__input"
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div>
-                        <input
-                          type="text"
-                          name=""
-                          id=""
-                          value={d.description}
-                          // defaultValue={d.description}
-                          placeholder="Reason for discount"
-                          onChange={(e) =>
-                            handleDiscountChange(
-                              index,
-                              "description",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
-                      <div
-                        style={{ cursor: "pointer" }}
-                        onClick={() => removeDiscount(index)}
-                      >
-                        <DeleteRed />
-                      </div>
-                    </div>
-                  </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: "10px",
-                    }}
-                  >
-                    {d.is_percentage ? (
-                      <button
-                        onClick={() =>
-                          handleDiscountChange(
-                            index,
-                            "is_percentage",
-                            !d.is_percentage
-                          )
-                        }
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: "10px",
+                        }}
                       >
-                        <ToggleChecked />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() =>
-                          handleDiscountChange(
-                            index,
-                            "is_percentage",
-                            !d.is_percentage
-                          )
-                        }
-                      >
-                        <ToggleUnchecked />
-                      </button>
-                    )}
-                    Percentage
-                  </div>
-                </div>
-              ))}
+                        {d.is_percentage ? (
+                          <button
+                            onClick={() =>
+                              handleDiscountChange(
+                                index,
+                                "is_percentage",
+                                !d.is_percentage,
+                                d.fee_type,
+                                feeTypeId
+                              )
+                            }
+                          >
+                            <ToggleChecked />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              handleDiscountChange(
+                                index,
+                                "is_percentage",
+                                !d.is_percentage,
+                                d.fee_type,
+                                feeTypeId
+                              )
+                            }
+                          >
+                            <ToggleUnchecked />
+                          </button>
+                        )}
+                        Percentage
+                      </div>
+                    </div>
+                  ) : null
+                )}
 
             {/* {addDiscount && discounts.length > 0 && ( */}
             {discounts && (
@@ -1372,6 +1827,8 @@ const CreateBill = () => {
                 style={{
                   display: "flex",
                   flexDirection: "row",
+                  alignItems: "center",
+                  width: "fit-content",
                   gap: "10px",
                   color: "rgba(67, 154, 222, 1)",
                   marginTop: "20px",

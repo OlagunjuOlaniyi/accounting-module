@@ -20,9 +20,12 @@ let url =
 export const fetchSchoolDetails = async () => {
   let res = await axiosInstance.get(
     `https://devapi2.edves.net/edves-basic/school-service/api/v1/schools/search?subdomain=${url}`
+    // `https://devapi2.edves.net/edves-basic/school-service/api/v1/schools/search?subdomain=demo.edves.net`
   );
   return res.data;
 };
+
+
 
 // get staff
 export const fetchStaffDetails = async () => {

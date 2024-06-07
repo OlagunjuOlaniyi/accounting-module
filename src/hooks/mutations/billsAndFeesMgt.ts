@@ -16,6 +16,8 @@ import {
   updateBill,
   waiveBill,
   viewStudentTransactions,
+  deactivateWallet,
+  deleteStudentBill,
 } from '../../services/billsServices';
 import { IStudentPayment } from '../../types/billTypes';
 
@@ -68,6 +70,20 @@ export const useWaiveBill = (id: any) => {
   });
 };
 
+export const useDeactivateWallet = () => {
+  return useMutation<any, any, any>({
+    mutationKey: ['deactivate-wallet'],
+    mutationFn: (data: any) => deactivateWallet(data),
+  });
+};
+
+export const useDeleteStudentBill = () => {
+  return useMutation<any, any, any>({
+    mutationKey: ['delete-student-bill'],
+    mutationFn: (data: any) => deleteStudentBill(data),
+  });
+};
+
 export const useGetPaymentStatusOnBill = () => {
   return useMutation<any, any, any>({
     mutationKey: ['get-payment-status-on-bill'],
@@ -85,7 +101,7 @@ export const useGetPaymentBroadsheet = () => {
 export const useViewStudentTransactions = () => {
   return useMutation<any, any, any>({
     mutationKey: ['view-student-transaction'],
-    mutationFn: (data: { admission_number: any }) =>
+    mutationFn: (data: { admission_number: any; bill_id: any }) =>
       viewStudentTransactions(data),
   });
 };

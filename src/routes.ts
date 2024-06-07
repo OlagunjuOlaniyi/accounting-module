@@ -30,6 +30,9 @@ import PaymentBroadsheet from './pages/BillsandFees/PaymentBroadsheet';
 import RecordPayment from './pages/BillsandFees/RecordPayment';
 import StudentTransactions from './pages/BillsandFees/StudentTransactions';
 import StudentBill from './pages/BillsandFees/StudentBill';
+import Wallet from './pages/BillsandFees/Wallet';
+import ParentWallet from './pages/BillsandFees/ParentWallet';
+import Transaction from './pages/BillsandFees/Transaction';
 
 export const routes: RouteTypes[] = [
   {
@@ -188,5 +191,20 @@ export const routes: RouteTypes[] = [
     id: 26,
     path: '/student-bill/:id',
     component: StudentBill,
+  },
+  {
+    id: 27,
+    path: '/wallet',
+    component: Wallet,
+  },
+  {
+    id: 28,
+    path: '/parent-wallet/:id',
+    component: ParentWallet,
+  },
+  {
+    id: 29,
+    path: '/student-transaction',
+    component: Transaction,
   },
 ];

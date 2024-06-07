@@ -77,13 +77,13 @@ const ClassAndStudentSelection = ({
   const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  useEffect(() => {
-    // Reset filters when the component is mounted
-    resetFilters();
-  }, []);
+  // useEffect(() => {
+  //   // Reset filters when the component is mounted
+  //   resetFilters();
+  // }, []);
 
   useEffect(() => {
-    const filtered = Object.entries(classes)
+    const filtered = Object.entries(classes || {})
       .map(([className, classData]) => ({
         class_name: className,
         id: className,
@@ -101,6 +101,10 @@ const ClassAndStudentSelection = ({
     setFilteredClasses(filtered);
   }, [classes, preSelectedClasses]);
 
+  // useEffect(() => {}, [selectedClasses, selectedStudents]);
+
+  console.log("class", selectedClasses);
+
   // useEffect(() => {
   //   // Filter the convertedClasses array to show only the selected classes
   //   const filteredClasses = convertedClasses.filter((c) =>
@@ -109,6 +113,13 @@ const ClassAndStudentSelection = ({
   //   setSelectedClasses(filteredClasses);
   // }, []);
 
+  // const toggleClasses = (name: string) => {
+  //   const updatedClasses = selectedClasses.some((obj) => obj.name === name)
+  //     ? selectedClasses.filter((obj) => obj.name !== name)
+  //     : [...selectedClasses, { name }];
+
+  //   setSelectedClasses(updatedClasses);
+  // };
   const toggleClasses = (name: string) => {
     const index = selectedClasses.findIndex((obj) => obj.name === name);
 
@@ -125,20 +136,13 @@ const ClassAndStudentSelection = ({
   };
 
   const toggleStudents = (details: any) => {
-    const index = selectedStudents.findIndex(
-      (obj) => obj?.name === details?.name
-    );
+    const updatedStudents = selectedStudents.some(
+      (obj) => obj.name === details.name
+    )
+      ? selectedStudents.filter((obj) => obj.name !== details.name)
+      : [...selectedStudents, details];
 
-    if (index === -1) {
-      // If the ID doesn't exist in the array, add it
-      setSelectedStudents([...selectedStudents, details]);
-    } else {
-      // If the ID exists in the array, remove it
-      setSelectedStudents([
-        ...selectedStudents.slice(0, index),
-        ...selectedStudents.slice(index + 1),
-      ]);
-    }
+    setSelectedStudents(updatedStudents);
   };
 
   const isSelected = (name: string) => {
@@ -162,11 +166,21 @@ const ClassAndStudentSelection = ({
   const resetFilters = () => {
     setSelectedClasses([]);
     setSelectedStudents([]);
+    // selectedClassesInParent([]);
+    // selectedStudentsInParent([]);
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
+
+  const filteredClasses = convertedClasses.filter(
+    (c) =>
+      c.class_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.students_details.some((student: any) =>
+        student.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+  );
 
   const Icon = () => {
     return (
@@ -209,29 +223,25 @@ const ClassAndStudentSelection = ({
         </div>
         <div className="class-and-students__list__right"></div>
       </div> */}
-      {convertedClasses
-        // ?.filter((c) =>
-        //   c.class_name.toLowerCase().includes(searchTerm.toLowerCase())
-        // )
-        ?.filter(
-          (c) =>
-            c.class_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            c.students_details.some((student: any) =>
-              student.name.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-        )
-        .map((c: any) => (
+      {filteredClasses.length === 0 ? (
+        <div
+          className="class-and-students__no-options"
+          style={{ textAlign: "center" }}
+        >
+          No options available
+        </div>
+      ) : (
+        filteredClasses.map((c: any) => (
           <div key={c.id}>
             <div className="class-and-students__list">
               <div className="class-and-students__list__left">
                 <div onClick={() => toggleClasses(c?.class_name)}>
                   {isSelected(c?.class_name) ? <Checked /> : <Unchecked />}
                 </div>
-
                 <p
                   onClick={() => {
-                    setShowStudents(!showStudents);
                     setSelectedId(c.id);
+                    setShowStudents(selectedId !== c.id ? true : !showStudents);
                   }}
                 >
                   {c?.class_name}
@@ -239,11 +249,10 @@ const ClassAndStudentSelection = ({
                 <div
                   style={{ cursor: "pointer" }}
                   onClick={() => {
-                    setShowStudents(!showStudents);
                     setSelectedId(c.id);
+                    setShowStudents(selectedId !== c.id ? true : !showStudents);
                   }}
                 >
-                  {/* <Icon /> */}
                   <img src={Arrow} alt="" />
                 </div>
               </div>
@@ -273,7 +282,63 @@ const ClassAndStudentSelection = ({
                 </div>
               ))}
           </div>
-        ))}
+        ))
+      )}
+      {/* {filteredClasses.map((c: any) => (
+        <div key={c.id}>
+          <div className="class-and-students__list">
+            <div className="class-and-students__list__left">
+              <div onClick={() => toggleClasses(c?.class_name)}>
+                {isSelected(c?.class_name) ? <Checked /> : <Unchecked />}
+              </div>
+
+              <p
+                onClick={() => {
+                  setSelectedId(c.id);
+                  setShowStudents(selectedId !== c.id ? true : !showStudents);
+                }}
+              >
+                {c?.class_name}
+              </p>
+              <div
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  setSelectedId(c.id);
+                  setShowStudents(selectedId !== c.id ? true : !showStudents);
+                }}
+              >
+                {/* <Icon /> * 
+                <img src={Arrow} alt="" />
+              </div>
+            </div>
+            <div className="class-and-students__list__right">
+              <p>{c?.total_students}</p>
+            </div>
+          </div>
+          {showStudents &&
+            selectedId === c.id &&
+            c?.students_details.map((s: any) => (
+              <div
+                key={s.id}
+                className="class-and-students__list"
+                style={{ marginLeft: "32px" }}
+                onClick={() => {
+                  toggleStudents(s);
+                }}
+              >
+                <div className="class-and-students__list__left">
+                  {isStudentSelected(s?.name) || isSelected(c?.class_name) ? (
+                    <Checked />
+                  ) : (
+                    <Unchecked />
+                  )}
+                  <p>{s?.name}</p>
+                </div>
+              </div>
+            ))}
+        </div>
+      ))} */}
+
       <div className="class-and-students__footer">
         <p onClick={resetFilters}>Reset Filters</p>
         <button

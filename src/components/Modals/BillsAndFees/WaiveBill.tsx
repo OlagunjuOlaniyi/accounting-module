@@ -30,6 +30,7 @@ const RunWaiveBill = ({
   closeModal,
   id,
   studentNo,
+  billName,
   paymentId,
 }: any) => {
   const navigate = useNavigate();
@@ -119,7 +120,7 @@ const RunWaiveBill = ({
           <div className="billsandFees_header">
             <img src={TouchAppIcon} alt="" />
             <h4 style={{ fontWeight: 700, color: "black" }}>
-              Waive First term 2020/2021 Session Bill{" "}
+              Waive {billName}{" "}
             </h4>
           </div>
         </div>

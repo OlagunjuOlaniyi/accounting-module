@@ -173,31 +173,7 @@ const SelectDropdown = ({
                 />
               </div>
             )}
-            <div
-              className={`dropdown-item ${
-                isSelected("Select All") && "selected"
-              }`}
-              onClick={handleSelectAll}
-            >
-              {isSelected("Select All") ? <Checked /> : <Unchecked />}
-              <p>All Classes</p>
-            </div>
-            {options ? (
-              getOptions()?.map((el: any) => (
-                <div
-                  key={`${el?.id}-${el.name}`}
-                  className={`dropdown-item ${
-                    isSelected(el?.value) && "selected"
-                  }`}
-                  onClick={() => {
-                    toggleOption(el);
-                  }}
-                >
-                  {isMultiSelected(el) ? <Checked /> : <Unchecked />}
-                  <p> {el?.name}</p>
-                </div>
-              ))
-            ) : (
+            {getOptions().length === 0 ? (
               <div
                 style={{
                   height: "50px",
@@ -208,6 +184,32 @@ const SelectDropdown = ({
               >
                 <p>No options available</p>
               </div>
+            ) : (
+              <>
+                <div
+                  className={`dropdown-item ${
+                    isSelected("Select All") && "selected"
+                  }`}
+                  onClick={handleSelectAll}
+                >
+                  {isSelected("Select All") ? <Checked /> : <Unchecked />}
+                  <p>All Classes</p>
+                </div>
+                {getOptions().map((el: any) => (
+                  <div
+                    key={`${el?.id}-${el.name}`}
+                    className={`dropdown-item ${
+                      isSelected(el?.value) && "selected"
+                    }`}
+                    onClick={() => {
+                      toggleOption(el);
+                    }}
+                  >
+                    {isMultiSelected(el) ? <Checked /> : <Unchecked />}
+                    <p> {el?.name}</p>
+                  </div>
+                ))}
+              </>
             )}
           </div>
         ) : isMultidropdown ? (
@@ -233,8 +235,19 @@ const SelectDropdown = ({
                 />
               </div>
             )}
-            {options ? (
-              getOptions()?.map((el: any) => (
+            {getOptions().length === 0 ? (
+              <div
+                style={{
+                  height: "50px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <p>No options available</p>
+              </div>
+            ) : (
+              getOptions().map((el: any) => (
                 <div
                   key={`${el?.id}-${el.name}`}
                   className={`dropdown-item ${
@@ -247,17 +260,6 @@ const SelectDropdown = ({
                   <p> {el?.name}</p>
                 </div>
               ))
-            ) : (
-              <div
-                style={{
-                  height: "50px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <p>No options available</p>
-              </div>
             )}
           </div>
         ))}

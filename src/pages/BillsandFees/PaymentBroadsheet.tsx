@@ -176,8 +176,9 @@ const PaymentBroadsheet = () => {
                 <div
                   className="action__flex"
                   onClick={() => {
+                    localStorage.setItem("adm_num", JSON.stringify(value));
                     navigate(
-                      `/student-transactions/${value}?bill_name=${bill_name}`
+                      `/student-transactions/${id}?adm_num=${value}&bill_name=${bill_name}`
                     );
                   }}
                 >

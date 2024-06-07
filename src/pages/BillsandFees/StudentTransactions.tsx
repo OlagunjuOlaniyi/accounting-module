@@ -22,6 +22,8 @@ import TouchApp from "../../icons/TouchApp";
 import RunWaiveBill from "../../components/Modals/BillsAndFees/WaiveBill";
 import Delete from "../../icons/Delete";
 import ApplyOverPayment from "../../components/Modals/ApplyOverPayment/OverPayment";
+import { fetchParentHistory } from "../../services/billsServices";
+import { useGetParentHistory } from "../../hooks/queries/billsAndFeesMgt";
 
 const StudentTransactions = () => {
   const { id } = useParams();
@@ -31,24 +33,32 @@ const StudentTransactions = () => {
 
   const [dropdownActions, setDropdownActions] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
-  const [studentNo, setStudentNo] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState();
+  const [studentNo, setStudentNo] = useState<any>(0);
   const [runWaiveBillModalOpen, setWaiveBillModalOpen] =
     useState<boolean>(false);
 
   let bill_name = queryParams.get("bill_name");
 
+  let admNum = queryParams.get("adm_num");
+
+  let admNumValue = JSON.parse(localStorage.getItem("adm_num") || admNum);
+
   const { mutate, isLoading } = useViewStudentTransactions();
 
-  const [apiData, setApiData] = useState<any>({
-    total_outstanding_all: 0,
-    total_overpayment: 0,
-    transactions: [],
-    student_details: {
-      firstname: "",
-      last_name: "",
-      admission_number: "",
-    },
-  });
+  const { data } = useGetParentHistory(admNumValue, id);
+
+  // const [apiData, setApiData] = useState<any>({
+  //   total_outstanding_all: 0,
+  //   total_overpayment: 0,
+  //   transactions: [],
+  //   student_details: {
+  //     firstname: "",
+  //     last_name: "",
+  //     admission_number: "",
+  //   },
+  // });
+  const [apiData, setApiData] = useState<any>([]);
 
   const onSendReminder = () => {
     let dataToSend = {};
@@ -64,25 +74,47 @@ const StudentTransactions = () => {
     });
   };
 
-  const submit = () => {
-    let dataToSend = {
-      admission_number: id,
-    };
+  // const submit = () => {
+  //   let dataToSend = {
+  //     admission_number: admNumValue,
+  //     bill_id: id,
+  //   };
 
-    mutate(dataToSend, {
-      onSuccess: (res) => {
-        setApiData(res);
-      },
+  //   mutate(dataToSend, {
+  //     onSuccess: (res) => {
+  //       setApiData(res);
+  //     },
 
-      onError: (e) => {
-        toast.error(e?.response.data.message || "error occured");
-      },
-    });
-  };
+  //     onError: (e) => {
+  //       toast.error(e?.response.data.message || "error occured");
+  //     },
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   submit();
+  // }, [admNumValue, id]);
+
+  const [studentBill, setStudentBill] = useState<any[]>([]);
 
   useEffect(() => {
-    submit();
-  }, [id]);
+    if (data && data.payment_statuses) {
+      const transformedData = data.payment_statuses.flatMap((item: any) =>
+        item.student.map((student: any) => ({
+          payment_status: item.payment_status,
+          total_amount_outstanding_child: item.total_amount_outstanding_child,
+          total_amount_paid_child: item.total_amount_paid_child,
+          firstname: student.firstname,
+          lastname: student.lastname,
+          class: student.class,
+          admissionnumber: student.admissionnumber,
+        }))
+      );
+      setStudentBill(transformedData);
+    }
+  }, [data]);
+
+  
 
   // Parent button
   const DotsBtnParent = ({ value }: { value: string }) => {
@@ -142,7 +174,7 @@ const StudentTransactions = () => {
   };
 
   // student button
-  const DotsBtn = ({ value }: { value: string }) => {
+  const DotsBtn = ({ value, index }: { value: string; index: any }) => {
     let class_name = value;
     // let class_name = value.split("-")[0];
 
@@ -152,13 +184,14 @@ const StudentTransactions = () => {
           onClick={() => {
             setSelectedId(value);
             setStudentNo(value);
+            setSelectedIndex(index);
             setDropdownActions(!dropdownActions);
           }}
           style={{ all: "unset", cursor: "pointer" }}
         >
           <Dots />
 
-          {dropdownActions && value === selectedId && (
+          {dropdownActions && index === selectedIndex && (
             <>
               {/* {billStatus} */}
 
@@ -223,32 +256,36 @@ const StudentTransactions = () => {
   const columns = [
     {
       Header: "STUDENT NAME",
-      accessor: "class_name",
-      Cell: ({ cell: { value } }: any) => (
+      accessor: "firstname",
+      Cell: ({ cell, row }: any) => (
         <p>
           {" "}
-          {apiData?.student_details?.firstname}{" "}
-          {apiData?.student_details?.last_name}
+          {cell.value} {row.original.lastname}
         </p>
       ),
     },
     {
       Header: "BILL NAME",
-      accessor: "feetype_name",
+      // accessor: "feetype_name",
       Cell: ({ cell: { value } }: any) => <p>{bill_name}</p>,
+    },
+    {
+      Header: "CLASS",
+      accessor: "class",
+      Cell: ({ cell, row }: any) => <p>{cell.value}</p>,
     },
 
     {
       Header: "TOTAL AMOUNT",
-      accessor: "total_amount",
-      Cell: ({ cell: { value } }: any) => (
-        <p>NGN {Number(value)?.toLocaleString()}</p>
+      accessor: "total_amount_outstanding_child",
+      Cell: ({ cell, row }: any) => (
+        <p>NGN {Number(cell.value)?.toLocaleString()}</p>
       ),
     },
 
     {
       Header: "AMOUNT PAID",
-      accessor: "amount_paid",
+      accessor: "total_amount_paid_child",
       Cell: ({ cell: { value } }: any) => (
         <p>NGN {Number(value)?.toLocaleString()}</p>
       ),
@@ -270,11 +307,11 @@ const StudentTransactions = () => {
     {
       Header: "Actions",
       // accessor: (d: any) => `${d.class_name}-${d.student_name}`,
-      accessor: "admission_number",
-      Cell: ({ cell: { value } }: { cell: { value: string } }) => (
+      accessor: "admissionnumber",
+      Cell: ({ cell, row }: any) => (
         <>
           <div style={{ display: "flex", gap: "16px" }}>
-            <DotsBtn value={value} />
+            <DotsBtn value={cell.value} index={row.index} />
           </div>
         </>
       ),
@@ -290,8 +327,8 @@ const StudentTransactions = () => {
       </p>
       <div style={{ margin: "32px 0" }}>
         <h3 style={{ fontSize: "36px", color: "#010C15" }}>
-          {apiData?.student_details?.firstname}{" "}
-          {apiData?.student_details?.last_name}
+          {data?.parent_name}
+          {/* {apiData?.student_details?.last_name} */}
         </h3>
       </div>
 
@@ -349,17 +386,17 @@ const StudentTransactions = () => {
 
       <div className="student-transactions-overview">
         <h3>
-          {apiData?.student_details?.firstname}{" "}
-          {apiData?.student_details?.last_name}
+          {data?.parent_name} {/* {apiData?.student_details?.last_name} */}
         </h3>
-        <h3>{apiData?.student_details?.admission_number}</h3>
+        <h3>{data?.total_children}</h3>
         <h3>
-          NGN {Number(apiData?.transactions[0]?.amount_owed).toLocaleString()}
+          {/* NGN {Number(apiData?.total_amount_paid_overall).toLocaleString()} */}
+          N/A
         </h3>
+        <h3>NGN {Number(data?.overpayment_balance).toLocaleString()}</h3>{" "}
         <h3>
-          NGN {Number(apiData?.transactions[0]?.amount_paid).toLocaleString()}
-        </h3>{" "}
-        <h3>NGN {Number(apiData?.total_overpayment).toLocaleString()}</h3>
+          NGN {Number(data?.total_amount_outstanding_overall).toLocaleString()}
+        </h3>
         <h3>
           <div
             style={{
@@ -369,7 +406,7 @@ const StudentTransactions = () => {
               fontWeight: "normal",
             }}
           >
-            <DotsBtnParent value={apiData?.student_details?.admission_number} />
+            <DotsBtnParent value={data?.student_details?.admission_number} />
           </div>
           {/* <DotsBtn /> */}
         </h3>
@@ -379,7 +416,7 @@ const StudentTransactions = () => {
         {isLoading ? (
           <p>Loading...</p>
         ) : (
-          <Table data={apiData?.transactions || []} columns={columns} />
+          <Table data={studentBill || []} columns={columns} />
         )}
 
         {/* <Draft data={data} columns={columns} isLoading={isLoading}/> */}

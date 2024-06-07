@@ -29,7 +29,8 @@ const fetchStudentBill = async (admNum: any, idxValue: any) => {
   const queryParams = new URLSearchParams();
   queryParams.append("idx", idxValue);
 
-  const url = `${baseUrl}${admNum}/?${queryParams.toString()}`;
+  // const url = `${baseUrl}${admNum}/?${queryParams.toString()}`;
+  const url = `${baseUrl}${admNum}`;
 
   try {
     const response = await axios.get(url);
@@ -51,13 +52,18 @@ const StudentBill = () => {
 
   let bills_and_fees = JSON.parse(localStorage.getItem("bills_and_fees") || "");
   let admNumValue = JSON.parse(localStorage.getItem("adm_num") || admNum);
+  let idxLocalValue = JSON.parse(localStorage.getItem("userDetails") || "");
 
   // const { data } = useGetStudentsBills(admNumValue || "");
 
-  const idxValue = schoolData?.data[0]?.arm?.idx;
+  const idxValue = idxLocalValue?.idx || schoolData?.data[0]?.idx;
 
   const { data } = useQuery(["studentBill", admNumValue, idxValue], () =>
     fetchStudentBill(admNumValue, idxValue)
+  );
+
+  const schoolDetailsLocal = JSON.parse(
+    localStorage.getItem("userDetails") || ""
   );
 
   const [fields, setFields] = useState<any>({
@@ -83,9 +89,10 @@ const StudentBill = () => {
   const { data: bank_accounts } = useGetBankList();
 
   const formattedBankAccounts = bank_accounts?.data?.map(
-    (b: { id: any; account_name: any }) => ({
+    (b: { id: any; account_name: any; account_number: any }) => ({
       id: b.id,
       name: b.account_name,
+      account: b.account_number,
     })
   );
 
@@ -135,7 +142,9 @@ const StudentBill = () => {
   const studentBill = data?.bills?.map((item: any) => ({
     student_payment_id: item.fees?.payment_id,
     fee_name: item?.fees?.fee_type_name,
-    fee_amount: item?.fees?.fee_amount,
+    fee_amount: item?.fees?.total_outstanding,
+    amount_paid: item?.fees?.amount_paid,
+    total_amount: item?.fees?.original_fee_amount,
     discount_amount: item?.fees?.total_discount_amount,
     status: item?.fees?.status,
     discount: item?.fees?.total_discount_amount,
@@ -221,9 +230,12 @@ const StudentBill = () => {
             return <span>{student.firstname}</span>;
           })} */}
           <h2 className="bills_overview__title">
-            {`${data?.student_details?.firstname} ${data?.student_details?.last_name}`}
+            {`${data?.student_details?.firstname} ${data?.student_details?.lastname}`}
           </h2>
-          <h1 className="bills_overview__approval">
+          <h1
+            className="bills_overview__approval"
+            style={{ background: "#ADFF87" }}
+          >
             APPROVAL STATUS: Approved
           </h1>
           <h1 className={`bills_overview__status `}>
@@ -277,13 +289,20 @@ const StudentBill = () => {
 
       <div className="bills_schoolInfo">
         <div className="bills_schoolInfo__logo">
-          <img src={schoolData && schoolData?.data[0]?.arm?.logo} alt="" />
+          <img
+            src={schoolData?.data[0]?.arm?.logo || schoolDetailsLocal?.logo}
+            alt=""
+          />
         </div>
         <div className="bills_schoolInfo__details">
-          {schoolData && schoolData?.data[0]?.arm?.name}
-          <br /> {bill_name}
+          {schoolData?.data[0]?.arm?.name || schoolDetailsLocal?.name}
+          <p style={{ fontSize: "22px" }}>
+            {schoolData?.data[0]?.arm?.address || schoolDetailsLocal?.address}
+          </p>
+          {bill_name}
           <p className="bills_schoolInfo__details__email">
-            Email: {schoolData && schoolData?.data[0]?.arm?.email}
+            Email:{" "}
+            {schoolData?.data[0]?.arm?.email || schoolDetailsLocal?.contact}
           </p>
         </div>
       </div>
@@ -292,7 +311,8 @@ const StudentBill = () => {
         <h3>FEE TYPE</h3>
         <h3>DISCOUNT</h3>
         <h3>REASON FOR DISCOUNT</h3>
-        <h3>AMOUNT</h3>
+        <h3>AMOUNT PAID</h3>
+        <h3>AMOUNT DUE</h3>
         <h3>TOTAL AMOUNT</h3>
       </div>
       {studentBill?.map((el: any, index: number) => (
@@ -303,11 +323,15 @@ const StudentBill = () => {
           mandatory={el?.mandatory}
           discount={el?.discount}
           amount={el?.fee_amount}
+          amount_paid={el?.amount_paid}
+          total_amount={el?.total_amount}
           reason={el?.reason}
           discount_amount={el?.discount_amount}
           status={el?.status}
           setCheckedPaymentId={setCheckedPaymentId}
           checkedPaymentId={checkedPaymentId}
+          currency={schoolData?.data[0]?.currency}
+          page="view"
         />
       ))}
       <div className="record-payment-footer">
@@ -346,7 +370,9 @@ const StudentBill = () => {
           className="studentbill_amount_link"
           onClick={() => {
             // navigate(`/bill/${id}`);
-            navigate(`/record-payment/${id}?adm_num=${admNum}`);
+            navigate(
+              `/record-payment/${id}?adm_num=${admNumValue}&bill_name=${bill_name}`
+            );
           }}
         >
           <AddCircleBlue />
@@ -357,14 +383,29 @@ const StudentBill = () => {
       <div className="studentbill_note">
         <p className="studentbill_note_header">Notes</p>
         <div>
-          <p>
+          <p style={{ marginBottom: "10px" }}>
             For payments with Bank Transfer, kindly use the following account
             details and bring along the bank teller or upload the payment
             receipt to your portal.
           </p>
-          <p>ACCOUNT NAME: MONICA GROUP OF SCHOOLS</p>
-          <p>ACCOUNT NUMBER: 235999490382</p>
-          <p>BANK: GUARANTY TRUST BANK</p>
+          {formattedBankAccounts.map((bank: any) => {
+            return (
+              <div style={{ marginBottom: "10px" }}>
+                <p>
+                  <span style={{ fontWeight: "bolder" }}>ACCOUNT NAME:</span>{" "}
+                  {bank?.name}
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bolder" }}>ACCOUNT NUMBER:</span>{" "}
+                  {bank?.account}
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bolder" }}>BANK:</span>{" "}
+                  {bank?.name}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
       {/* <div className="record-payment-amount-paid">

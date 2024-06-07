@@ -261,19 +261,19 @@ const ApplyOverPayment = ({ modalIsOpen, closeModal, id, studentNo }: any) => {
       admission_number: studentNo,
     };
 
-    waiveBill(dataToSend, {
-      onSuccess: (res) => {
-        close();
-        toast.success(res?.detail);
-        queryClient.invalidateQueries({
-          queryKey: `waive-bill`,
-        });
-      },
+    // waiveBill(dataToSend, {
+    //   onSuccess: (res) => {
+    //     close();
+    //     toast.success(res?.detail);
+    //     queryClient.invalidateQueries({
+    //       queryKey: `waive-bill`,
+    //     });
+    //   },
 
-      onError: (e) => {
-        toast.error("Error Waiving bill");
-      },
-    });
+    //   onError: (e) => {
+    //     toast.error("Error Waiving bill");
+    //   },
+    // });
   };
 
   return (
