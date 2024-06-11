@@ -64,6 +64,11 @@ const CreateBill = () => {
   const [discountIndex, setDiscountIndex] = useState(0);
   const [discountedAmount, setDiscountAmout] = useState(0);
 
+  const [selectedClassesDrop, setSelectedClassesDrop] = useState<
+    { name: string }[]
+  >([]);
+  const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
+
   const [fees, setFees] = useState<Fee[]>([
     {
       fee_type: {
@@ -166,6 +171,8 @@ const CreateBill = () => {
   //     }
   //   });
   // };
+
+  // console.log("selected", selectedClasses)
 
   const toggleClasses = (option: any) => {
     setSelectedClasses((prevSelected: any) => {
@@ -740,45 +747,6 @@ const CreateBill = () => {
               { id: 3, name: "First term 2023/2024" },
               { id: 4, name: "Second term 2024/2025" },
             ]}
-            // options={[
-            //   {
-            //     id: 1,
-            //     name: (
-            //       <div className="payment-method-dropdown">
-            //         <Timeline />
-            //         Third term 2022/2023
-            //       </div>
-            //     ),
-            //   },
-            //   {
-            //     id: 2,
-            //     name: (
-            //       <div className="payment-method-dropdown">
-            //         {/* <Bank /> */}
-            //         First term 2023/2024
-            //       </div>
-            //     ),
-            //   },
-
-            //   {
-            //     id: 3,
-            //     name: (
-            //       <div className="payment-method-dropdown">
-            //         {/* <Credit /> */}
-            //         Second term 2023/2024
-            //       </div>
-            //     ),
-            //   },
-            //   {
-            //     id: 4,
-            //     name: (
-            //       <div className="payment-method-dropdown">
-            //         {/* <Credit /> */}
-            //         Third term 2023/2024
-            //       </div>
-            //     ),
-            //   },
-            // ]}
           />
 
           {/* <div
@@ -1073,6 +1041,10 @@ const CreateBill = () => {
                                     selectedStudents
                                   )
                                 }
+                                selectedClassesDrop={selectedClassesDrop}
+                                setSelectedClassesDrop={setSelectedClassesDrop}
+                                setSelectedStudents={setSelectedStudents}
+                                selectedStudents={selectedStudents}
                               />
                             )}
                         </div>
@@ -1225,6 +1197,10 @@ const CreateBill = () => {
                                   selectedStudents
                                 )
                               }
+                              selectedClassesDrop={selectedClassesDrop}
+                              setSelectedClassesDrop={setSelectedClassesDrop}
+                              setSelectedStudents={setSelectedStudents}
+                              selectedStudents={selectedStudents}
                             />
                           )}
                       </div>

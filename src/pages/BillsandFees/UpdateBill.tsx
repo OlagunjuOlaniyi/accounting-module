@@ -67,6 +67,11 @@ const CreateBill = () => {
   const [discountedAmount, setDiscountAmout] = useState(0);
   const [discountIndex, setDiscountIndex] = useState(0);
 
+  const [selectedClassesDrop, setSelectedClassesDrop] = useState<
+    { name: string }[]
+  >([]);
+  const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
+
   const [fees, setFees] = useState<Fee[]>([]);
 
   const [fields, setFields] = useState({
@@ -81,6 +86,21 @@ const CreateBill = () => {
   });
 
   useEffect(() => {
+    // const formattedFees = data?.fees.map((fee: any) => ({
+    //   fee_type: {
+    //     id: fee?.fee_type?.id,
+    //     name: fee?.fee_type?.name,
+    //     discounts: [],
+    //     classes: fee?.fee_type?.classes,
+    //     students: fee?.fee_type?.students,
+    //     default_amount: fee?.fee_type?.default_amount,
+    //     description: fee?.fee_type?.description,
+    //   },
+    //   amount: fee?.amount,
+    //   mandatory: fee?.mandatory,
+    // }));
+    // setFees(formattedFees);
+
     setFees(data?.fees);
     setFields({
       ...fields,
@@ -132,31 +152,27 @@ const CreateBill = () => {
       //   students: fee?.fee_type?.discounts[0]?.students,
       //   classes: fee?.fee_type?.discounts[0]?.classes,
       // }));
-      const extractedDiscounts = data.fees.flatMap(
-        (fee: any, index: number) => {
-          if (
-            fee?.fee_type?.discounts &&
-            fee.fee_type.discounts.length > 0 && // Check if discounts array is not empty
-            fee.fee_type.discounts.some((discount: any) => !!discount) // Check if any discount is truthy
-          ) {
-            return fee.fee_type.discounts.map(
-              (discount: any, index: number) => ({
-                // index: index,
-                id: discount.id,
-                value: discount.value,
-                description: discount.description,
-                fee_type: discount.fee_type,
-                amount: discount.amount,
-                is_percentage: discount.is_percentage,
-                students: discount.students,
-                classes: discount.classes,
-              })
-            );
-          } else {
-            return [];
-          }
+      const extractedDiscounts = data.fees.flatMap((fee: any, i: number) => {
+        if (
+          fee?.fee_type?.discounts &&
+          fee.fee_type.discounts.length > 0 && // Check if discounts array is not empty
+          fee.fee_type.discounts.some((discount: any) => !!discount) // Check if any discount is truthy
+        ) {
+          return fee.fee_type.discounts.map((discount: any, index: number) => ({
+            fee_index: i,
+            id: discount.id,
+            value: discount.value,
+            description: discount.description,
+            fee_type: discount.fee_type,
+            amount: discount.amount,
+            is_percentage: discount.is_percentage,
+            students: discount.students,
+            classes: discount.classes,
+          }));
+        } else {
+          return [];
         }
-      );
+      });
       // setAddDiscount(extractedDiscounts[0].value ? true : false);
       setMainDiscounts(extractedDiscounts);
       setDiscounts(extractedDiscounts);
@@ -1180,6 +1196,10 @@ const CreateBill = () => {
                                     selectedStudents
                                   )
                                 }
+                                selectedClassesDrop={selectedClassesDrop}
+                                setSelectedClassesDrop={setSelectedClassesDrop}
+                                setSelectedStudents={setSelectedStudents}
+                                selectedStudents={selectedStudents}
                               />
                             )}
                         </div>
@@ -1332,7 +1352,7 @@ const CreateBill = () => {
                                 "value",
                                 e.target.value,
                                 d.fee_type,
-                                feeTypeId
+                                d.fee_index ? d.fee_index : feeTypeId
                               )
                             }
                             placeholder="type or select fee type"
@@ -1369,6 +1389,10 @@ const CreateBill = () => {
                                     selectedStudents
                                   )
                                 }
+                                selectedClassesDrop={selectedClassesDrop}
+                                setSelectedClassesDrop={setSelectedClassesDrop}
+                                setSelectedStudents={setSelectedStudents}
+                                selectedStudents={selectedStudents}
                               />
                             )}
                         </div>
@@ -1477,19 +1501,15 @@ const CreateBill = () => {
                                 "description",
                                 e.target.value,
                                 d.fee_type,
-                                feeTypeId
+                                d.fee_index ? d.fee_index : feeTypeId
                               );
                               // setDiscountIndex(index);
                               // setShowAuth(true);
                             }}
                           />
-                          {showAuth && index === discountIndex && (
+                          {/* {showAuth && index === discountIndex && (
                             <p
-                              // style={{
-                              //   position: "absolute",
-                              //   color: "red",
-                              //   fontSize: "11px",
-                              // }}
+                              
                               style={{
                                 color: "#FFA800",
                                 fontSize: 12,
@@ -1497,14 +1517,13 @@ const CreateBill = () => {
                                 alignItems: "center",
                                 gap: 5,
                                 position: "absolute",
-                                // right: "50px",
-                                // marginTop: "65px",
+                                
                               }}
                             >
                               <Caution />
                               Please re-select this Fee Type
                             </p>
-                          )}
+                          )} */}
                         </div>
                         <div
                           style={{ cursor: "pointer" }}
@@ -1530,7 +1549,7 @@ const CreateBill = () => {
                               "is_percentage",
                               !d.is_percentage,
                               d.fee_type,
-                              feeTypeId
+                              d.fee_index ? d.fee_index : feeTypeId
                             )
                           }
                         >
@@ -1544,7 +1563,7 @@ const CreateBill = () => {
                               "is_percentage",
                               !d.is_percentage,
                               d.fee_type,
-                              feeTypeId
+                              d.fee_index ? d.fee_index : feeTypeId
                             )
                           }
                         >
@@ -1632,6 +1651,12 @@ const CreateBill = () => {
                                       selectedStudents
                                     )
                                   }
+                                  selectedClassesDrop={selectedClassesDrop}
+                                  setSelectedClassesDrop={
+                                    setSelectedClassesDrop
+                                  }
+                                  setSelectedStudents={setSelectedStudents}
+                                  selectedStudents={selectedStudents}
                                 />
                               )}
                           </div>
@@ -1746,13 +1771,9 @@ const CreateBill = () => {
                                 // setShowAuth(true);
                               }}
                             />
-                            {showAuth && index === discountIndex && (
+                            {/* {showAuth && index === discountIndex && (
                               <p
-                                // style={{
-                                //   position: "absolute",
-                                //   color: "red",
-                                //   fontSize: "11px",
-                                // }}
+                               
                                 style={{
                                   color: "#FFA800",
                                   fontSize: 12,
@@ -1760,14 +1781,13 @@ const CreateBill = () => {
                                   alignItems: "center",
                                   gap: 5,
                                   position: "absolute",
-                                  // right: "50px",
-                                  // marginTop: "65px",
+                                  
                                 }}
                               >
                                 <Caution />
                                 Please re-select this Fee Type
                               </p>
-                            )}
+                            )} */}
                           </div>
                           <div
                             style={{ cursor: "pointer" }}

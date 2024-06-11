@@ -41,6 +41,10 @@ const ClassAndStudentSelection = ({
   selectedClassesInParent,
   selectedStudentsInParent,
   preSelectedClasses,
+  setSelectedClassesDrop,
+  selectedClassesDrop,
+  setSelectedStudents,
+  selectedStudents,
 }: {
   classes: OriginalData;
   cancel?: any;
@@ -49,6 +53,10 @@ const ClassAndStudentSelection = ({
   selectedClassesInParent?: any;
   selectedStudentsInParent?: any;
   preSelectedClasses: any;
+  setSelectedClassesDrop: any;
+  selectedClassesDrop: any;
+  setSelectedStudents: any;
+  selectedStudents: any;
 }) => {
   // const convertedClasses: ConvertedDataItem[] = Object.entries(classes).map(
   //   ([className, classData]) => ({
@@ -71,16 +79,11 @@ const ClassAndStudentSelection = ({
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
     null
   );
-  const [selectedClasses, setSelectedClasses] = useState<{ name: string }[]>(
-    []
-  );
-  const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
+  // const [selectedClasses, setSelectedClasses] = useState<{ name: string }[]>(
+  //   []
+  // );
+  // const [selectedStudents, setSelectedStudents] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
-
-  // useEffect(() => {
-  //   // Reset filters when the component is mounted
-  //   resetFilters();
-  // }, []);
 
   useEffect(() => {
     const filtered = Object.entries(classes || {})
@@ -101,9 +104,17 @@ const ClassAndStudentSelection = ({
     setFilteredClasses(filtered);
   }, [classes, preSelectedClasses]);
 
-  // useEffect(() => {}, [selectedClasses, selectedStudents]);
+  useEffect(() => {
+    // Sync the selectedClassesDrop state with the selectedClassesInParent when the component mounts or reopens
 
-  console.log("class", selectedClasses);
+    setSelectedClassesDrop(selectedClassesInParent || []);
+    setSelectedStudents(selectedStudentsInParent || []);
+  }, [
+    selectedClassesInParent,
+    setSelectedClassesDrop,
+    setSelectedStudents,
+    selectedStudentsInParent,
+  ]);
 
   // useEffect(() => {
   //   // Filter the convertedClasses array to show only the selected classes
@@ -121,53 +132,60 @@ const ClassAndStudentSelection = ({
   //   setSelectedClasses(updatedClasses);
   // };
   const toggleClasses = (name: string) => {
-    const index = selectedClasses.findIndex((obj) => obj.name === name);
+    const index = selectedClassesDrop.findIndex(
+      (obj: any) => obj.name === name
+    );
 
     if (index === -1) {
-      // If the ID doesn't exist in the array, add it
-      setSelectedClasses([...selectedClasses, { name: name }]);
+      setSelectedClassesDrop([...selectedClassesDrop, { name }]);
     } else {
-      // If the ID exists in the array, remove it
-      setSelectedClasses([
-        ...selectedClasses.slice(0, index),
-        ...selectedClasses.slice(index + 1),
-      ]);
+      setSelectedClassesDrop(
+        selectedClassesDrop.filter((obj: any) => obj.name !== name)
+      );
     }
+
+    // if (index === -1) {
+    //   // If the ID doesn't exist in the array, add it
+    //   setSelectedClassesDrop([...selectedClassesDrop, { name: name }]);
+    // } else {
+    //   // If the ID exists in the array, remove it
+    //   setSelectedClassesDrop([
+    //     ...selectedClassesDrop.slice(0, index),
+    //     ...selectedClassesDrop.slice(index + 1),
+    //   ]);
+    // }
   };
 
   const toggleStudents = (details: any) => {
     const updatedStudents = selectedStudents.some(
-      (obj) => obj.name === details.name
+      (obj: any) => obj.name === details.name
     )
-      ? selectedStudents.filter((obj) => obj.name !== details.name)
+      ? selectedStudents.filter((obj: any) => obj.name !== details.name)
       : [...selectedStudents, details];
 
     setSelectedStudents(updatedStudents);
   };
 
   const isSelected = (name: string) => {
-    return (
-      selectedClasses.some((obj) => obj?.name === name) ||
-      selectedClassesInParent.some(
-        (obj: { name: string }) => obj?.name === name
-      )
-    );
+    const selected = selectedClassesDrop.some((obj: any) => obj.name === name);
+    // ||      selectedClassesInParent.some(
+    //   (obj: { name: string }) => obj.name === name
+    // );
+
+    return selected;
   };
 
   const isStudentSelected = (name: string) => {
-    return (
-      selectedStudents.some((obj) => obj?.name === name) ||
-      selectedStudentsInParent.some(
-        (obj: { name: string }) => obj?.name === name
-      )
-    );
+    return selectedStudents.some((obj: any) => obj?.name === name);
+    // ||
+    // selectedStudentsInParent.some(
+    //   (obj: { name: string }) => obj?.name === name
+    // )
   };
 
   const resetFilters = () => {
-    setSelectedClasses([]);
+    setSelectedClassesDrop([]);
     setSelectedStudents([]);
-    // selectedClassesInParent([]);
-    // selectedStudentsInParent([]);
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,6 +199,9 @@ const ClassAndStudentSelection = ({
         student.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
   );
+
+  console.log("class", selectedClassesDrop);
+  console.log("selectedClassesInParent", selectedClassesInParent);
 
   const Icon = () => {
     return (
@@ -235,8 +256,8 @@ const ClassAndStudentSelection = ({
           <div key={c.id}>
             <div className="class-and-students__list">
               <div className="class-and-students__list__left">
-                <div onClick={() => toggleClasses(c?.class_name)}>
-                  {isSelected(c?.class_name) ? <Checked /> : <Unchecked />}
+                <div onClick={() => toggleClasses(c.class_name)}>
+                  {isSelected(c.class_name) ? <Checked /> : <Unchecked />}
                 </div>
                 <p
                   onClick={() => {
@@ -350,7 +371,7 @@ const ClassAndStudentSelection = ({
           }}
           onClick={() => {
             onStudentsChange(selectedStudents);
-            onClassChange(selectedClasses, selectedStudents);
+            onClassChange(selectedClassesDrop, selectedStudents);
             cancel();
           }}
         >
